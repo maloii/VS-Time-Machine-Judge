@@ -29,7 +29,6 @@ public class HardwareController {
     @RequestMapping(value="/connect", method= RequestMethod.POST)
     public ResponseEntity<ResponseMessage> connect(@RequestBody Map<String, String> body){
         try {
-
             if(connector.connect(TypeConnect.valueOf(body.get("type")), body)) {
                 return new ResponseEntity<>(new ResponseMessage(STATUS_OK, "Com port is connected"), HttpStatus.OK);
             }
@@ -42,7 +41,6 @@ public class HardwareController {
     @RequestMapping(value="/disconnect", method= RequestMethod.POST)
     public ResponseEntity<ResponseMessage> disconnect(){
         try {
-
             if(connector.disconnect()) {
                 return new ResponseEntity<>(new ResponseMessage(STATUS_OK, "Com port is disconnected"), HttpStatus.OK);
             }
