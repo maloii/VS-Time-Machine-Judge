@@ -1,0 +1,41 @@
+{
+  "name": "com.vstimemachine.judge",
+  "version": "0.0.1",
+  "description": "VS TimeMachine Judge",
+  "keywords": [
+    "rest",
+    "hateoas",
+    "spring",
+    "data",
+    "react"
+  ],
+  "author": "Aleksandr Sorokin",
+  "license": "Apache-2.0",
+  "homepage": "http://localhost",
+  "dependencies": {
+    "react": "^16.5.2",
+    "react-dom": "^16.5.2",
+    "sockjs-client": "^1.0.3",
+    "rest": "^1.3.1",
+    "stompjs": "^2.3.3",
+    "moment": "^2.24.0",
+    "bootstrap": "^4.2.1",
+    "reactstrap": "^7.1.0",
+    "mdi-react": "^4.4.0",
+    "style-loader": "^0.23.1",
+    "css-loader": "^2.1.0",
+    "react-data-grid": "^5.0.5",
+    "react-data-grid-addons": "^5.0.5"
+  },
+  "scripts": {
+    "watch": "webpack --watch -d"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.1.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.2",
+    "webpack": "^4.19.1",
+    "webpack-cli": "^3.1.0"
+  }
+}

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+    <meta charset="UTF-8"/>
+    <title>VS TimeMachine Judge</title>
+    <!--<link rel="stylesheet" href="https://cdn.linearicons.com/free/1.0.0/icon-font.min.css" />-->
+    <link rel="stylesheet" href="/main.css" />
+
+</head>
+<body>
+<input type="hidden" id="judge_name" th:value="${#authentication.name}">
+<div class="theme-light">
+    <div class="wrapper">
+        <div id="react"></div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="text-left footer_status" id="status_footer_field">
+        ping:
+    </div>
+    <div class="text-center py-2">© 2019 Copyright:
+        <a href="http://vstimemachine.com"> VS Time Machine</a>
+    </div>
+</footer>
+<script src="built/bundle.js"></script>
+</body>
+</html>
