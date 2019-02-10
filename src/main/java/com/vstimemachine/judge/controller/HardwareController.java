@@ -41,6 +41,7 @@ public class HardwareController {
     @RequestMapping(value="/disconnect", method= RequestMethod.POST)
     public ResponseEntity<ResponseMessage> disconnect(){
         try {
+
             if(connector.disconnect()) {
                 return new ResponseEntity<>(new ResponseMessage(STATUS_OK, "Com port is disconnected"), HttpStatus.OK);
             }
