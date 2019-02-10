@@ -1,13 +1,19 @@
 package com.vstimemachine.judge.controller;
 
 
-import com.vstimemachine.judge.hardware.*;
+import com.vstimemachine.judge.hardware.ConnectorService;
+import com.vstimemachine.judge.hardware.TypeConnect;
 import com.vstimemachine.judge.hardware.vs.ComPortUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static com.vstimemachine.judge.controller.ResponseMessage.STATUS_ERROR;
@@ -18,12 +24,16 @@ import static com.vstimemachine.judge.controller.ResponseMessage.STATUS_OK;
 @RequestMapping(value = "/api/hardware")
 public class HardwareController {
 
+
+    @Autowired
+    private SimpMessagingTemplate websocket;
+
     @Autowired
     private ConnectorService connector;
 
     @RequestMapping("/list_com_ports")
-    public String[] listComPorts() {
-        return ComPortUtils.readComPorts();
+    public ResponseEntity<ResponseMessage> listComPorts() {
+        return new ResponseEntity<>(new ResponseMessage(connector.getStatusConnectMessage(), Arrays.asList(ComPortUtils.readComPorts())), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/connect", method = RequestMethod.POST)

@@ -19,6 +19,10 @@ import static com.vstimemachine.judge.configuration.WebSocketConfiguration.MESSA
 @Slf4j
 public class ConnectorService {
 
+
+    public final static String STATUS_CONNECT = "STATUS_CONNECT";
+    public final static String STATUS_DISCONNECT = "STATUS_DISCONNECT";
+
     private Boolean isConnect = false;
 
     private Connector connector;
@@ -48,6 +52,7 @@ public class ConnectorService {
             if (connector.connection(body)) {
                 isConnect = true;
                 this.type = type;
+                this.websocket.convertAndSend(MESSAGE_PREFIX + "/vsConnectStatus", STATUS_CONNECT);
                 return true;
             }
         }
@@ -60,6 +65,7 @@ public class ConnectorService {
             connector = null;
             isConnect = false;
             type = null;
+            this.websocket.convertAndSend(MESSAGE_PREFIX + "/vsConnectStatus", STATUS_DISCONNECT);
             return true;
         }
         return false;
@@ -82,5 +88,10 @@ public class ConnectorService {
 
     public Boolean getStatusConnect() {
         return isConnect;
+    }
+
+
+    public String getStatusConnectMessage() {
+        return isConnect?STATUS_CONNECT:STATUS_DISCONNECT;
     }
 }
