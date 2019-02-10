@@ -1,8 +1,6 @@
 package com.vstimemachine.judge.controller;
 
 
-import lombok.Data;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,7 +57,7 @@ public class ResponseMessage {
     }
 
     public void addParams(String key, Object value) {
-        if(this.params == null)
+        if (this.params == null)
             this.params = new HashMap<>();
 
         this.params.put(key, value);

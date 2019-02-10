@@ -1,6 +1,6 @@
 package com.vstimemachine.judge.hardware.vs.message;
 
-public class LapMessage implements ApiMessage{
+public class LapMessage implements ApiMessage {
 
     private String[] message;
 

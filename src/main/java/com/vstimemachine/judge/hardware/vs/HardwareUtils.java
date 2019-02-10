@@ -10,7 +10,7 @@ public class HardwareUtils {
             for (int j = 0; j < 8; j++) {
                 int mix = (crc ^ b) & 0x01;
                 crc >>= 1;
-                if ( mix == 1 ) crc ^= 0x8C;
+                if (mix == 1) crc ^= 0x8C;
                 b >>= 1;
             }
             crc &= 0xFF;

@@ -23,26 +23,31 @@ public class ConnectorService {
 
     private Connector connector;
 
+    private TypeConnect type;
+
     @Autowired
     private SimpMessagingTemplate websocket;
 
     @Autowired
     private MessageService messageService;
 
-    public boolean connect(TypeConnect type,  Map<String, String> body) throws ConnectHardwareException {
-        switch (type){
-            case WLAN:
-                connector = new WlanConnector();
-                break;
-            case COM_PORT:
-                connector = new ComPortConnector();
-                break;
+    public boolean connect(TypeConnect type, Map<String, String> body) throws ConnectHardwareException {
+        if (connector == null) {
+            switch (type) {
+                case WLAN:
+                    connector = new WlanConnector();
+                    break;
+                case COM_PORT:
+                    connector = new ComPortConnector();
+                    break;
+            }
         }
-        if(connector != null) {
+        if (connector != null) {
             connector.setMessageService(messageService);
             connector.setWebsocket(websocket);
             if (connector.connection(body)) {
                 isConnect = true;
+                this.type = type;
                 return true;
             }
         }
@@ -50,9 +55,11 @@ public class ConnectorService {
     }
 
 
-    public boolean disconnect() throws ConnectHardwareException{
-        if(connector.disconnect()){
+    public boolean disconnect() throws ConnectHardwareException {
+        if (connector.disconnect()) {
+            connector = null;
             isConnect = false;
+            type = null;
             return true;
         }
         return false;
@@ -61,12 +68,12 @@ public class ConnectorService {
 
     @Scheduled(fixedRate = 1000)
     private void reportCurrentTime() {
-        if(connector != null) {
+        if (connector != null) {
             connector.scheduler();
         }
 
-        String[] listComPorts =  ComPortUtils.readComPorts();
-        if(!Arrays.equals(ComPortUtils.lastComPorts, listComPorts)){
+        String[] listComPorts = ComPortUtils.readComPorts();
+        if (!Arrays.equals(ComPortUtils.lastComPorts, listComPorts)) {
             ComPortUtils.lastComPorts = listComPorts;
             this.websocket.convertAndSend(MESSAGE_PREFIX + "/updateListComPorts", "");
             log.info("There have been changes on the com port. [{}]", String.join(",", listComPorts));

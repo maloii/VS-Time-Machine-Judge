@@ -11,9 +11,9 @@ public class ComPortUtils {
 
     public static String[] lastComPorts = new String[]{};
 
-    public static String[] readComPorts(){
+    public static String[] readComPorts() {
         Pattern pattern = Pattern.compile("");
-        if(SerialNativeInterface.getOsType() == SerialNativeInterface.OS_MAC_OS_X){
+        if (SerialNativeInterface.getOsType() == SerialNativeInterface.OS_MAC_OS_X) {
             pattern = Pattern.compile("tty.*USB*");
         }
         return SerialPortList.getPortNames(pattern);

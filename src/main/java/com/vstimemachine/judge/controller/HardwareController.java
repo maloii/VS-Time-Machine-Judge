@@ -22,14 +22,14 @@ public class HardwareController {
     private ConnectorService connector;
 
     @RequestMapping("/list_com_ports")
-    public String[] listComPorts(){
+    public String[] listComPorts() {
         return ComPortUtils.readComPorts();
     }
 
-    @RequestMapping(value="/connect", method= RequestMethod.POST)
-    public ResponseEntity<ResponseMessage> connect(@RequestBody Map<String, String> body){
+    @RequestMapping(value = "/connect", method = RequestMethod.POST)
+    public ResponseEntity<ResponseMessage> connect(@RequestBody Map<String, String> body) {
         try {
-            if(connector.connect(TypeConnect.valueOf(body.get("type")), body)) {
+            if (connector.connect(TypeConnect.valueOf(body.get("type")), body)) {
                 return new ResponseEntity<>(new ResponseMessage(STATUS_OK, "Com port is connected"), HttpStatus.OK);
             }
         } catch (Exception e) {
@@ -38,10 +38,10 @@ public class HardwareController {
         return new ResponseEntity<>(new ResponseMessage(STATUS_ERROR, "Wrong connection type specified!"), HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value="/disconnect", method= RequestMethod.POST)
-    public ResponseEntity<ResponseMessage> disconnect(){
+    @RequestMapping(value = "/disconnect", method = RequestMethod.POST)
+    public ResponseEntity<ResponseMessage> disconnect() {
         try {
-            if(connector.disconnect()) {
+            if (connector.disconnect()) {
                 return new ResponseEntity<>(new ResponseMessage(STATUS_OK, "Com port is disconnected"), HttpStatus.OK);
             }
         } catch (Exception e) {

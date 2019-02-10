@@ -3,9 +3,8 @@
 import {
     Form, FormGroup,
     Input, InputGroup, InputGroupAddon,
-    Col, Row, Label,
+    Col, Label,
     Navbar,NavbarBrand,
-    Container,
     Dropdown,DropdownToggle,DropdownMenu,DropdownItem,
     ModalHeader, ModalBody, ModalFooter, Button, Modal
 } from "reactstrap";
@@ -67,8 +66,14 @@ class DialogWlanConnect extends React.Component{
             },
             headers: {'Content-Type': 'application/json'}
         }).done(response => {
+            if(response.entity.status === 'STATUS_OK'){
+                isConnect = true;
+            }else{
+                isConnect = false;
+            }
             console.log(response);
         });
+        this.toggle();
 
     }
     toggle() {
