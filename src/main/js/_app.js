@@ -4,7 +4,6 @@ import DeleteOutlineIcon from 'mdi-react/DeleteOutlineIcon';
 import LogoutIcon from 'mdi-react/LogoutIcon';
 
 
-import ReactDataGrid from "react-data-grid";
 import 'bootstrap/dist/css/bootstrap.css';
 import Form from "reactstrap/es/Form";
 import FormGroup from "reactstrap/es/FormGroup";
