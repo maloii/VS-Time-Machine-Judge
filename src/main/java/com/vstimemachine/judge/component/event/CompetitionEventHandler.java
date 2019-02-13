@@ -1,6 +1,7 @@
-package com.vstimemachine.judge.component;
+package com.vstimemachine.judge.component.event;
 
-import com.vstimemachine.judge.model.Pilot;
+
+import com.vstimemachine.judge.model.Competition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
 import org.springframework.data.rest.core.annotation.HandleAfterDelete;
@@ -13,45 +14,44 @@ import org.springframework.stereotype.Component;
 import static com.vstimemachine.judge.configuration.WebSocketConfiguration.MESSAGE_PREFIX;
 
 @Component
-@RepositoryEventHandler(Pilot.class)
-public class EventHandler {
+@RepositoryEventHandler(Competition.class)
+public class CompetitionEventHandler {
 
     private final SimpMessagingTemplate websocket;
 
     private final EntityLinks entityLinks;
 
     @Autowired
-    public EventHandler(SimpMessagingTemplate websocket, EntityLinks entityLinks) {
+    public CompetitionEventHandler(SimpMessagingTemplate websocket, EntityLinks entityLinks) {
         this.websocket = websocket;
         this.entityLinks = entityLinks;
     }
 
     @HandleAfterCreate
-    public void newPilot(Pilot pilot) {
+    public void newCompetition(Competition competition) {
         this.websocket.convertAndSend(
-                MESSAGE_PREFIX + "/newPilot", getPath(pilot));
+                MESSAGE_PREFIX + "/newCompetition", getPath(competition));
     }
 
     @HandleAfterDelete
-    public void deletePilot(Pilot pilot) {
+    public void deleteCompetition(Competition competition) {
         this.websocket.convertAndSend(
-                MESSAGE_PREFIX + "/deletePilot", getPath(pilot));
+                MESSAGE_PREFIX + "/deleteCompetition", getPath(competition));
     }
 
     @HandleAfterSave
-    public void updatePilot(Pilot pilot) {
+    public void updateCompetition(Competition competition) {
         this.websocket.convertAndSend(
-                MESSAGE_PREFIX + "/updatePilot", getPath(pilot));
+                MESSAGE_PREFIX + "/updateCompetition", getPath(competition));
     }
 
     /**
-     * Take an {@link Pilot} and get the URI using Spring Data REST's {@link EntityLinks}.
+     * Take an {@link Competition} and get the URI using Spring Data REST's {@link EntityLinks}.
      *
-     * @param pilot
+     * @param competition
      */
-    private String getPath(Pilot pilot) {
-        return this.entityLinks.linkForSingleResource(pilot.getClass(),
-                pilot.getId()).toUri().getPath();
+    private String getPath(Competition competition) {
+        return this.entityLinks.linkForSingleResource(competition.getClass(),
+                competition.getId()).toUri().getPath();
     }
-
 }

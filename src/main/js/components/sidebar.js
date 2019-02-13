@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import {AccountGroupIcon, AnimationIcon, SettingsIcon} from "mdi-react";
 import Pilots from './pilots'
 
-import './sideBarMenu.css';
+import './side_bar_menu.css';
 import Container from "reactstrap/es/Container";
 
 class SideBar extends React.Component {
@@ -20,14 +20,14 @@ class SideBar extends React.Component {
         if(hash.indexOf("#")>=0) {
             this.handleSelect(hash.substring(1));
         }else{
-            this.handleSelect("pilots");
-            window.location = "#pilots"
+            this.handleSelect("sportsmans");
+            window.location = "#sportsmans"
         }
     }
 
     handleSelect(idMenu) {
         let mainContainer = document.getElementById(this.props.idContainer);
-        if(idMenu === 'pilots'){
+        if(idMenu === 'sportsmans'){
             ReactDOM.render(
                 <Container>
                     <Pilots />
@@ -52,8 +52,8 @@ class SideBar extends React.Component {
         return (<>
                 <nav id="menuVertical" >
                     <ul>
-                        <li onClick={this.handleSelect.bind(null, "pilots")} id="pilots">
-                            <a href="#pilots" ><div className="img_n"><AccountGroupIcon/></div><span>Pilots</span></a>
+                        <li onClick={this.handleSelect.bind(null, "sportsmans")} id="sportsmans">
+                            <a href="#pilots" ><div className="img_n"><AccountGroupIcon/></div><span>Sportsmans</span></a>
                         </li>
                         <li onClick={this.handleSelect.bind(null, "rounds")} id="rounds">
                             <a href="#rounds" ><div className="img_n"><AnimationIcon /></div><span>Rounds</span></a>

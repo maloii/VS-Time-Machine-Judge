@@ -3,10 +3,11 @@ import React from 'react';
 //import moment from 'moment';
 import ReactDOM from 'react-dom';
 import SideBar from './components/sidebar'
-import SelectConnecor from './components/selectconnecor'
+import Select_connecor from './components/select_connecor'
 import 'bootstrap/dist/css/bootstrap.css';
-import { Navbar, NavbarBrand} from "reactstrap";
+import {Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavLink} from "reactstrap";
 import {LogoutIcon} from 'mdi-react';
+import SelectCompetition from "./components/select_competition";
 
 
 class App extends React.Component {
@@ -15,7 +16,14 @@ class App extends React.Component {
         super(props);
         this.state = {
             loggedInJadge: this.props.loggedInJadge,
+            isOpen: false
         }
+        this.toggle = this.toggle.bind(this);
+    }
+    toggle() {
+        this.setState({
+            isOpen: !this.state.isOpen
+        });
     }
 
 
@@ -23,9 +31,15 @@ class App extends React.Component {
     render() {
         return (
             <div>
-                <Navbar color="light" light className="shadow">
+                <Navbar color="light"  light expand="md" className="shadow">
                     <NavbarBrand href="/" className="mr-auto">VS Time Machine Judge</NavbarBrand>
-                    <a href="/logout"><LogoutIcon/></a>
+                    <NavbarToggler onClick={this.toggle} />
+                    <Collapse isOpen={this.state.isOpen} navbar>
+                        <Nav className="ml-auto" navbar>
+                            <SelectCompetition />
+                            <NavLink href="/logout"><LogoutIcon/></NavLink>
+                        </Nav>
+                    </Collapse>
                 </Navbar>
                 <SideBar idContainer="mainContainer"/>
                 <div id="mainContainer" className="mainContainer">
@@ -40,6 +54,6 @@ ReactDOM.render(
     document.getElementById('react')
 );
 ReactDOM.render(
-    <SelectConnecor/>,
+    <Select_connecor/>,
     document.getElementById('button_footer_field')
 );

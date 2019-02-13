@@ -33,7 +33,7 @@ const client = require('./client');
 
 const follow = require('./follow'); // function to hop multiple links by "rel"
 
-const stompClient = require('./websocket-listener');
+const stompClient = require('./websocket_listener');
 
 const root = '/api';
 

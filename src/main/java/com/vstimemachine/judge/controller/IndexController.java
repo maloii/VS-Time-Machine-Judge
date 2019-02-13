@@ -1,5 +1,6 @@
 package com.vstimemachine.judge.controller;
 
+import com.vstimemachine.judge.dao.CompetitionRepository;
 import com.vstimemachine.judge.dao.PilotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +13,9 @@ public class IndexController {
 
     @Autowired
     private PilotRepository pilotRepository;
+
+    @Autowired
+    private CompetitionRepository competitionRepository;
 
     @RequestMapping("/")
     public String index() {

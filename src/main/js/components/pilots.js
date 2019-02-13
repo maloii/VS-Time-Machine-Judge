@@ -2,13 +2,11 @@
 
 import ReactDataGrid from "react-data-grid";
 import React from 'react';
-import moment from 'moment';
-import ReactDOM from 'react-dom';
 import when from 'when';
 import client from '../client';
-import follow from '../follow'; // function to hop multiple links by "rel"
-import stompClient from '../websocket-listener';
-import SelectConnecor from "./selectconnecor";
+import follow from '../follow';
+import stompClient from '../websocket_listener';
+import '../settings';
 
 const root = '/api/data';
 

@@ -16,7 +16,7 @@ import {
     ModalBody, ModalFooter,
     ModalHeader
 } from "reactstrap";
-import stompClient from "../websocket-listener";
+import stompClient from "../websocket_listener";
 
 
 let isConnect = false;
@@ -103,7 +103,7 @@ class DialogWlanConnect extends React.Component {
 }
 
 
-class SelectConnecor extends React.Component {
+class Select_connecor extends React.Component {
     constructor(props) {
         super(props);
         this.dialogWlanConnect = React.createRef();
@@ -117,7 +117,7 @@ class SelectConnecor extends React.Component {
 
         this.onSelectComPort = this.onSelectComPort.bind(this);
         this.refresListComPorts = this.refresListComPorts.bind(this);
-        SelectConnecor.refresConsoleLog = SelectConnecor.refresConsoleLog.bind(this);
+        Select_connecor.refresConsoleLog = Select_connecor.refresConsoleLog.bind(this);
         this.onDisconnect = this.onDisconnect.bind(this);
         this.vsConnectStatus = this.vsConnectStatus.bind(this);
     }
@@ -148,7 +148,7 @@ class SelectConnecor extends React.Component {
         this.refresListComPorts();
         stompClient.register([
             {route: '/topic/updateListComPorts', callback: this.refresListComPorts},
-            {route: '/topic/vsConsoleLog', callback: SelectConnecor.refresConsoleLog},
+            {route: '/topic/vsConsoleLog', callback: Select_connecor.refresConsoleLog},
             {route: '/topic/vsConnectStatus', callback: this.vsConnectStatus}
 
         ]);
@@ -216,4 +216,4 @@ class SelectConnecor extends React.Component {
 }
 
 
-export default SelectConnecor;
+export default Select_connecor;

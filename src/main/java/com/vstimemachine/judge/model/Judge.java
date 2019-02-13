@@ -9,6 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Version;
+import java.time.LocalDateTime;
 
 @Data
 @ToString(exclude = "password")
@@ -17,14 +19,19 @@ public class Judge {
 
     public static final PasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
-    private @Id
+    @Id
     @GeneratedValue
-    Long id;
+    private Long id;
+
+    @Version
+    @JsonIgnore
+    private Long version;
+    private LocalDateTime dateCreate = LocalDateTime.now();
 
     private String name;
 
-    private @JsonIgnore
-    String password;
+    @JsonIgnore
+    private String password;
 
     private String[] roles;
 
