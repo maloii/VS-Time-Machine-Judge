@@ -10,8 +10,17 @@ const baseRegistry = require('rest/mime/registry');
 
 const registry = baseRegistry.child();
 
-registry.register('text/uri-list', require('./api/uriListConverter'));
+var uriListConverter = {
+    read: function (str, opts) {
+        return str;  //MAYBE convert to a array
+    },
+    write: function (obj, opts) {
+        return obj.toString();
+    }
+}
+
 registry.register('application/hal+json', require('rest/mime/type/application/hal'));
+registry.register('text/uri-list', uriListConverter);
 
 module.exports = rest
     .wrap(mime, { registry: registry })

@@ -3,6 +3,7 @@ package com.vstimemachine.judge.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -13,6 +14,7 @@ import java.util.Set;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(of = { "id" })
 public class Competition {
 
     @Id
@@ -29,12 +31,10 @@ public class Competition {
     private LocalDateTime dateCreate = LocalDateTime.now();
     private Boolean selected = false;
 
-    @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
-            mappedBy = "competition")
+    @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
     private Set<Gate> gates;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     private Set<Sportsman> sportsmens;
 
     @OneToMany(cascade = CascadeType.ALL,

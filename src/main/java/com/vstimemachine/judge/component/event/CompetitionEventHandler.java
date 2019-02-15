@@ -1,12 +1,10 @@
 package com.vstimemachine.judge.component.event;
 
 
+import com.vstimemachine.judge.dao.CompetitionRepository;
 import com.vstimemachine.judge.model.Competition;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.core.annotation.HandleAfterCreate;
-import org.springframework.data.rest.core.annotation.HandleAfterDelete;
-import org.springframework.data.rest.core.annotation.HandleAfterSave;
-import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
+import org.springframework.data.rest.core.annotation.*;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -21,10 +19,21 @@ public class CompetitionEventHandler {
 
     private final EntityLinks entityLinks;
 
+    private CompetitionRepository competitionRepository;
+
     @Autowired
-    public CompetitionEventHandler(SimpMessagingTemplate websocket, EntityLinks entityLinks) {
+    public CompetitionEventHandler(SimpMessagingTemplate websocket, EntityLinks entityLinks, CompetitionRepository competitionRepository) {
         this.websocket = websocket;
         this.entityLinks = entityLinks;
+        this.competitionRepository = competitionRepository;
+    }
+
+    @HandleBeforeCreate
+    @HandleBeforeSave
+    public void newCompetitionBefore(Competition competition) {
+        if(competition.getSelected()){
+            competitionRepository.clearAllSelected();
+        }
     }
 
     @HandleAfterCreate

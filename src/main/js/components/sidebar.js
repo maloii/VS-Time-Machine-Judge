@@ -39,6 +39,12 @@ class SideBar extends React.Component {
                     Rounds
                 </Container>,
                 mainContainer);
+        }else if(idMenu === 'reports'){
+            ReactDOM.render(
+                <Container>
+                    Reports
+                </Container>,
+                mainContainer);
         }else if(idMenu === 'settings'){
             ReactDOM.render(
                 <Container>
@@ -57,6 +63,9 @@ class SideBar extends React.Component {
                         </li>
                         <li onClick={this.handleSelect.bind(null, "rounds")} id="rounds">
                             <a href="#rounds" ><div className="img_n"><AnimationIcon /></div><span>Rounds</span></a>
+                        </li>
+                        <li onClick={this.handleSelect.bind(null, "reports")} id="reports">
+                            <a href="#settings" ><div className="img_n"><SettingsIcon /></div><span>Reports</span></a>
                         </li>
                         <li onClick={this.handleSelect.bind(null, "settings")} id="settings">
                             <a href="#settings" ><div className="img_n"><SettingsIcon /></div><span>Settings</span></a>

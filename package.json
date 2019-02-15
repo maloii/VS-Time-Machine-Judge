@@ -25,7 +25,8 @@
     "style-loader": "^0.23.1",
     "css-loader": "^2.1.0",
     "react-data-grid": "^5.0.5",
-    "react-data-grid-addons": "^5.0.5"
+    "react-data-grid-addons": "^5.0.5",
+    "axios": "^0.18.0"
   },
   "scripts": {
     "watch": "webpack --watch -d"
