@@ -5,7 +5,6 @@ import client from '../client';
 import follow from '../follow';
 import axios from 'axios';
 import stompClient from '../websocket_listener';
-import '../settings';
 import {
     Button,
     Col,
@@ -31,7 +30,10 @@ import {
 } from "reactstrap";
 import classnames from 'classnames';
 
-const root = '/api/data';
+import Settings from '../settings'
+import Global from '../global'
+import eventClient from '../event_client'
+
 
 class DialogNewCompetition extends React.Component {
     constructor(props){
@@ -95,7 +97,7 @@ class DialogNewCompetition extends React.Component {
             distance: ReactDOM.findDOMNode(this.refs['distance']).value.trim(),
             delay: ReactDOM.findDOMNode(this.refs['delay']).value.trim()
         };
-        follow(client, root, ['competitions']).then(response => {
+        follow(client, Settings.root, ['competitions']).then(response => {
             return client({
                 method: 'PUT',
                 path: this.state.competition.entity._links.self.href,
@@ -117,14 +119,7 @@ class DialogNewCompetition extends React.Component {
             name: ReactDOM.findDOMNode(this.refs['name']).value.trim(),
             selected: ReactDOM.findDOMNode(this.refs['selected']).checked,
         };
-        const newGate = {
-            number: 0,
-            finish:true,
-            position: 0,
-            distance: ReactDOM.findDOMNode(this.refs['distance']).value.trim(),
-            delay: ReactDOM.findDOMNode(this.refs['delay']).value.trim()
-        };
-        follow(client, root, ['competitions']).then(response => {
+        follow(client, Settings.root, ['competitions']).then(response => {
             return client({
                 method: 'POST',
                 path: response.entity._links.self.href,
@@ -134,20 +129,20 @@ class DialogNewCompetition extends React.Component {
         }).then(responseCompetition => {
             this.competitionHref = responseCompetition.entity._links.self.href
 
+            const newGate = {
+                number: 0,
+                finish:true,
+                position: 0,
+                distance: ReactDOM.findDOMNode(this.refs['distance']).value.trim(),
+                delay: ReactDOM.findDOMNode(this.refs['delay']).value.trim(),
+                competition:this.competitionHref
+            };
             return client({
                 method: 'POST',
-                path: root+'/gates',
+                path: Settings.root+'/gates',
                 entity: newGate,
                 headers: {'Content-Type': 'application/json'}
             });
-        }).then(responseGate => {
-            client({
-                method: 'PUT',
-                path: responseGate.entity._links.competition.href,
-                entity: this.competitionHref,
-                headers: {'Accept': 'text/uri-list',
-                          'Content-Type': 'text/uri-list' }
-            })
         });
         this.toggle();
     }
@@ -292,8 +287,7 @@ class DialogNewCompetition extends React.Component {
                                             <Label for="distance" sm={3}>Distance(metrs)</Label>
                                             <Col sm={5}>
                                                 <Input
-                                                    onChange={event =>event.target.value = parseInt(event.target.value.replace(/\D/g,'')) || 0}
-                                                    type="text"
+                                                    type="number"
                                                     defaultValue={this.state.distance}
                                                     name="distance"
                                                     id="distance"
@@ -305,8 +299,7 @@ class DialogNewCompetition extends React.Component {
                                             <Label for="distance" sm={3}>Delay(sec)</Label>
                                             <Col sm={5}>
                                                 <Input
-                                                    onChange={event =>event.target.value = parseInt(event.target.value.replace(/\D/g,'')) || 0}
-                                                    type="text"
+                                                    type="number"
                                                     defaultValue={this.state.delay}
                                                     name="delay"
                                                     id="delay"
@@ -339,6 +332,7 @@ class SelectCompetition extends React.Component {
         super(props);
         this.state = {
             competitions: [],
+            header: ''
         };
 
         this.dialogNewCompetition = React.createRef();
@@ -371,8 +365,25 @@ class SelectCompetition extends React.Component {
 
 
     refreshListCompetition(){
-        client({method: 'GET', path: root+'/competitions'}).done(response => {
-            this.setState({competitions: response.entity._embedded.competitions});
+        client({method: 'GET', path: Settings.root+'/competitions'}).done(response => {
+
+            let header = 'Select competition';
+            const selectedCompetition = response.entity._embedded.competitions.filter(function(competition) {
+                return competition.selected;
+            });
+            if(selectedCompetition.length > 0){
+                header = selectedCompetition[0].name;
+                let competition = selectedCompetition[0];
+                Global.competition = competition;
+            }else{
+                Global.competition = null;
+            }
+            eventClient.emit('SELECT_COMPETITION', {});
+            this.setState({
+                competitions: response.entity._embedded.competitions,
+                header: header
+
+            });
         });
     }
 
@@ -391,18 +402,12 @@ class SelectCompetition extends React.Component {
                                     <DropdownItem key={competition._links.self.href} id={competition._links.self.href}  onClick={this.onEditCompetition}>
                                         {competition.name}
                                     </DropdownItem>);
-        let header = 'Select competition';
-        const selectedCompetition = this.state.competitions.filter(function(competition) {
-            return competition.selected === true;
-        });
-        if(selectedCompetition.length > 0){
-            header = selectedCompetition[0].name;
-        }
+
         return (<>
             <DialogNewCompetition ref={this.dialogNewCompetition}/>
             <UncontrolledDropdown nav inNavbar>
                 <DropdownToggle nav caret>
-                    {header}
+                    {this.state.header}
                 </DropdownToggle>
                 <DropdownMenu right>
                     {items}

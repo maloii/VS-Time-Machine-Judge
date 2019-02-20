@@ -1,3 +1,9 @@
-const root = '/api/data';
+'use strict';
 
-export default root
+class Settings {
+    constructor() {
+        this.root = '/api/data';
+    }
+    
+}
+export default (new Settings);

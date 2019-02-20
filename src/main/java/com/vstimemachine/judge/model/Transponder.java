@@ -3,7 +3,9 @@ package com.vstimemachine.judge.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,6 +14,12 @@ import java.time.LocalDateTime;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(of = { "id" })
+@Table(
+        name="TRANSPONDER",
+        uniqueConstraints=
+        @UniqueConstraint(columnNames={"COMPETITION_ID", "NUMBER"})
+)
 public class Transponder {
 
     @Id
@@ -26,7 +34,11 @@ public class Transponder {
     private Integer number;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "sportsman_id", nullable = false)
+    @JoinColumn(name = "sportsman_id")
     private Sportsman sportsman;
+
+    @ManyToOne()
+    @JoinColumn(name = "competition_id")
+    private Competition competition;
 
 }

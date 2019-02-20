@@ -18,7 +18,10 @@ class App extends React.Component {
             loggedInJadge: this.props.loggedInJadge,
             isOpen: false
         }
+
+        this.appRef = React.createRef();
         this.toggle = this.toggle.bind(this);
+        this.setCompetition = this.setCompetition.bind(this);
     }
     toggle() {
         this.setState({
@@ -26,6 +29,11 @@ class App extends React.Component {
         });
     }
 
+    setCompetition(competition){
+        this.setState({
+            competition: competition
+        });
+    }
 
 
     render() {
@@ -41,7 +49,7 @@ class App extends React.Component {
                         </Nav>
                     </Collapse>
                 </Navbar>
-                <SideBar idContainer="mainContainer"/>
+                <SideBar idContainer="mainContainer" loggedInJadge={this.state.loggedInJadge}/>
                 <div id="mainContainer" className="mainContainer">
                 </div>
             </div>

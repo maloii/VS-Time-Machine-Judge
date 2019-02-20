@@ -3,6 +3,7 @@ package com.vstimemachine.judge.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -13,6 +14,7 @@ import java.util.Set;
 @Entity(name = "GROUPS")
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(of = { "id" })
 public class Group {
 
     @Id
@@ -44,5 +46,5 @@ public class Group {
     private Round round;
 
     @ManyToMany
-    private Set<Sportsman> sportsmens;
+    private Set<Sportsman> sportsmen;
 }

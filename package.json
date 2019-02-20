@@ -26,7 +26,12 @@
     "css-loader": "^2.1.0",
     "react-data-grid": "^5.0.5",
     "react-data-grid-addons": "^5.0.5",
-    "axios": "^0.18.0"
+    "axios": "^0.18.0",
+    "react-dnd-html5-backend": "^7.0.2",
+    "react-dnd": "^7.0.2",
+    "react-tag-input": "^6.3.0",
+    "eventemitter3": "^3.1.0",
+    "immutable": "^4.0.0-rc.12"
   },
   "scripts": {
     "watch": "webpack --watch -d"

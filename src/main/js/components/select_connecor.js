@@ -44,7 +44,6 @@ class DialogWlanConnect extends React.Component {
             headers: {'Content-Type': 'application/json'}
         }).done(response => {
             isConnect = response.entity.status === 'STATUS_OK';
-            console.log(response);
         });
         this.toggle();
 
@@ -130,8 +129,6 @@ class Select_connecor extends React.Component {
                 listComPorts: response.entity.list,
                 statusConnect: isConnect
             });
-
-            console.log(response);
         });
     }
 

@@ -34,16 +34,15 @@ public class Competition {
     @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
     private Set<Gate> gates;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    private Set<Sportsman> sportsmens;
+    @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
+    private Set<Sportsman> sportsmen;
 
-    @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
-            mappedBy = "competition")
+    @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
     private Set<Group> groups;
 
-    @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
-            mappedBy = "competition")
+    @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
     private Set<League> leagues;
+
+    @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
+    private Set<Transponder> transponders;
 }

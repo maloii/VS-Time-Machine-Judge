@@ -5,13 +5,18 @@ import {AccountGroupIcon, AnimationIcon, SettingsIcon} from "mdi-react";
 import Pilots from './pilots'
 
 import './side_bar_menu.css';
-import Container from "reactstrap/es/Container";
+import {Container} from "reactstrap";
+import Sportsmen from "./sportsmen";
+import Rounds from "./groups";
+
 
 class SideBar extends React.Component {
 
     constructor(props){
         super(props);
-
+        this.state = {
+            loggedInJadge: this.props.loggedInJadge
+        }
         this.handleSelect = this.handleSelect.bind(this);
     }
 
@@ -29,20 +34,16 @@ class SideBar extends React.Component {
         let mainContainer = document.getElementById(this.props.idContainer);
         if(idMenu === 'sportsmans'){
             ReactDOM.render(
-                <Container>
-                    <Pilots />
-                </Container>,
+                <Sportsmen loggedInJadge={this.state.loggedInJadge} />,
                 mainContainer);
         }else if(idMenu === 'rounds'){
             ReactDOM.render(
-                <Container>
-                    Rounds
-                </Container>,
+                <Rounds loggedInJadge={this.state.loggedInJadge} />,
                 mainContainer);
         }else if(idMenu === 'reports'){
             ReactDOM.render(
                 <Container>
-                    Reports
+                    <Pilots  loggedInJadge={this.state.loggedInJadge} />
                 </Container>,
                 mainContainer);
         }else if(idMenu === 'settings'){
@@ -59,13 +60,13 @@ class SideBar extends React.Component {
                 <nav id="menuVertical" >
                     <ul>
                         <li onClick={this.handleSelect.bind(null, "sportsmans")} id="sportsmans">
-                            <a href="#pilots" ><div className="img_n"><AccountGroupIcon/></div><span>Sportsmans</span></a>
+                            <a href="#sportsmans" ><div className="img_n"><AccountGroupIcon/></div><span>Sportsmans</span></a>
                         </li>
                         <li onClick={this.handleSelect.bind(null, "rounds")} id="rounds">
                             <a href="#rounds" ><div className="img_n"><AnimationIcon /></div><span>Rounds</span></a>
                         </li>
                         <li onClick={this.handleSelect.bind(null, "reports")} id="reports">
-                            <a href="#settings" ><div className="img_n"><SettingsIcon /></div><span>Reports</span></a>
+                            <a href="#reports" ><div className="img_n"><SettingsIcon /></div><span>Reports</span></a>
                         </li>
                         <li onClick={this.handleSelect.bind(null, "settings")} id="settings">
                             <a href="#settings" ><div className="img_n"><SettingsIcon /></div><span>Settings</span></a>

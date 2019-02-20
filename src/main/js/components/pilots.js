@@ -9,7 +9,7 @@ import stompClient from '../websocket_listener';
 import '../settings';
 
 const root = '/api/data';
-
+//document.getElementById('judge_name').value
 class PilotDataGrid extends React.Component{
     constructor(props){
         super(props);
@@ -105,6 +105,8 @@ class Pilots extends React.Component {
                  * Filter unneeded JSON Schema properties, like uri references and
                  * subtypes ($ref).
                  */
+
+                console.log(schema);
                 Object.keys(schema.entity.properties).forEach(function (property) {
                     if (schema.entity.properties[property].hasOwnProperty('format') &&
                         schema.entity.properties[property].format === 'uri') {
