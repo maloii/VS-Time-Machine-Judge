@@ -41,6 +41,9 @@ public class Competition {
     private Set<Group> groups;
 
     @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
+    private Set<Round> rounds;
+
+    @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
     private Set<League> leagues;
 
     @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)

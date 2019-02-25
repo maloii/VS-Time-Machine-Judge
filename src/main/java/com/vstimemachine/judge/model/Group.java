@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -47,4 +48,15 @@ public class Group {
 
     @ManyToMany
     private Set<Sportsman> sportsmen;
+
+    public Group(String name, Integer sort, Round round) {
+        this.name = name;
+        this.round = round;
+        this.sort = sort;
+    }
+
+    public void addSportsman(Sportsman sportsman){
+        if(sportsmen == null) sportsmen = new HashSet<Sportsman>();
+        sportsmen.add(sportsman);
+    }
 }

@@ -27,10 +27,20 @@ public class Round {
     private LocalDateTime dateCreate = LocalDateTime.now();
 
 
+
+    private String name;
+    private TypeRound typeRound;
+    private TypeGenerateRound typeGenerateRound;
+    private Integer countSportsmen = 0;
     private Boolean selected = false;
     private Integer countLap = 0;
     private Integer sort = 0;
     private Boolean close = false;
+
+
+    @ManyToOne
+    @JoinColumn
+    private Competition competition;
 
     @OneToMany(cascade = CascadeType.ALL,
             fetch = FetchType.EAGER,

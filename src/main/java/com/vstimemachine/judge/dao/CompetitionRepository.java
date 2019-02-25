@@ -13,13 +13,13 @@ import javax.transaction.Transactional;
 public interface CompetitionRepository extends CrudRepository<Competition, Long> {
 
     @Override
-    Competition save(@Param("competition") Competition pilot);
+    Competition save(@Param("competition") Competition competition);
 
     @Override
     void deleteById(@Param("id") Long id);
 
     @Override
-    void delete(@Param("competition") Competition pilot);
+    void delete(@Param("competition") Competition competition);
 
 
     @Modifying(clearAutomatically = true)

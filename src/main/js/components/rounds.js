@@ -10,8 +10,18 @@ import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import * as customStyle from 'react-tabtab/lib/themes/bootstrap';
 import {FaPlus} from 'react-icons/fa';
 import {arrayMove} from 'react-sortable-hoc';
+import ModalNewRound from './rounds/modal_new_round'
+import stompClient from "../websocket_listener";
+import client from "../client";
+import Settings from "../settings";
+import Global from "../global";
+import eventClient from "../event_client";
 
 let contextTrigger = null;
+
+
+
+
 
 class Rounds extends React.Component {
 
@@ -21,12 +31,18 @@ class Rounds extends React.Component {
             activeIndex: 0,
             tabs:[]
         }
+        this.selectCompetition = this.selectCompetition.bind(this);
         this.handleTabChange = this.handleTabChange.bind(this);
         this.handleTabSequenceChange = this.handleTabSequenceChange.bind(this);
         this.handleExtraButton = this.handleExtraButton.bind(this);
         this.handleEdit = this.handleEdit.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
         this.editRow = this.editRow.bind(this);
+
+        this.refreshListRound = this.refreshListRound.bind(this);
+
+
+        this.dialogRound = React.createRef();
     }
 
     deleteRow(e){
@@ -43,13 +59,15 @@ class Rounds extends React.Component {
         this.setState((state) => {
             let {tabs, activeIndex} = state;
             if (type === 'delete') {
-                tabs = [...tabs.slice(0, index), ...tabs.slice(index + 1)];
+                if(confirm('Do you really want to delete the record?')) {
+                    client({method: 'DELETE', path: tabs[index].url});
+                }
             }
-            if (index - 1 >= 0) {
-                activeIndex = index - 1;
-            } else {
-                activeIndex = 0;
-            }
+            // if (index - 1 >= 0) {
+            //     activeIndex = index - 1;
+            // } else {
+            //     activeIndex = 0;
+            // }
             return {tabs, activeIndex};
         });
     }
@@ -59,9 +77,7 @@ class Rounds extends React.Component {
     }
 
     handleExtraButton(e){
-        const {tabs} = this.state;
-        const newTabs = [...tabs, {title: 'New Draggable Tab:'+tabs.length, content: 'New Content:'+tabs.length}];
-        this.setState({tabs: newTabs, activeIndex: newTabs.length - 1});
+        this.dialogRound.current.toggleShow();
     }
 
     handleTabSequenceChange({oldIndex, newIndex}) {
@@ -78,6 +94,44 @@ class Rounds extends React.Component {
             }
         }
     };
+
+    refreshListRound() {
+        if (Global.competition !== null) {
+            client({
+                method: 'GET',
+                path: Global.competition._links.rounds.href
+            }).then(rounds => {
+                let tabs = [];
+                let activeIndex = 0;
+                rounds.entity._embedded.rounds.map((round, index) => {
+                    if(round.selected) activeIndex = index;
+                    tabs  = [...tabs, {title: round.name, content: round._links.self.href, url: round._links.self.href}];
+                });
+                this.setState({tabs: tabs, activeIndex: activeIndex})
+            });
+        }
+    }
+    componentDidMount() {
+        this.refreshListRound();
+        stompClient.register([
+            {route: '/topic/newRound', callback: this.refreshListRound},
+            {route: '/topic/updateRound', callback: this.refreshListRound},
+            {route: '/topic/deleteRound', callback: this.refreshListRound}
+        ]);
+    }
+    componentWillMount() {
+        eventClient.on('SELECT_COMPETITION', this.selectCompetition);
+    }
+
+    componentWillUnmount() {
+        eventClient.removeEventListener('SELECT_COMPETITION', this.selectCompetition);
+    }
+    selectCompetition({competition}) {
+        this.setState({
+            competition: Global.competition
+        });
+        this.refreshListRound();
+    }
 
     render(){
 
@@ -109,56 +163,12 @@ class Rounds extends React.Component {
             "link":2,
             "name":"test1",
             "price":101
-        }, {
-            "id":3,
-            "link":3,
-            "name":"test1",
-            "price":101
-        }, {
-            "id":4,
-            "link":4,
-            "name":"test1",
-            "price":101
-        }, {
-            "id":5,
-            "link":5,
-            "name":"test1",
-            "price":101
-        }, {
-            "id":6,
-            "link":6,
-            "name":"test1",
-            "price":101
-        }, {
-            "id":7,
-            "link":7,
-            "name":"test1",
-            "price":101
-        }, {
-            "id":8,
-            "link":8,
-            "name":"test1",
-            "price":101
-        }, {
-            "id":9,
-            "link":9,
-            "name":"test1",
-            "price":101
-        }, {
-            "id":10,
-            "link":10,
-            "name":"test1",
-            "price":101
-        }, {
-            "id":11,
-            "link":11,
-            "name":"test1",
-            "price":101
         }
 
         ];
 
-        const {tabs, activeIndex, numberOfTabs, showArrow, showModal, showExtra} = this.state;
+        const {tabs, activeIndex} = this.state;
+
         const tabTemplate = [];
         const panelTemplate = [];
         tabs.forEach((tab, i) => {
@@ -167,11 +177,14 @@ class Rounds extends React.Component {
             panelTemplate.push(<Panel key={i}>{tab.content}</Panel>);
         })
 
+        console.log(tabs);
+        console.log(activeIndex);
         return(
             <Container fluid>
                 <Row>
                     <Col id="rootTabs">
-                        <Tabs activeIndex={this.state.activeIndex}
+                        <ModalNewRound ref={this.dialogRound} />
+                        <Tabs activeIndex={activeIndex}
                               onTabEdit={this.handleEdit}
                               onTabChange={this.handleTabChange}
                               onTabSequenceChange={this.handleTabSequenceChange}

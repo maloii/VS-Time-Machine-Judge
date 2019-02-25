@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -52,4 +53,9 @@ public class Sportsman {
     @ManyToMany
     @JsonIgnore
     private Set<Group> groups;
+
+    public void addGroup(Group group){
+        if(groups == null) groups = new HashSet<Group>();
+        groups.add(group);
+    }
 }
