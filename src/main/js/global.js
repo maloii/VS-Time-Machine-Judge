@@ -3,6 +3,7 @@
 class Global {
     constructor() {
         this.competition = null;
+        this.loggedInJadge = null;
     }
 
 }

@@ -8,7 +8,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import {Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavLink} from "reactstrap";
 import {LogoutIcon} from 'mdi-react';
 import SelectCompetition from "./components/select_competition";
-
+import Global from './global'
 
 class App extends React.Component {
 
@@ -33,6 +33,9 @@ class App extends React.Component {
         this.setState({
             competition: competition
         });
+    }
+    componentDidMount() {
+        Global.loggedInJadge = this.state.loggedInJadge;
     }
 
 

@@ -184,3 +184,11 @@ div.ReactTags__suggestions ul li.ReactTags__activeSuggestion {
 }
 
 /****************/
+
+#rootTabs{
+    width: 100%;
+}
+#rootTabs svg {
+        box-sizing: content-box;
+
+}

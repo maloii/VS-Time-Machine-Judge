@@ -25,7 +25,7 @@ public class DatabaseLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Judge demo = this.judgeRepository.save(new Judge("demo", "demo",
+        /*Judge demo = this.judgeRepository.save(new Judge("demo", "demo",
                 "ROLE_JUDGE"));
         Judge oliver = this.judgeRepository.save(new Judge("oliver", "gierke",
                 "ROLE_JUDGE"));
@@ -54,6 +54,7 @@ public class DatabaseLoader implements CommandLineRunner {
 
 
         SecurityContextHolder.clearContext();
+        */
 
     }
 }

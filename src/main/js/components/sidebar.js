@@ -7,7 +7,7 @@ import Pilots from './pilots'
 import './side_bar_menu.css';
 import {Container} from "reactstrap";
 import Sportsmen from "./sportsmen";
-import Rounds from "./groups";
+import Rounds from "./rounds";
 
 
 class SideBar extends React.Component {

@@ -2,26 +2,27 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import {
-    Container,
-    Row,
-    Col,
+    Alert,
     Button,
-    ModalHeader,
-    ModalBody,
-    Modal,
-    ModalFooter,
-    Label,
-    Input,
-    FormGroup,
     Card,
-    CardImg,
     CardBody,
-    Alert
+    CardImg,
+    Col,
+    Container,
+    FormGroup,
+    Input,
+    Label,
+    Modal,
+    ModalBody,
+    ModalFooter,
+    ModalHeader,
+    Row,
+    Progress
 } from "reactstrap";
 import {WithContext as ReactTags} from './react_tags/ReactTags';
-import {AccountPlusIcon, DeleteForeverIcon, AccountEditIcon} from 'mdi-react';
+import {AccountEditIcon, AccountPlusIcon, DeleteForeverIcon} from 'mdi-react';
 import ReactDataGrid from 'react-data-grid';
-import {Menu} from 'react-data-grid-addons';
+import {Menu, ImageFormatter} from 'react-data-grid-addons';
 import Settings from '../settings'
 import Global from '../global'
 import eventClient from '../event_client'
@@ -47,7 +48,8 @@ class ModalSportsman extends React.Component {
         this.state = {
             sportsman: {},
             url: null,
-            tags: []
+            tags: [],
+            srcPhoto: null
         }
 
         this.handleSave = this.handleSave.bind(this);
@@ -58,6 +60,9 @@ class ModalSportsman extends React.Component {
         this.handleUDelete = this.handleUDelete.bind(this);
         this.handleDeleteTransponder = this.handleDeleteTransponder.bind(this);
         this.handleAdditionTransponder = this.handleAdditionTransponder.bind(this);
+        this.refreshListTags = this.refreshListTags.bind(this);
+        this.handleUpload = this.handleUpload.bind(this);
+
     }
 
     toggle() {
@@ -71,6 +76,7 @@ class ModalSportsman extends React.Component {
             modalSportsman: !this.state.modalSportsman,
             sportsman: {},
             url: null,
+            srcPhoto: null,
             tags: []
         });
     }
@@ -91,6 +97,7 @@ class ModalSportsman extends React.Component {
             this.setState({
                 modalSportsman: !this.state.modalSportsman,
                 sportsman: response.entity,
+                srcPhoto: response.entity.photo,
                 url: url
             });
         });
@@ -109,6 +116,7 @@ class ModalSportsman extends React.Component {
             phone: ReactDOM.findDOMNode(this.refs['phone']).value.trim(),
             email: ReactDOM.findDOMNode(this.refs['email']).value.trim(),
             country: ReactDOM.findDOMNode(this.refs['country']).value.trim(),
+            photo: this.state.srcPhoto,
             selected: false,
             competition: Global.competition._links.competition.href
         };
@@ -152,18 +160,17 @@ class ModalSportsman extends React.Component {
                 team: ReactDOM.findDOMNode(this.refs['team']).value.trim(),
                 phone: ReactDOM.findDOMNode(this.refs['phone']).value.trim(),
                 email: ReactDOM.findDOMNode(this.refs['email']).value.trim(),
-                country: ReactDOM.findDOMNode(this.refs['country']).value.trim()
+                country: ReactDOM.findDOMNode(this.refs['country']).value.trim(),
+                photo: this.state.srcPhoto,
             }
         };
 
-        console.log(updateSportsman);
         client({
             method: 'PUT',
             path: this.state.url,
             entity: updateSportsman,
             headers: {'Content-Type': 'application/json'}
-        }).done(()=>{
-            console.log(this.props);
+        }).done(() => {
             this.toggle()
         });
     }
@@ -194,6 +201,23 @@ class ModalSportsman extends React.Component {
         }
     }
 
+    refreshListTags() {
+        client({method: 'GET', path: this.state.url}).then(response => {
+            client({
+                method: 'GET',
+                path: response.entity._links.transponders.href
+            }).then(transponders => {
+                this.setState({tags: []});
+                transponders.entity._embedded.transponders.map(t => {
+                    this.setState({
+                        tags: [...this.state.tags, {id: t._links.self.href, text: t.number}]
+                    });
+                });
+            });
+
+        });
+    }
+
     handleAdditionTransponder(tag) {
         if (this.state.url !== null) {
             client({
@@ -205,12 +229,50 @@ class ModalSportsman extends React.Component {
                     competition: Global.competition._links.competition.href
                 },
                 headers: {'Content-Type': 'application/json'}
-            }).then(() => {
-                this.setState(state => ({tags: [...state.tags, tag]}));
+            }).then((transponder) => {
+                this.refreshListTags();
+            }, response => {
+                if (response.status.code === 409) {
+                    alert('A transponder with this number is already registered! ');
+                }
             });
         } else {
-            this.setState(state => ({tags: [...state.tags, tag]}));
+            client({method: 'GET', path: Global.competition._links.transponders.href}).then(response => {
+                const transponderInDb = response.entity._embedded.transponders.filter(t => {
+                    return t.number === parseInt(tag.text);
+                });
+                if (transponderInDb.length === 0) {
+                    this.setState(state => ({tags: [...state.tags, tag]}));
+                } else {
+                    alert('A transponder with this number is already registered! ');
+                }
+            });
         }
+    }
+
+    handleUpload(e) {
+        let files = e.target.files || e.dataTransfer.files;
+        document.getElementById(e.target.name).style.display = 'none';
+        this.setState({
+            loaded: 0
+        })
+
+        const data = new FormData()
+        data.append('file', files[0], files[0].name);
+
+        client({
+            method: 'POST',
+            path: '/api/upload/img',
+            entity: data,
+            headers: {'Content-Type': 'multipart/form-data'}
+
+        }).then(res => {
+            this.setState({
+                srcPhoto: '/upload/' + res.entity.message
+            });
+        }, error => {
+            alert(error.entity.message);
+        })
     }
 
     render() {
@@ -230,7 +292,8 @@ class ModalSportsman extends React.Component {
             header = 'Edit sportsman';
 
         }
-
+        let imgUrl = '/images/silhouette.png';
+        if (this.state.srcPhoto !== null) imgUrl = this.state.srcPhoto;
         return (<Modal isOpen={this.state.modalSportsman} toggle={this.toggle} className="modal-lg">
             <ModalHeader toggle={this.toggleShow}>{header}</ModalHeader>
             <ModalBody>
@@ -366,9 +429,12 @@ class ModalSportsman extends React.Component {
                         </Col>
                         <Col xs="4">
                             <Card>
-                                <CardImg top width="100%" src="/images/silhouette.png" alt="Card image cap"/>
+                                <CardImg top
+                                         width="100%"
+                                         src={imgUrl}
+                                         alt="Card image cap"/>
                                 <CardBody className="text-center">
-                                    <Input type="file" name="photo" id="photo" hidden/>
+                                    <Input type="file" name="photo" id="photo" onChange={this.handleUpload} hidden/>
                                     <Button color="info" onClick={event => document.getElementById('photo').click()}>Select
                                         photo</Button>
                                 </CardBody>
@@ -391,30 +457,16 @@ class ModalSportsman extends React.Component {
          */
     }
 }
-
 class SportsmenTranspondersDataGrid extends React.Component {
 
     constructor(props) {
         super(props);
-
-        this.state = {
-            tags: []
-        }
         this.handleDeleteTransponder = this.handleDeleteTransponder.bind(this);
         this.handleAdditionTransponder = this.handleAdditionTransponder.bind(this);
-        this.refreshListTags = this.refreshListTags.bind(this);
     }
 
     handleDeleteTransponder(i) {
-        client({method: 'DELETE', path: this.state.tags[i].id}
-        ).done(() => {
-            const {tags} = this.state;
-            this.setState({
-                tags: tags.filter((tag, index) => index !== i),
-            });
-        });
-
-
+        client({method: 'DELETE', path: this.props.row.transponders[i].url})
     }
 
     handleAdditionTransponder(tag) {
@@ -423,53 +475,32 @@ class SportsmenTranspondersDataGrid extends React.Component {
             path: Settings.root + '/transponders',
             entity: {
                 number: tag.text,
-                sportsman: this.props.url,
+                sportsman: this.props.row.url,
                 competition: Global.competition._links.competition.href
             },
             headers: {'Content-Type': 'application/json'}
         }).then(() => {
-            this.setState(state => ({tags: [...state.tags, tag]}));
+
+        }, response => {
+            if (response.status.code === 409) {
+                alert('A transponder with this number is already registered! ');
+            }
         });
-
-    }
-
-    refreshListTags(){
-
-        console.log(this.props.url);
-        client({method: 'GET', path: this.props.url}).then(response => {
-            client({
-                method: 'GET',
-                path: response.entity._links.transponders.href
-            }).then(transponders => {
-                this.setState({tags: []});
-                transponders.entity._embedded.transponders.map(t => {
-                    this.setState({
-                        tags: [...this.state.tags, {id: t._links.self.href, text: t.number}]
-                    });
-                });
-            });
-
-        });
-    }
-    componentDidMount() {
-        this.refreshListTags();
-        // stompClient.register([
-        //     {route: '/topic/newTransponder', callback: this.refreshListTags},
-        //     {route: '/topic/deleteTransponder', callback: this.refreshListTags},
-        //     {route: '/topic/newSportsman', callback: this.refreshListTags},
-        //     {route: '/topic/updateSportsman', callback: this.refreshListTags},
-        //     {route: '/topic/deleteSportsman', callback: this.refreshListTags}
-        // ]);
     }
 
     render() {
-        const {tags, suggestions} = this.state;
+        let tags = [];
+        this.props.row.transponders.map(t=>{
+            tags =  [...tags, {id: t.url, text: t.number}]
+        })
+
         return (<ReactTags
             tags={tags}
             handleDelete={this.handleDeleteTransponder}
             handleAddition={this.handleAdditionTransponder}
             delimiters={delimiters}
             allowDragDrop={false}
+            autofocus={false}
             placeholder="Transponder"
             classNames={{
                 tagInputField: 'ReactTags__suggestions_input'
@@ -490,6 +521,8 @@ class SportsmenDataGrid extends React.Component {
         this.deleteSportsmen = this.deleteSportsmen.bind(this);
         this.editSportsmen = this.editSportsmen.bind(this);
         this.getCellActions = this.getCellActions.bind(this);
+        this.sortRows = this.sortRows.bind(this);
+
     }
 
     onGridRowsUpdated({fromRow, toRow, updated}) {
@@ -560,7 +593,6 @@ class SportsmenDataGrid extends React.Component {
 
     editSportsmen(url) {
         this.props.editSportsmen(url);
-        //console.log(url);
     }
 
     getCellActions(column, row) {
@@ -584,17 +616,29 @@ class SportsmenDataGrid extends React.Component {
 
     }
 
+
+    sortRows(initialRows, sortColumn, sortDirection){
+        function comparer (a, b) {
+            //console.log(a[sortColumn].localeCompare(b[sortColumn]));
+            if (sortDirection === "ASC") {
+                return a[sortColumn] > b[sortColumn] ? 1 : -1;
+            } else if (sortDirection === "DESC") {
+                return a[sortColumn] < b[sortColumn] ? 1 : -1;
+            }
+        };
+        let sportsmen = this.props.sportsmenTabl.sort(comparer);
+        this.setState({
+            sportsmenTabl:sportsmen
+        });
+        return sportsmen;
+    };
+
     render() {
-
-        function sportsmenTransponders(row) {
-            return <SportsmenTranspondersDataGrid url={row.value}/>;
-        }
-
         const columns = [
-            {key: "firstName", name: "First Name", editable: true, resizable: true},
-            {key: "lastName", name: "Last Name", editable: true, resizable: true},
-            {key: "nick", name: "Nick(OSD)", width: 170, editable: true, resizable: true},
-            {key: "transponders", name: "Transponders", resizable: true, formatter:sportsmenTransponders},
+            {key: "firstName", name: "First Name", editable: true, resizable: true, sortable: true },
+            {key: "lastName", name: "Last Name", editable: true, resizable: true, sortable: true, sortDescendingFirst: true},
+            {key: "nick", name: "Nick(OSD)", width: 170, editable: true, resizable: true, sortable: true},
+            {key: "transponders", name: "Transponders", formatter: <SportsmenTranspondersDataGrid /> },
             {key: "button", name: "", width: 80},
             {key: "last", name: "", width: 30}
         ];
@@ -606,6 +650,8 @@ class SportsmenDataGrid extends React.Component {
                                         onRowDelete,
                                         onRowEdit
                                     }) {
+
+
             return (
                 <ContextMenu id={id}>
                     <MenuItem data={{rowIdx, idx}} onClick={onRowEdit}>
@@ -631,31 +677,23 @@ class SportsmenDataGrid extends React.Component {
                 selectedIndexes = selectedIndexes.concat(index)
             }
         });
+
+
+
+
         return (
 
             <ReactDataGrid
                 columns={columns}
-                rowGetter={i => {
-                    if (i < 0 || i >= this.props.sportsmen.length) {
-                        return ({});
-                    } else {
-                        return ({
-                            firstName: this.props.sportsmen[i].entity.firstName,
-                            lastName: this.props.sportsmen[i].entity.lastName,
-                            nick: this.props.sportsmen[i].entity.nick,
-                            transponders: this.props.sportsmen[i].url,
-                            url: this.props.sportsmen[i].url
-                        })
-                    }
-                }}
-                rowsCount={this.props.sportsmen.length}
+                rowGetter={i => this.props.sportsmenTabl[i]}
+                rowsCount={this.props.sportsmenTabl.length}
                 onGridRowsUpdated={this.onGridRowsUpdated}
-                minHeight={500}
+                minHeight={window.innerHeight-200}
                 getCellActions={this.getCellActions}
                 contextMenu={
                     <ExampleContextMenu
-                        onRowDelete={(e, {rowIdx}) => deleteRow(this, this.props.sportsmen[rowIdx].url)}
-                        onRowEdit={(e, {rowIdx}) => editRow(this, this.props.sportsmen[rowIdx].url)}
+                        onRowDelete={(e, {rowIdx}) => deleteRow(this, this.props.sportsmenTabl[rowIdx].url)}
+                        onRowEdit={(e, {rowIdx}) => editRow(this, this.props.sportsmenTabl[rowIdx].url)}
                     />
                 }
                 RowsContainer={ContextMenuTrigger}
@@ -669,6 +707,9 @@ class SportsmenDataGrid extends React.Component {
                         indexes: selectedIndexes
                     }
                 }}
+                onGridSort={(sortColumn, sortDirection) =>
+                    this.sortRows(this.props.sportsmenTabl, sortColumn, sortDirection)
+                }
             />
         );
     }
@@ -686,6 +727,7 @@ class Sportsmen extends React.Component {
         this.state = {
             competition: Global.competition,
             sportsmen: [],
+            sportsmenTabl: [],
             attributes: []
         }
         this.selectCompetition = this.selectCompetition.bind(this);
@@ -716,17 +758,11 @@ class Sportsmen extends React.Component {
     refreshListSportsmen() {
         if (Global.competition !== null) {
             client({method: 'GET', path: Global.competition._links.sportsmen.href}).then(response => {
-
                 client({
                     method: 'GET',
                     path: Settings.root + '/profile/sportsmen',
                     headers: {'Accept': 'application/schema+json'}
                 }).then(schema => {
-                    // tag::json-schema-filter[]
-                    /**
-                     * Filter unneeded JSON Schema properties, like uri references and
-                     * subtypes ($ref).
-                     */
                     Object.keys(schema.entity.properties).forEach(function (property) {
                         if (schema.entity.properties[property].hasOwnProperty('format') &&
                             schema.entity.properties[property].format === 'uri') {
@@ -737,7 +773,6 @@ class Sportsmen extends React.Component {
                     });
                     this.schema = schema.entity;
                     return response;
-                    // end::json-schema-filter[]
                 }).then(sportsmanCollection => {
                     return sportsmanCollection.entity._embedded.sportsmen.map(sportsman =>
                         client({
@@ -747,9 +782,35 @@ class Sportsmen extends React.Component {
                     );
                 }).then(sportsmanPromises => {
                     return when.all(sportsmanPromises);
-                }).done(sportsmen => {
-
+                }).then(s=>{
+                    this.sportsmen = s;
+                    return s.map(sportsman =>
+                        client({
+                            method: 'GET',
+                            path: sportsman.entity._links.transponders.href
+                        })
+                    );
+                }).then(transPromises => {
+                    return when.all(transPromises);
+                }).done(trans => {
+                    let sportsmen = this.sportsmen;
+                    let sportsmenTabl = [];
+                    sportsmen.map(function callback(s, index, array) {
+                        let arrTrans = [];
+                        trans[index].entity._embedded.transponders.map(tr=>{
+                            arrTrans.push({number:tr.number, url:tr._links.self.href});
+                        });
+                        // transponders: arrTrans.join(', '),
+                        sportsmenTabl = [...sportsmenTabl, {
+                            firstName: s.entity.firstName,
+                            lastName: s.entity.lastName,
+                            nick: s.entity.nick,
+                            transponders: arrTrans,
+                            url: s.url
+                        }]
+                    });
                     this.setState({
+                        sportsmenTabl: sportsmenTabl,
                         sportsmen: sportsmen,
                         attributes: Object.keys(this.schema.properties)
 
@@ -801,6 +862,7 @@ class Sportsmen extends React.Component {
         });
     }
 
+
     render() {
 
         if (this.state.competition === null) {
@@ -830,6 +892,7 @@ class Sportsmen extends React.Component {
                                     onUpdate={this.onUpdateAttribute}
                                     attributes={this.state.attributes}
                                     editSportsmen={this.showEditSportsman}
+                                    sportsmenTabl={this.state.sportsmenTabl}
                                 />
                             </Col>
                         </Row>

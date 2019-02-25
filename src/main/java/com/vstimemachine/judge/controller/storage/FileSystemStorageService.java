@@ -8,8 +8,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.stream.Stream;
 
+import com.sun.istack.internal.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -18,19 +21,28 @@ import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+
 @Service
 public class FileSystemStorageService implements StorageService {
 
     private final Path rootLocation;
 
+
+    private final String[] extensionImg;
+
     @Autowired
     public FileSystemStorageService(StorageProperties properties) {
-        this.rootLocation = Paths.get(properties.getLocation());
+        this.rootLocation = Paths.get(properties.getUploadDir());
+        this.extensionImg = properties.getExtensionImg();
     }
 
     @Override
-    public void store(MultipartFile file) {
-        String filename = StringUtils.cleanPath(file.getOriginalFilename());
+    public String store(MultipartFile file) {
+        String fileExtension = StringUtils.getFilenameExtension(file.getOriginalFilename());
+        if(!Arrays.stream(extensionImg).anyMatch(fileExtension::equalsIgnoreCase)) {
+            throw new StorageException("Failed to store file. File extension does not match one of the allowed:" + String.join(",", extensionImg));
+        }
+        String filename = String.format("%s.%s",java.util.UUID.randomUUID().toString(),fileExtension);
         try {
             if (file.isEmpty()) {
                 throw new StorageException("Failed to store empty file " + filename);
@@ -41,9 +53,7 @@ public class FileSystemStorageService implements StorageService {
                         "Cannot store file with relative path outside current directory "
                                 + filename);
             }
-            try {
-                new File(this.rootLocation.toString()).mkdir();
-            }catch (Exception e){}
+            try {new File(this.rootLocation.toString()).mkdir();}catch (Exception e){}
 
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, this.rootLocation.resolve(filename),
@@ -53,6 +63,7 @@ public class FileSystemStorageService implements StorageService {
         catch (IOException e) {
             throw new StorageException("Failed to store file " + filename, e);
         }
+        return filename;
     }
 
     @Override
