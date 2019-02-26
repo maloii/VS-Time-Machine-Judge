@@ -3690,3 +3690,7 @@ Feature not supported: "getFunctionColumns" [50100-196]
 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
 	at java.lang.Thread.run(Thread.java:745)
+2019-02-26 10:24:06 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Синтаксическая ошибка в выражении SQL "UPDATE GROUP[*]  SET SELECTED=FALSE "; ожидалось "identifier"
+Syntax error in SQL statement "UPDATE GROUP[*]  SET SELECTED=FALSE "; expected "identifier"; SQL statement:
+UPDATE Group  SET selected=false [42001-197]

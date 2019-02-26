@@ -8,6 +8,7 @@ import com.vstimemachine.judge.model.Group;
 import com.vstimemachine.judge.model.Round;
 import com.vstimemachine.judge.model.Sportsman;
 import com.vstimemachine.judge.model.TypeGenerateRound;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
 import org.springframework.data.rest.core.annotation.HandleAfterDelete;
@@ -24,6 +25,7 @@ import java.util.stream.IntStream;
 
 import static com.vstimemachine.judge.configuration.WebSocketConfiguration.MESSAGE_PREFIX;
 
+@Slf4j
 @Component
 @RepositoryEventHandler(Round.class)
 public class RoundEventHandler {
@@ -52,18 +54,26 @@ public class RoundEventHandler {
     public void newRound(Round round) {
         if(round.getTypeGenerateRound().equals(TypeGenerateRound.RANDOM)){
             List<Sportsman> sportsmen = sportsmanRepository.findAllRandamQuestions(round.getCompetition());
-            Group group = new Group("Group 1", 0, round);
-            groupRepository.save(group);
-            for(int i = 0; i < sportsmen.size(); i++){
-                if(i != 0 && i%round.getCountSportsmen() == 0){
-                    group = new Group("Group " + (group.getSort()+2), (group.getSort()+1), round);
-                    groupRepository.save(group);
+            if(sportsmen.size() > 0) {
+                Group group = new Group("Group 1", 0, round);
+                group.setSelected(true);
+                groupRepository.save(group);
+                log.info("Greate new group: {}", group.getName());
+                for (int i = 0; i < sportsmen.size(); i++) {
+                    if (i != 0 && i % round.getCountSportsmen() == 0) {
+                        group = new Group("Group " + (group.getSort() + 2), (group.getSort() + 1), round);
+                        groupRepository.save(group);
+                        log.info("Greate new group: {}", group.getName());
+                    }
+                    Sportsman sportsman = sportsmen.get(i);
+                    sportsman.addGroup(group);
+                    group.addSportsman(sportsman);
+                    sportsmanRepository.save(sportsman);
+                    log.info("Greate new sportsman: {} {}", sportsman.getFirstName(), sportsman.getLastName());
                 }
-                Sportsman sportsman = sportsmen.get(i);
-                sportsman.addGroup(group);
-                group.addSportsman(sportsman);
-                sportsmanRepository.save(sportsman);
-            };
+            }else{
+                log.info("Error generate round! There are no sportsmen!");
+            }
 
         }
         this.websocket.convertAndSend(
