@@ -50,8 +50,7 @@ public class Sportsman {
     @JoinColumn(name="competition_id")
     private Competition competition;
 
-    @ManyToMany
-    @JsonIgnore
+    @ManyToMany()
     private Set<Group> groups;
 
     public void addGroup(Group group){

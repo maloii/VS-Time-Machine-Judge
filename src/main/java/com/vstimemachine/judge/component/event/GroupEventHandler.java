@@ -1,7 +1,9 @@
 package com.vstimemachine.judge.component.event;
 
 import com.vstimemachine.judge.dao.GroupRepository;
+import com.vstimemachine.judge.dao.SportsmanRepository;
 import com.vstimemachine.judge.model.Group;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.*;
 import org.springframework.hateoas.EntityLinks;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import static com.vstimemachine.judge.configuration.WebSocketConfiguration.MESSAGE_PREFIX;
 
+@Slf4j
 @Component
 @RepositoryEventHandler(Group.class)
 public class GroupEventHandler {
@@ -20,13 +23,17 @@ public class GroupEventHandler {
 
     private final GroupRepository groupRepository;
 
+    private final SportsmanRepository sportsmanRepository;
+
     @Autowired
     public GroupEventHandler(SimpMessagingTemplate websocket,
                              EntityLinks entityLinks,
-                             GroupRepository groupRepository) {
+                             GroupRepository groupRepository,
+                             SportsmanRepository sportsmanRepository) {
         this.websocket = websocket;
         this.entityLinks = entityLinks;
         this.groupRepository = groupRepository;
+        this.sportsmanRepository = sportsmanRepository;
     }
 
     @HandleBeforeCreate
@@ -40,6 +47,15 @@ public class GroupEventHandler {
     public void newGroup(Group group) {
         this.websocket.convertAndSend(
                 MESSAGE_PREFIX + "/newGroup", getPath(group));
+    }
+
+    @HandleBeforeDelete
+    public void deleteGroupBefore(Group group) {
+        group.getSportsmen().forEach(sportsman->{
+            sportsman.getGroups().remove(group);
+            log.info("Remove links between sportsmen:{} and group:{}", sportsman.getId(), group.getId());
+
+        });
     }
 
     @HandleAfterDelete

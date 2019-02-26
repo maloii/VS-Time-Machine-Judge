@@ -41,6 +41,7 @@ public class Competition {
     private Set<Group> groups;
 
     @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
+    @OrderBy("sort ASC")
     private Set<Round> rounds;
 
     @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)

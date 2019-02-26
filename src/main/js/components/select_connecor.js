@@ -143,14 +143,20 @@ class Select_connecor extends React.Component {
 
     componentDidMount() {
         this.refresListComPorts();
-        stompClient.register([
+        this.stomp = stompClient.register([
             {route: '/topic/updateListComPorts', callback: this.refresListComPorts},
             {route: '/topic/vsConsoleLog', callback: Select_connecor.refresConsoleLog},
             {route: '/topic/vsConnectStatus', callback: this.vsConnectStatus}
 
         ]);
     }
-
+    componentWillUnmount(){
+        for (const sub in this.stomp.subscriptions) {
+            if (this.stomp.subscriptions.hasOwnProperty(sub)) {
+                this.stomp.unsubscribe(sub);
+            }
+        }
+    }
     onSelectComPort(e) {
         if (e.currentTarget.textContent === "WLAN") {
             this.dialogWlanConnect.current.toggle();

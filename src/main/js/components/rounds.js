@@ -19,7 +19,8 @@ class Rounds extends React.Component {
         super(props);
         this.state = {
             activeIndex: 0,
-            tabs:[]
+            tabs:[],
+            maxSortRound:0
         }
         this.selectCompetition = this.selectCompetition.bind(this);
         this.handleTabChange = this.handleTabChange.bind(this);
@@ -46,6 +47,14 @@ class Rounds extends React.Component {
     }
 
     handleTabChange(index) {
+        const {tabs} = this.state;
+        tabs[index].round.selected = true;
+        client({
+            method: 'PUT',
+            path: tabs[index].round._links.self.href,
+            entity: tabs[index].round,
+            headers: {'Content-Type': 'application/json'}
+        });
         this.setState({activeIndex: index});
     }
 
@@ -57,6 +66,16 @@ class Rounds extends React.Component {
         const {tabs} = this.state;
         const updateTabs = arrayMove(tabs, oldIndex, newIndex);
         this.setState({tabs: updateTabs, activeIndex: newIndex});
+        updateTabs.map((tab, indx)=>{
+            tab.round.sort = indx;
+            tab.round.selected = newIndex===indx;
+            client({
+                method: 'PUT',
+                path: tab.round._links.self.href,
+                entity: tab.round,
+                headers: {'Content-Type': 'application/json'}
+            })
+        });
     }
 
     refreshListRound() {
@@ -67,17 +86,21 @@ class Rounds extends React.Component {
             }).then(rounds => {
                 let tabs = [];
                 let activeIndex = 0;
-                rounds.entity._embedded.rounds.map((round, index) => {
+                rounds.entity._embedded.rounds.sort((a, b)=>a.sort - b.sort).map((round, index) => {
                     if(round.selected) activeIndex = index;
-                    tabs  = [...tabs, {title: round.name, content: round, url: round._links.self.href}];
+                    tabs  = [...tabs, {title: round.name, content: round, url: round._links.self.href, round:round}];
                 });
-                this.setState({tabs: tabs, activeIndex: activeIndex})
+                let maxSortRound = tabs[tabs.length-1].round.sort;
+                this.setState({
+                    tabs: tabs,
+                    activeIndex: activeIndex,
+                    maxSortRound:maxSortRound})
             });
         }
     }
     componentDidMount() {
         this.refreshListRound();
-        stompClient.register([
+        this.stomp = stompClient.register([
             {route: '/topic/newRound', callback: this.refreshListRound},
             {route: '/topic/updateRound', callback: this.refreshListRound},
             {route: '/topic/deleteRound', callback: this.refreshListRound}
@@ -89,6 +112,11 @@ class Rounds extends React.Component {
 
     componentWillUnmount() {
         eventClient.removeEventListener('SELECT_COMPETITION', this.selectCompetition);
+        for (const sub in this.stomp.subscriptions) {
+            if (this.stomp.subscriptions.hasOwnProperty(sub)) {
+                this.stomp.unsubscribe(sub);
+            }
+        }
     }
     selectCompetition({competition}) {
         this.setState({
@@ -105,13 +133,13 @@ class Rounds extends React.Component {
         tabs.forEach((tab, i) => {
             const closable = tabs.length > 1;
             tabTemplate.push(<DragTab key={i} closable={closable}>{tab.title}</DragTab>);
-            panelTemplate.push(<Panel key={i}><Groups round={tab.content} /></Panel>);
+            panelTemplate.push(<Panel key={i}><Groups round={tab.content} activeIndex={activeIndex} indx={i} /></Panel>);
         })
         return(
             <Container fluid>
                 <Row>
                     <Col id="rootTabs">
-                        <ModalNewRound ref={this.dialogRound} />
+                        <ModalNewRound ref={this.dialogRound} maxSortRound={this.state.maxSortRound} />
                         <Tabs activeIndex={activeIndex}
                               onTabEdit={this.handleEdit}
                               onTabChange={this.handleTabChange}

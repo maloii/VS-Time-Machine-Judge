@@ -59,11 +59,12 @@ class ModalNewRound extends React.Component {
 
     }
     handleSave() {
-        const newSportsman = {
+        const newRound = {
             name: ReactDOM.findDOMNode(this.refs['name']).value.trim(),
             typeRound: ReactDOM.findDOMNode(this.refs['typeRound']).value.trim(),
             typeGenerateRound: ReactDOM.findDOMNode(this.refs['autoGenerate']).value.trim(),
             countSportsmen: ReactDOM.findDOMNode(this.refs['countSportsmen']).value.trim(),
+            sort: this.props.maxSortRound+1,
             selected: true,
             competition: Global.competition._links.competition.href
         };
@@ -71,7 +72,7 @@ class ModalNewRound extends React.Component {
             return client({
                 method: 'POST',
                 path: response.entity._links.self.href,
-                entity: newSportsman,
+                entity: newRound,
                 headers: {'Content-Type': 'application/json'}
             })
         });

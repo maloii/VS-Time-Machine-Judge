@@ -10,9 +10,7 @@ import com.vstimemachine.judge.model.Sportsman;
 import com.vstimemachine.judge.model.TypeGenerateRound;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.core.annotation.HandleAfterCreate;
-import org.springframework.data.rest.core.annotation.HandleAfterDelete;
-import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
+import org.springframework.data.rest.core.annotation.*;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -50,6 +48,15 @@ public class RoundEventHandler {
         this.groupRepository = groupRepository;
     }
 
+    @HandleBeforeCreate
+    @HandleBeforeSave
+    public void newRoundBefore(Round round) {
+        if(round.getSelected()){
+            roundRepository.clearAllSelected(round.getCompetition().getId());
+            log.info("Selected round:{}", round.getName());
+        }
+    }
+
     @HandleAfterCreate
     public void newRound(Round round) {
         if(round.getTypeGenerateRound().equals(TypeGenerateRound.RANDOM)){
@@ -69,7 +76,7 @@ public class RoundEventHandler {
                     sportsman.addGroup(group);
                     group.addSportsman(sportsman);
                     sportsmanRepository.save(sportsman);
-                    log.info("Greate new sportsman: {} {}", sportsman.getFirstName(), sportsman.getLastName());
+                    log.info("Add sportsman: {} {} to group: {}", sportsman.getFirstName(), sportsman.getLastName(), group.getName());
                 }
             }else{
                 log.info("Error generate round! There are no sportsmen!");
@@ -80,12 +87,29 @@ public class RoundEventHandler {
                 MESSAGE_PREFIX + "/newRound", getPath(round));
     }
 
+    @HandleBeforeDelete
+    public void deleteRoundBefore(Round round) {
+        round.getGroups().forEach(group->{
+            group.getSportsmen().forEach(sportsman->{
+                sportsman.getGroups().remove(group);
+                log.info("Remove links between sportsmen:{} and group:{}", sportsman.getId(), group.getId());
+
+            });
+        });
+    }
+
     @HandleAfterDelete
     public void deleteRound(Round round) {
         this.websocket.convertAndSend(
                 MESSAGE_PREFIX + "/deleteRound", getPath(round));
     }
 
+
+    @HandleAfterSave
+    public void updateRound(Round round) {
+        this.websocket.convertAndSend(
+                MESSAGE_PREFIX + "/updateRound", getPath(round));
+    }
     /**
      * Take an {@link Round} and get the URI using Spring Data REST's {@link EntityLinks}.
      *

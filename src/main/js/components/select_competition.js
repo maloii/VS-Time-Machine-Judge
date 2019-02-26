@@ -389,13 +389,19 @@ class SelectCompetition extends React.Component {
 
     componentDidMount() {
         this.refreshListCompetition();
-        stompClient.register([
+        this.stomp = stompClient.register([
             {route: '/topic/newCompetition', callback: this.refreshListCompetition},
             {route: '/topic/updateCompetition', callback: this.refreshListCompetition},
             {route: '/topic/deleteCompetition', callback: this.refreshListCompetition}
         ]);
     }
-
+    componentWillUnmount(){
+        for (const sub in this.stomp.subscriptions) {
+            if (this.stomp.subscriptions.hasOwnProperty(sub)) {
+                this.stomp.unsubscribe(sub);
+            }
+        }
+    }
     render() {
 
         const items = this.state.competitions.map(competition =>

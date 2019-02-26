@@ -739,14 +739,6 @@ class Sportsmen extends React.Component {
         this.dialogSportsman = React.createRef();
     }
 
-    componentWillMount() {
-        eventClient.on('SELECT_COMPETITION', this.selectCompetition);
-    }
-
-    componentWillUnmount() {
-        eventClient.removeEventListener('SELECT_COMPETITION', this.selectCompetition);
-    }
-
     showNewSportsman() {
         this.dialogSportsman.current.toggleShow();
     }
@@ -830,7 +822,7 @@ class Sportsmen extends React.Component {
 
     componentDidMount() {
         this.refreshListSportsmen();
-        stompClient.register([
+        this.stomp = stompClient.register([
             {route: '/topic/newSportsman', callback: this.refreshListSportsmen},
             {route: '/topic/updateSportsman', callback: this.refreshListSportsmen},
             {route: '/topic/deleteSportsman', callback: this.refreshListSportsmen},
@@ -839,6 +831,18 @@ class Sportsmen extends React.Component {
         ]);
     }
 
+    componentWillMount() {
+        eventClient.on('SELECT_COMPETITION', this.selectCompetition);
+    }
+
+    componentWillUnmount() {
+        eventClient.removeEventListener('SELECT_COMPETITION', this.selectCompetition);
+        for (const sub in this.stomp.subscriptions) {
+            if (this.stomp.subscriptions.hasOwnProperty(sub)) {
+                this.stomp.unsubscribe(sub);
+            }
+        }
+    }
     onUpdateAttribute(sportsman, updatedSportsman) {
         client({
             method: 'PUT',
