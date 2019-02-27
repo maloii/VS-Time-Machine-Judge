@@ -1,5 +1,5 @@
 package com.vstimemachine.judge.hardware.vs.message;
 
-public interface ApiMessage {
+public interface Message {
     void parse();
 }

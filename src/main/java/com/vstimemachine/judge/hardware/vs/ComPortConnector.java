@@ -86,7 +86,7 @@ public class ComPortConnector extends Connector {
                 try {
                     lastTimePackage = System.currentTimeMillis();
                     String message = serialPort.readString(event.getEventValue());
-                    messageService.parseMessage(message);
+                    messageService.parseMessage(message, ComPortConnector.this);
                 } catch (SerialPortException e) {
                     log.info("Error getting message by com port: {}", e.getMessage());
                 }
@@ -94,6 +94,7 @@ public class ComPortConnector extends Connector {
         }
     }
 
+    @Override
     public void send(String message) throws ConnectHardwareException {
         try {
             serialPort.writeString(message + "\r\n");

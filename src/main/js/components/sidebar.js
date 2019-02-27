@@ -2,7 +2,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {AccountGroupIcon, AnimationIcon, SettingsIcon} from "mdi-react";
-import Pilots from './pilots'
 
 import './side_bar_menu.css';
 import {Container} from "reactstrap";
@@ -43,7 +42,7 @@ class SideBar extends React.Component {
         }else if(idMenu === 'reports'){
             ReactDOM.render(
                 <Container>
-                    <Pilots  loggedInJadge={this.state.loggedInJadge} />
+                    Reports
                 </Container>,
                 mainContainer);
         }else if(idMenu === 'settings'){

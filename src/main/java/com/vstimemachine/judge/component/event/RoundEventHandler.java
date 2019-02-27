@@ -52,13 +52,13 @@ public class RoundEventHandler {
         if(round.getTypeGenerateRound().equals(TypeGenerateRound.RANDOM)){
             List<Sportsman> sportsmen = sportsmanRepository.findAllRandamQuestions(round.getCompetition());
             if(sportsmen.size() > 0) {
-                Group group = new Group("Group 1", 0, round);
+                Group group = new Group("Group 1", 0, round, round.getCompetition());
                 group.setSelected(true);
                 groupRepository.save(group);
                 log.info("Greate new group: {}", group.getName());
                 for (int i = 0; i < sportsmen.size(); i++) {
                     if (i != 0 && i % round.getCountSportsmen() == 0) {
-                        group = new Group("Group " + (group.getSort() + 2), (group.getSort() + 1), round);
+                        group = new Group("Group " + (group.getSort() + 2), (group.getSort() + 1), round, round.getCompetition());
                         groupRepository.save(group);
                         log.info("Greate new group: {}", group.getName());
                     }

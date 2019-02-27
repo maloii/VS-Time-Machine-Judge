@@ -1,8 +1,8 @@
 package com.vstimemachine.judge.component.event;
 
-import com.vstimemachine.judge.model.Pilot;
+import com.vstimemachine.judge.model.Lap;
+import com.vstimemachine.judge.model.Lap;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
 import org.springframework.data.rest.core.annotation.HandleAfterDelete;
 import org.springframework.data.rest.core.annotation.HandleAfterSave;
@@ -14,40 +14,39 @@ import org.springframework.stereotype.Component;
 import static com.vstimemachine.judge.configuration.WebSocketConfiguration.MESSAGE_PREFIX;
 
 @Component
-@RepositoryEventHandler(Pilot.class)
+@RepositoryEventHandler(Lap.class)
 @RequiredArgsConstructor
-public class PilotEventHandler {
+public class LapEventHandler {
 
     private final SimpMessagingTemplate websocket;
 
     private final EntityLinks entityLinks;
 
     @HandleAfterCreate
-    public void newPilot(Pilot pilot) {
+    public void newLap(Lap lap) {
         this.websocket.convertAndSend(
-                MESSAGE_PREFIX + "/newPilot", getPath(pilot));
+                MESSAGE_PREFIX + "/newLap", getPath(lap));
     }
 
     @HandleAfterDelete
-    public void deletePilot(Pilot pilot) {
+    public void deleteLap(Lap lap) {
         this.websocket.convertAndSend(
-                MESSAGE_PREFIX + "/deletePilot", getPath(pilot));
+                MESSAGE_PREFIX + "/deleteLap", getPath(lap));
     }
 
     @HandleAfterSave
-    public void updatePilot(Pilot pilot) {
+    public void updateLap(Lap lap) {
         this.websocket.convertAndSend(
-                MESSAGE_PREFIX + "/updatePilot", getPath(pilot));
+                MESSAGE_PREFIX + "/updateLap", getPath(lap));
     }
 
     /**
-     * Take an {@link Pilot} and get the URI using Spring Data REST's {@link EntityLinks}.
+     * Take an {@link Lap} and get the URI using Spring Data REST's {@link EntityLinks}.
      *
-     * @param pilot
+     * @param lap
      */
-    private String getPath(Pilot pilot) {
-        return this.entityLinks.linkForSingleResource(pilot.getClass(),
-                pilot.getId()).toUri().getPath();
+    private String getPath(Lap lap) {
+        return this.entityLinks.linkForSingleResource(lap.getClass(),
+                lap.getId()).toUri().getPath();
     }
-
 }

@@ -1,25 +1,18 @@
 package com.vstimemachine.judge.component;
 
 import com.vstimemachine.judge.dao.JudgeRepository;
-import com.vstimemachine.judge.dao.PilotRepository;
 import com.vstimemachine.judge.model.Judge;
-import com.vstimemachine.judge.model.Pilot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DatabaseLoader implements CommandLineRunner {
 
-    private final PilotRepository pilotRepository;
     private final JudgeRepository judgeRepository;
 
     @Autowired
-    public DatabaseLoader(PilotRepository pilotRepository, JudgeRepository judgeRepository) {
-        this.pilotRepository = pilotRepository;
+    public DatabaseLoader(JudgeRepository judgeRepository) {
         this.judgeRepository = judgeRepository;
     }
 

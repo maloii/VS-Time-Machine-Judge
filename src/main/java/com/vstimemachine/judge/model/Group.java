@@ -1,6 +1,7 @@
 package com.vstimemachine.judge.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,6 +21,7 @@ public class Group {
 
     @Id
     @GeneratedValue
+    @JsonInclude
     private Long id;
 
     @Version
@@ -49,10 +51,11 @@ public class Group {
     @ManyToMany
     private Set<Sportsman> sportsmen;
 
-    public Group(String name, Integer sort, Round round) {
+    public Group(String name, Integer sort, Round round, Competition competition) {
         this.name = name;
         this.round = round;
         this.sort = sort;
+        this.competition = competition;
     }
 
     public void addSportsman(Sportsman sportsman){

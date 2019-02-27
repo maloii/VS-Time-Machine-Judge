@@ -86,7 +86,7 @@ public class WlanConnector extends Connector {
             DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
             socket.receive(packet);
             String message = new String(packet.getData()).trim();
-            messageService.parseMessage(message);
+            messageService.parseMessage(message, this);
         } finally {
             if (socket != null || !socket.isClosed()) {
                 socket.close();

@@ -1,6 +1,6 @@
 package com.vstimemachine.judge.hardware.vs.message;
 
-public class PingMessage implements ApiMessage {
+public class PingMessage implements Message {
 
     private String[] message;
 

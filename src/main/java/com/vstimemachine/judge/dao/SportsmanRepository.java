@@ -9,12 +9,15 @@ import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Transactional
 public interface SportsmanRepository extends CrudRepository<Sportsman, Long> {
 
     @Override
     Sportsman save(@Param("sportsman") Sportsman gate);
+
+    Optional<Sportsman> findByTranspondersNumberAndCompetition(Integer number, Competition competition);
 
     @Override
     void deleteById(@Param("id") Long id);

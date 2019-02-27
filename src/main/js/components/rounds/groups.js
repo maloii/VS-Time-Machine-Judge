@@ -25,6 +25,7 @@ class Groups  extends React.Component {
         super(props);
 
         this.state = {
+            group: null,
             groups: [],
             sportsmen: [],
             timeRace:'0',
@@ -43,24 +44,31 @@ class Groups  extends React.Component {
 
 
     handleStartRace(){
-        client({
-            method: 'GET',
-            path: Settings.raceApiRoot+'/status',
-        }).then(response=>{
-            this.setState({
-                statusRace:response.entity.message
-            });
-            if(response.entity.message === 'STOP'){
-                client({
-                    method: 'GET',
-                    path: Settings.raceApiRoot+'/start',
-                }).then(response=>{
-                    this.setState({
-                        statusRace:response.entity.message
-                    });
+        if(this.state.group != null) {
+            client({
+                method: 'GET',
+                path: Settings.raceApiRoot + '/status',
+
+            }).then(response => {
+                this.setState({
+                    statusRace: response.entity.message
                 });
-            }
-        });
+                if (response.entity.message === 'STOP') {
+                    client({
+                        method: 'POST',
+                        path: Settings.raceApiRoot + '/start',
+                        entity: this.state.group,
+                        headers: {'Content-Type': 'application/json'}
+                    }).then(response => {
+                        this.setState({
+                            statusRace: response.entity.message
+                        });
+                    });
+                }
+            });
+        }else{
+           alert('Mistake! The group is not selected.');
+        }
     }
     handleStopRace(){
         client({
@@ -84,13 +92,17 @@ class Groups  extends React.Component {
             entity: group,
             headers: {'Content-Type': 'application/json'}
         });
+        this.setState({group:group})
     }
     loadSelectGroup(group){
         client({
             method: 'GET',
             path: group._links.sportsmen.href
         }).then(sportsmen => {
-            this.setState({sportsmen:sportsmen.entity._embedded.sportsmen})
+            this.setState({
+                sportsmen:sportsmen.entity._embedded.sportsmen,
+                group:group
+            })
         });
     }
 

@@ -29,11 +29,16 @@ public class Round {
 
 
     private String name;
+
+    @Enumerated(EnumType.STRING)
     private TypeRound typeRound;
+
+    @Enumerated(EnumType.STRING)
     private TypeGenerateRound typeGenerateRound;
     private Integer countSportsmen = 0;
     private Boolean selected = false;
     private Integer countLap = 0;
+    private Integer minTimeLap = 0;
     private Integer sort = 0;
     private Boolean close = false;
 

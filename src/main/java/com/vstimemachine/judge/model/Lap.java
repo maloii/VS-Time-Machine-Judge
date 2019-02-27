@@ -25,6 +25,8 @@ public class Lap {
     private Long version;
 
     private Long millisecond;
+
+    @Enumerated(EnumType.STRING)
     private TypeLap typeLap;
     private LocalDateTime dateCreate = LocalDateTime.now();
 

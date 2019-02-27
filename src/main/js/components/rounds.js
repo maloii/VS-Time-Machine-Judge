@@ -90,7 +90,8 @@ class Rounds extends React.Component {
                     if(round.selected) activeIndex = index;
                     tabs  = [...tabs, {title: round.name, content: round, url: round._links.self.href, round:round}];
                 });
-                let maxSortRound = tabs[tabs.length-1].round.sort;
+
+                let maxSortRound = tabs.length > 0?tabs[tabs.length-1].round.sort:0;
                 this.setState({
                     tabs: tabs,
                     activeIndex: activeIndex,
