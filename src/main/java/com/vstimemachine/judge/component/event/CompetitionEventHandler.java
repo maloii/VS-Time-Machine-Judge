@@ -3,6 +3,7 @@ package com.vstimemachine.judge.component.event;
 
 import com.vstimemachine.judge.dao.CompetitionRepository;
 import com.vstimemachine.judge.model.Competition;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.*;
 import org.springframework.hateoas.EntityLinks;
@@ -13,6 +14,7 @@ import static com.vstimemachine.judge.configuration.WebSocketConfiguration.MESSA
 
 @Component
 @RepositoryEventHandler(Competition.class)
+@RequiredArgsConstructor
 public class CompetitionEventHandler {
 
     private final SimpMessagingTemplate websocket;
@@ -20,13 +22,6 @@ public class CompetitionEventHandler {
     private final EntityLinks entityLinks;
 
     private CompetitionRepository competitionRepository;
-
-    @Autowired
-    public CompetitionEventHandler(SimpMessagingTemplate websocket, EntityLinks entityLinks, CompetitionRepository competitionRepository) {
-        this.websocket = websocket;
-        this.entityLinks = entityLinks;
-        this.competitionRepository = competitionRepository;
-    }
 
     @HandleBeforeCreate
     @HandleBeforeSave

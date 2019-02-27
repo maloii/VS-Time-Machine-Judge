@@ -1,6 +1,7 @@
 package com.vstimemachine.judge.component.event;
 
 import com.vstimemachine.judge.model.Pilot;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
 import org.springframework.data.rest.core.annotation.HandleAfterDelete;
@@ -14,17 +15,12 @@ import static com.vstimemachine.judge.configuration.WebSocketConfiguration.MESSA
 
 @Component
 @RepositoryEventHandler(Pilot.class)
+@RequiredArgsConstructor
 public class PilotEventHandler {
 
     private final SimpMessagingTemplate websocket;
 
     private final EntityLinks entityLinks;
-
-    @Autowired
-    public PilotEventHandler(SimpMessagingTemplate websocket, EntityLinks entityLinks) {
-        this.websocket = websocket;
-        this.entityLinks = entityLinks;
-    }
 
     @HandleAfterCreate
     public void newPilot(Pilot pilot) {

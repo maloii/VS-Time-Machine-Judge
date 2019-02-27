@@ -3,6 +3,7 @@ package com.vstimemachine.judge.component.event;
 import com.vstimemachine.judge.dao.GroupRepository;
 import com.vstimemachine.judge.dao.SportsmanRepository;
 import com.vstimemachine.judge.model.Group;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.*;
@@ -15,6 +16,7 @@ import static com.vstimemachine.judge.configuration.WebSocketConfiguration.MESSA
 @Slf4j
 @Component
 @RepositoryEventHandler(Group.class)
+@RequiredArgsConstructor
 public class GroupEventHandler {
     
     private final SimpMessagingTemplate websocket;
@@ -24,17 +26,6 @@ public class GroupEventHandler {
     private final GroupRepository groupRepository;
 
     private final SportsmanRepository sportsmanRepository;
-
-    @Autowired
-    public GroupEventHandler(SimpMessagingTemplate websocket,
-                             EntityLinks entityLinks,
-                             GroupRepository groupRepository,
-                             SportsmanRepository sportsmanRepository) {
-        this.websocket = websocket;
-        this.entityLinks = entityLinks;
-        this.groupRepository = groupRepository;
-        this.sportsmanRepository = sportsmanRepository;
-    }
 
     @HandleBeforeCreate
     @HandleBeforeSave
@@ -54,7 +45,6 @@ public class GroupEventHandler {
         group.getSportsmen().forEach(sportsman->{
             sportsman.getGroups().remove(group);
             log.info("Remove links between sportsmen:{} and group:{}", sportsman.getId(), group.getId());
-
         });
     }
 

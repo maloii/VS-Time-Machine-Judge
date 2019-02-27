@@ -26,9 +26,6 @@ public class HardwareController {
 
 
     @Autowired
-    private SimpMessagingTemplate websocket;
-
-    @Autowired
     private ConnectorService connector;
 
     @RequestMapping("/list_com_ports")

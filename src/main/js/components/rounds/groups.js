@@ -1,14 +1,24 @@
 'use strict';
 import React from 'react';
 import {Button, Col, Container, ListGroup, ListGroupItem, Row} from "reactstrap";
-import {AccountEditIcon, AccountPlusIcon} from "mdi-react";
+import {AccountPlusIcon} from "mdi-react";
 import client from "../../client";
-import {ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
-import BootstrapTable from "react-bootstrap-table-next";
-import cellEditFactory from "react-bootstrap-table2-editor";
 import stompClient from "../../websocket_listener";
 import LapsTable from "./laps_table";
+import Settings from "../../settings"
 
+
+String.prototype.toHHMMSS = function () {
+    var sec_num = parseInt(this, 10); // don't forget the second param
+    var hours   = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    if (hours   < 10) {hours   = "0"+hours;}
+    if (minutes < 10) {minutes = "0"+minutes;}
+    if (seconds < 10) {seconds = "0"+seconds;}
+    return (hours !== "00"?hours+':':'')+minutes+':'+seconds;
+}
 
 class Groups  extends React.Component {
     constructor(props) {
@@ -16,11 +26,54 @@ class Groups  extends React.Component {
 
         this.state = {
             groups: [],
-            sportsmen: []
+            sportsmen: [],
+            timeRace:'0',
+            statusRace:'STOP'
         }
         this.refreshListGroups = this.refreshListGroups.bind(this);
         this.handleSelectGroup = this.handleSelectGroup.bind(this);
         this.loadSelectGroup = this.loadSelectGroup.bind(this);
+        this.refreshTimeRace = this.refreshTimeRace.bind(this);
+
+        this.handleStartRace = this.handleStartRace.bind(this);
+        this.handleStopRace = this.handleStopRace.bind(this);
+        this.handleSearchTransponders = this.handleSearchTransponders.bind(this);
+
+    }
+
+
+    handleStartRace(){
+        client({
+            method: 'GET',
+            path: Settings.raceApiRoot+'/status',
+        }).then(response=>{
+            this.setState({
+                statusRace:response.entity.message
+            });
+            if(response.entity.message === 'STOP'){
+                client({
+                    method: 'GET',
+                    path: Settings.raceApiRoot+'/start',
+                }).then(response=>{
+                    this.setState({
+                        statusRace:response.entity.message
+                    });
+                });
+            }
+        });
+    }
+    handleStopRace(){
+        client({
+            method: 'GET',
+            path: Settings.raceApiRoot+'/stop',
+        }).then(response=>{
+            this.setState({
+                statusRace:response.entity.message
+            });
+        });
+    }
+    handleSearchTransponders(){
+
     }
 
     handleSelectGroup(group){
@@ -53,6 +106,19 @@ class Groups  extends React.Component {
             if (selectedGroup.length > 0) this.loadSelectGroup(selectedGroup[0]);
 
         });
+        client({
+            method: 'GET',
+            path: Settings.raceApiRoot+'/status',
+        }).then(response=> {
+            this.setState({
+                statusRace: response.entity.message
+            });
+        });
+    }
+    refreshTimeRace(time){
+        this.setState({
+            timeRace:time.body
+        });
     }
     componentDidMount() {
         this.refreshListGroups();
@@ -60,7 +126,8 @@ class Groups  extends React.Component {
             {route: '/topic/newGroup', callback: this.refreshListGroups},
             {route: '/topic/updateGroup', callback: this.refreshListGroups},
             {route: '/topic/deleteGroup', callback: this.refreshListGroups},
-            {route: '/topic/updateRound', callback: this.refreshListGroups}
+            {route: '/topic/updateRound', callback: this.refreshListGroups},
+            {route: '/topic/reportTimeRace', callback: this.refreshTimeRace}
         ]);
     }
     componentWillUnmount(){
@@ -109,6 +176,8 @@ class Groups  extends React.Component {
         //     </>
         // }
 
+        const disabledStop = (this.state.statusRace === 'STOP')? true:false;
+        const disabledStart = (this.state.statusRace === 'STOP')? false:true;
         return(
             <Container fluid>
                 <Row>
@@ -131,9 +200,12 @@ class Groups  extends React.Component {
                     <Col md={10}>
                         <Container fluid>
                             <Row>
-                                <Col className="text-right py-md-2">
-                                    <Button color="danger">STOP</Button>{' '}
-                                    <Button color="success">START</Button>
+                                <Col md={2}>
+                                    <span>{this.state.timeRace.toHHMMSS()}</span>
+                                </Col>
+                                <Col className="text-right py-md-2" md={10}>
+                                    <Button color="danger" disabled={disabledStop} onClick={this.handleStopRace} >STOP</Button>{'  '}
+                                    <Button color="success" disabled={disabledStart} onClick={this.handleStartRace} >START</Button>
                                 </Col>
                             </Row>
                             <Row>

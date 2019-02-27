@@ -8,6 +8,7 @@ import com.vstimemachine.judge.model.Group;
 import com.vstimemachine.judge.model.Round;
 import com.vstimemachine.judge.model.Sportsman;
 import com.vstimemachine.judge.model.TypeGenerateRound;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.*;
@@ -26,6 +27,7 @@ import static com.vstimemachine.judge.configuration.WebSocketConfiguration.MESSA
 @Slf4j
 @Component
 @RepositoryEventHandler(Round.class)
+@RequiredArgsConstructor
 public class RoundEventHandler {
 
     private final SimpMessagingTemplate websocket;
@@ -35,18 +37,6 @@ public class RoundEventHandler {
     private final RoundRepository roundRepository;
     private final GroupRepository groupRepository;
     private final SportsmanRepository sportsmanRepository;
-    @Autowired
-    public RoundEventHandler(SimpMessagingTemplate websocket,
-                             EntityLinks entityLinks,
-                             RoundRepository roundRepository,
-                             SportsmanRepository sportsmanRepository,
-                             GroupRepository groupRepository) {
-        this.websocket = websocket;
-        this.entityLinks = entityLinks;
-        this.roundRepository = roundRepository;
-        this.sportsmanRepository = sportsmanRepository;
-        this.groupRepository = groupRepository;
-    }
 
     @HandleBeforeCreate
     @HandleBeforeSave

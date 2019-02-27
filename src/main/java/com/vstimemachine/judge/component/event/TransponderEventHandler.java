@@ -1,6 +1,7 @@
 package com.vstimemachine.judge.component.event;
 
 import com.vstimemachine.judge.model.Transponder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
 import org.springframework.data.rest.core.annotation.HandleAfterDelete;
@@ -14,17 +15,12 @@ import static com.vstimemachine.judge.configuration.WebSocketConfiguration.MESSA
 
 @Component
 @RepositoryEventHandler(Transponder.class)
+@RequiredArgsConstructor
 public class TransponderEventHandler {
 
     private final SimpMessagingTemplate websocket;
 
     private final EntityLinks entityLinks;
-
-    @Autowired
-    public TransponderEventHandler(SimpMessagingTemplate websocket, EntityLinks entityLinks) {
-        this.websocket = websocket;
-        this.entityLinks = entityLinks;
-    }
 
     @HandleAfterCreate
     public void newTransponder(Transponder transponder) {
