@@ -1,6 +1,7 @@
 package com.vstimemachine.judge.hardware.vs;
 
-import com.vstimemachine.judge.hardware.ConnectHardwareException;
+import com.vstimemachine.judge.hardware.ConnectorService;
+import com.vstimemachine.judge.hardware.HardwareException;
 import com.vstimemachine.judge.hardware.Connector;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
@@ -18,13 +19,18 @@ import static jssc.SerialPort.*;
 public class ComPortConnector extends Connector {
 
     public final static long RECONNECT_TIMEOUT = 3000L;
+    private final ConnectorService connectorService;
     private SerialPort serialPort;
     private Map<String, String> params;
 
     private long lastTimePackage = 0L;
 
+    public ComPortConnector(ConnectorService connectorService) {
+        this.connectorService = connectorService;
+    }
+
     @Override
-    public boolean connection(Map<String, String> params) throws ConnectHardwareException {
+    public boolean connection(Map<String, String> params) throws HardwareException {
         this.params = params;
         try {
             disconnect();
@@ -46,12 +52,12 @@ public class ComPortConnector extends Connector {
         } catch (Exception e) {
             String error = String.format("Could not create connection to com port: %s", e.toString());
             log.info(error);
-            throw new ConnectHardwareException(error);
+            throw new HardwareException(error);
         }
     }
 
     @Override
-    public boolean disconnect() throws ConnectHardwareException {
+    public boolean disconnect() throws HardwareException {
         boolean result = false;
         try {
             result = serialPort.closePort();
@@ -59,7 +65,7 @@ public class ComPortConnector extends Connector {
         } catch (SerialPortException e) {
             String error = String.format("Could not close connection to com port: %s", e.toString());
             log.info(error);
-            throw new ConnectHardwareException(error);
+            throw new HardwareException(error);
         }
         return result;
     }
@@ -86,7 +92,7 @@ public class ComPortConnector extends Connector {
                 try {
                     lastTimePackage = System.currentTimeMillis();
                     String message = serialPort.readString(event.getEventValue());
-                    messageService.parseMessage(message, ComPortConnector.this);
+                    messageService.parseMessage(message, connectorService);
                 } catch (SerialPortException e) {
                     log.info("Error getting message by com port: {}", e.getMessage());
                 }
@@ -95,13 +101,13 @@ public class ComPortConnector extends Connector {
     }
 
     @Override
-    public void send(String message) throws ConnectHardwareException {
+    public void send(String message) throws HardwareException {
         try {
-            serialPort.writeString(message + "\r\n");
+            serialPort.writeString(message.concat("\n"));
         } catch (SerialPortException e) {
             String error = String.format("Failed to send message to port com: %s", e.toString());
             log.info(error);
-            throw new ConnectHardwareException(error);
+            throw new HardwareException(error);
         }
     }
 

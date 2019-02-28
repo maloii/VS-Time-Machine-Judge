@@ -1,8 +1,8 @@
 package com.vstimemachine.judge.hardware.vs.message;
 
 import com.vstimemachine.judge.dao.LapRepository;
-import com.vstimemachine.judge.hardware.ConnectHardwareException;
-import com.vstimemachine.judge.hardware.Connector;
+import com.vstimemachine.judge.hardware.ConnectorService;
+import com.vstimemachine.judge.hardware.HardwareException;
 import com.vstimemachine.judge.race.RaceService;
 
 public class LapMessage implements Message {
@@ -10,8 +10,7 @@ public class LapMessage implements Message {
     private final String[] message;
     private final LapRepository lapRepository;
     private final RaceService raceService;
-
-    private Connector connector;
+    private final ConnectorService connectorService;
 
     private final int NUMBER_PACKAGE    = 0;
     private final int BASE_STATION_ID   = 1;
@@ -19,11 +18,11 @@ public class LapMessage implements Message {
     private final int LAP_TIME          = 3;
     private final int START_NUMBER      = 4;
 
-    public LapMessage(String[] message, LapRepository lapRepository, RaceService raceService, Connector connector) {
+    public LapMessage(String[] message, LapRepository lapRepository, RaceService raceService, ConnectorService connectorService) {
         this.message = message;
         this.lapRepository = lapRepository;
         this.raceService = raceService;
-        this.connector = connector;
+        this.connectorService = connectorService;
     }
 
 
@@ -38,8 +37,8 @@ public class LapMessage implements Message {
         raceService.newLap(lapTime, transponder, numberPackage);
 
         try {
-            connector.send(String.format("lapreceived:%d,%d", numberPackage, gateNumber));
-        } catch (ConnectHardwareException e) {
+            connectorService.send(String.format("lapreceived:%d,%d", numberPackage, gateNumber));
+        } catch (HardwareException e) {
             e.printStackTrace();
         }
     }

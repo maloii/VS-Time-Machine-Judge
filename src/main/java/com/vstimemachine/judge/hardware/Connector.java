@@ -19,11 +19,11 @@ public abstract class Connector {
         this.messageService = messageService;
     }
 
-    public abstract boolean connection(Map<String, String> params) throws ConnectHardwareException;
+    public abstract boolean connection(Map<String, String> params) throws HardwareException;
 
-    public abstract boolean disconnect() throws ConnectHardwareException;
+    public abstract boolean disconnect() throws HardwareException;
 
-    public abstract void send(String message) throws ConnectHardwareException;
+    public abstract void send(String message) throws HardwareException;
 
 
     public void scheduler() {

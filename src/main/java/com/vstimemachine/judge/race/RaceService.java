@@ -4,13 +4,11 @@ import com.vstimemachine.judge.dao.LapRepository;
 import com.vstimemachine.judge.dao.SportsmanRepository;
 import com.vstimemachine.judge.model.Group;
 import com.vstimemachine.judge.model.Lap;
-import com.vstimemachine.judge.model.Sportsman;
 import com.vstimemachine.judge.model.TypeLap;
 import com.vstimemachine.judge.race.speech.SpeechService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
-import org.hibernate.proxy.HibernateProxy;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -49,10 +47,11 @@ public class RaceService {
 
     public void start(Group group) throws RaceException {
         if(raceStatus == STOP){
-            Hibernate.initialize(group.getSportsmen());
-            Hibernate.initialize(group.getCompetition());
-            Hibernate.initialize(group.getCompetition().getGates());
-            Hibernate.initialize(group.getRound());
+            lapRepository.deleteAllByGroup(group);
+//            Hibernate.initialize(group.getSportsmen());
+//            Hibernate.initialize(group.getCompetition());
+//            Hibernate.initialize(group.getCompetition().getGates());
+//            Hibernate.initialize(group.getRound());
             selectedGroup = group;
             speechService.say(FOCUS_ON_START);
             numberPackages.clear();
@@ -87,7 +86,7 @@ public class RaceService {
         }
     }
 
-    public void newLap(long milliseconds, int transponder, int numberPackage){
+    public void newLap(long milliseconds, int transponder, final int numberPackage){
         if(raceStatus == RUN && !numberPackages.contains(numberPackage)){
             sportsmanRepository
                     .findByTranspondersNumberAndCompetition(transponder, selectedGroup.getCompetition())
@@ -109,6 +108,7 @@ public class RaceService {
                                     lap.setGroup(selectedGroup);
                                     lap.setRound(selectedGroup.getRound());
                                     lapRepository.save(lap);
+                                    numberPackages.add(numberPackage);
                                     log.info("New lap created for sportsmen: [{}] in round: [{}] in group: [{}] with time: [{}] type: [{}]",
                                             sportsman.getLastName(),
                                             selectedGroup.getRound().getName(),
@@ -127,7 +127,7 @@ public class RaceService {
     }
 
     @Scheduled(fixedRate = 1000)
-    private void reportTimeRace() {
+    public void reportTimeRace() {
         if(raceStatus == RUN && startTime != null){
             Long timeRace = (System.currentTimeMillis() - startTime)/1000L;
             this.websocket.convertAndSend(MESSAGE_PREFIX + "/reportTimeRace", String.valueOf(timeRace));

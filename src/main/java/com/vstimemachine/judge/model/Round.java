@@ -50,5 +50,6 @@ public class Round {
     @OneToMany(cascade = CascadeType.ALL,
             fetch = FetchType.EAGER,
             mappedBy = "round")
+    @OrderBy("sort ASC")
     private Set<Group> groups;
 }

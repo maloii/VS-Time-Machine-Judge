@@ -1,7 +1,6 @@
 package com.vstimemachine.judge.component;
 
 import com.vstimemachine.judge.dao.JudgeRepository;
-import com.vstimemachine.judge.model.Judge;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
