@@ -132,8 +132,7 @@ class Rounds extends React.Component {
         const tabTemplate = [];
         const panelTemplate = [];
         tabs.forEach((tab, i) => {
-            const closable = tabs.length > 1;
-            tabTemplate.push(<DragTab key={i} closable={closable}>{tab.title}</DragTab>);
+            tabTemplate.push(<DragTab key={i} closable={true}>{tab.title}</DragTab>);
             panelTemplate.push(<Panel key={i}><Groups round={tab.content} activeIndex={activeIndex} indx={i} /></Panel>);
         })
         return(
