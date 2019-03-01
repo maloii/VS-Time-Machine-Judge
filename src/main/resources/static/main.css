@@ -192,3 +192,10 @@ div.ReactTags__suggestions ul li.ReactTags__activeSuggestion {
         box-sizing: content-box;
 
 }
+.default-focus-cell {
+    outline: #6495ed solid 3px!important;
+    outline-offset: -1px;
+}
+.out-of-scope {
+    color: red;
+}

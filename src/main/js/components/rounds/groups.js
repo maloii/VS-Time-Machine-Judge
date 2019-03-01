@@ -174,7 +174,7 @@ class Groups  extends React.Component {
         //     text: '',
         //     editable: false,
         //     formatter: (cellContent, row) => (
-        //         <AccountEditIcon style={{cursor:'pointer'}} onClick={()=>this.editRow({data:row})} />
+        //         <AccountEditIcon style={{cursor:'pointer'}} onClick={()=>this.editToOutOfScore({data:row})} />
         //     )
         // }];
 

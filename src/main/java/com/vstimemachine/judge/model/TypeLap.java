@@ -2,6 +2,6 @@ package com.vstimemachine.judge.model;
 
 public enum TypeLap {
     OK,
-    FAIL,
+    OUT_OF_SCORE,//wasted
     HIDDEN
 }

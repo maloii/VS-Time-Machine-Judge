@@ -61,7 +61,7 @@ public class WlanConnector extends Connector {
                     } catch (Exception e) {
                         log.error("no longer listening for UDP broadcasts cause of error {} ", e.getMessage());
                     }finally {
-                        if (socket != null || !socket.isClosed()) {
+                        if (socket != null && !socket.isClosed()) {
                             socket.close();
                         }
                     }
