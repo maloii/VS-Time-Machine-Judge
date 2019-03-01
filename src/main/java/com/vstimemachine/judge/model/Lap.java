@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -31,19 +32,16 @@ public class Lap {
     private LocalDateTime dateCreate = LocalDateTime.now();
 
     @ManyToOne
-    @JoinColumn
+    //@RestResource(exported = false)
     private Sportsman sportsman;
 
     @ManyToOne
-    @JoinColumn
     private Round round;
 
     @ManyToOne
-    @JoinColumn
     private Group group;
 
     @ManyToOne
-    @JoinColumn
     private Gate gate;
 
 

@@ -94,30 +94,20 @@ class Groups  extends React.Component {
         });
         this.setState({group:group})
     }
-    loadSelectGroup(group){
+    loadSelectGroup(group, groups){
         client({
             method: 'GET',
             path: group._links.sportsmen.href
         }).then(sportsmen => {
             this.setState({
                 sportsmen:sportsmen.entity._embedded.sportsmen,
-                group:group
+                group:group,
+                groups:groups.entity._embedded.groups
             })
         });
     }
 
     refreshListGroups() {
-        client({
-            method: 'GET',
-            path: this.props.round._links.groups.href
-        }).then(groups => {
-            this.setState({groups: groups.entity._embedded.groups});
-            const selectedGroup = groups.entity._embedded.groups.filter(function (group) {
-                return group.selected;
-            });
-            if (selectedGroup.length > 0) this.loadSelectGroup(selectedGroup[0]);
-
-        });
         client({
             method: 'GET',
             path: Settings.raceApiRoot+'/status',
@@ -126,6 +116,21 @@ class Groups  extends React.Component {
                 statusRace: response.entity.message
             });
         });
+        client({
+            method: 'GET',
+            path: this.props.round._links.groups.href
+        }).then(groups => {
+            const selectedGroup = groups.entity._embedded.groups.filter(function (group) {
+                return group.selected;
+            });
+            if (selectedGroup.length > 0){
+                this.loadSelectGroup(selectedGroup[0], groups);
+            }else{
+                this.setState({groups: groups.entity._embedded.groups});
+            }
+
+        });
+
     }
     refreshTimeRace(time){
         this.setState({
@@ -222,7 +227,7 @@ class Groups  extends React.Component {
                             </Row>
                             <Row>
                                 <Col>
-                                    <LapsTable sportsmen={this.state.sportsmen}/>
+                                    <LapsTable sportsmen={this.state.sportsmen} group={this.state.group}/>
                                 </Col>
                             </Row>
                         </Container>

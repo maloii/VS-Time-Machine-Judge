@@ -1,5 +1,6 @@
 package com.vstimemachine.judge.race;
 
+import com.vstimemachine.judge.dao.GroupRepository;
 import com.vstimemachine.judge.dao.LapRepository;
 import com.vstimemachine.judge.dao.SportsmanRepository;
 import com.vstimemachine.judge.model.Group;
@@ -36,6 +37,7 @@ public class RaceService {
     private final SimpMessagingTemplate websocket;
     private final SpeechService speechService;
     private final SportsmanRepository sportsmanRepository;
+    private final GroupRepository groupRepository;
     private final LapRepository lapRepository;
 
     private Long startTime;
@@ -48,6 +50,8 @@ public class RaceService {
     public void start(Group group) throws RaceException {
         if(raceStatus == STOP){
             lapRepository.deleteAllByGroup(group);
+            group.setStartMillisecond(System.currentTimeMillis());
+            groupRepository.save(group);
 //            Hibernate.initialize(group.getSportsmen());
 //            Hibernate.initialize(group.getCompetition());
 //            Hibernate.initialize(group.getCompetition().getGates());

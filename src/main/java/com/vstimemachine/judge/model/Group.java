@@ -34,22 +34,23 @@ public class Group {
     private Boolean selected = false;
     private Boolean close = false;
     private Long timeSatart;
-
+    private Long startMillisecond;
 
     @ManyToOne
-    @JoinColumn
     private Competition competition;
 
     @ManyToOne
-    @JoinColumn
     private League league;
 
     @ManyToOne
-    @JoinColumn
     private Round round;
 
     @ManyToMany
     private Set<Sportsman> sportsmen;
+
+    @OneToMany(mappedBy = "group")
+    @OrderBy("millisecond ASC")
+    private Set<Lap> laps;
 
     public Group(String name, Integer sort, Round round, Competition competition) {
         this.name = name;

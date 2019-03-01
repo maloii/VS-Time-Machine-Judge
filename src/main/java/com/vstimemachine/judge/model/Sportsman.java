@@ -50,8 +50,12 @@ public class Sportsman {
     @JoinColumn(name="competition_id")
     private Competition competition;
 
-    @ManyToMany()
+    @ManyToMany(mappedBy = "sportsmen")
     private Set<Group> groups;
+
+    @OneToMany(mappedBy = "sportsman")
+    @OrderBy("millisecond ASC")
+    private Set<Lap> laps;
 
     public void addGroup(Group group){
         if(groups == null) groups = new HashSet<Group>();
