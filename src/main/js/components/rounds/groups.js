@@ -6,6 +6,7 @@ import client from "../../client";
 import stompClient from "../../websocket_listener";
 import LapsTable from "./laps_table";
 import Settings from "../../settings"
+import ModalNewGroup from  "./modal_new_group"
 
 
 String.prototype.toHHMMSS = function () {
@@ -27,7 +28,7 @@ class Groups  extends React.Component {
         this.state = {
             group: null,
             groups: [],
-            sportsmen: [],
+            groupSportsmen: [],
             timeRace:'0',
             statusRace:'STOP'
         }
@@ -39,6 +40,9 @@ class Groups  extends React.Component {
         this.handleStartRace = this.handleStartRace.bind(this);
         this.handleStopRace = this.handleStopRace.bind(this);
         this.handleSearchTransponders = this.handleSearchTransponders.bind(this);
+        this.toggleShowNewGroup = this.toggleShowNewGroup.bind(this);
+
+        this.dialogGroup = React.createRef();
 
     }
 
@@ -70,6 +74,9 @@ class Groups  extends React.Component {
            alert('Mistake! The group is not selected.');
         }
     }
+    toggleShowNewGroup(){
+        this.dialogGroup.current.toggleShow();
+    }
     handleStopRace(){
         client({
             method: 'GET',
@@ -97,10 +104,10 @@ class Groups  extends React.Component {
     loadSelectGroup(group, groups){
         client({
             method: 'GET',
-            path: group._links.sportsmen.href
-        }).then(sportsmen => {
+            path: group._links.groupSportsmen.href
+        }).then(groupSportsmen => {
             this.setState({
-                sportsmen:sportsmen.entity._embedded.sportsmen,
+                groupSportsmen:groupSportsmen.entity._embedded.groupSportsmen,
                 group:group,
                 groups:groups.entity._embedded.groups
             })
@@ -199,7 +206,8 @@ class Groups  extends React.Component {
             <Container fluid>
                 <Row>
                     <Col md={2} className="text-center">
-                        <Button color="primary" style={{marginBottom: '10px' }} onClick={this.handleExtraButton}>
+                        <ModalNewGroup ref={this.dialogGroup} />
+                        <Button color="primary" style={{marginBottom: '10px' }} onClick={this.toggleShowNewGroup}>
                             <AccountPlusIcon/> Add new group
                         </Button>
                         <ListGroup>
@@ -227,7 +235,7 @@ class Groups  extends React.Component {
                             </Row>
                             <Row>
                                 <Col>
-                                    <LapsTable sportsmen={this.state.sportsmen} group={this.state.group}/>
+                                    <LapsTable groupSportsmen={this.state.groupSportsmen} group={this.state.group}/>
                                 </Col>
                             </Row>
                         </Container>

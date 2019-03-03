@@ -40,13 +40,13 @@ public class GroupEventHandler {
                 MESSAGE_PREFIX + "/newGroup", getPath(group));
     }
 
-    @HandleBeforeDelete
-    public void deleteGroupBefore(Group group) {
-        group.getSportsmen().forEach(sportsman->{
-            sportsman.getGroups().remove(group);
-            log.info("Remove links between sportsmen:{} and group:{}", sportsman.getId(), group.getId());
-        });
-    }
+//    @HandleBeforeDelete
+////    public void deleteGroupBefore(Group group) {
+////        group.getSportsmen().forEach(sportsman->{
+////            sportsman.getGroups().remove(group);
+////            log.info("Remove links between sportsmen:{} and group:{}", sportsman.getId(), group.getId());
+////        });
+////    }
 
     @HandleAfterDelete
     public void deleteGroup(Group group) {

@@ -45,10 +45,14 @@ public class Group {
     @ManyToOne
     private Round round;
 
-    @ManyToMany
-    private Set<Sportsman> sportsmen;
+//    @ManyToMany
+//    private Set<Sportsman> sportsmen;
 
-    @OneToMany(mappedBy = "group")
+    @ManyToMany(mappedBy = "group", cascade = CascadeType.ALL)
+    @OrderBy("sort ASC")
+    private Set<GroupSportsman> groupSportsmen;
+
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
     @OrderBy("millisecond ASC")
     private Set<Lap> laps;
 
@@ -59,8 +63,13 @@ public class Group {
         this.competition = competition;
     }
 
-    public void addSportsman(Sportsman sportsman){
-        if(sportsmen == null) sportsmen = new HashSet<Sportsman>();
-        sportsmen.add(sportsman);
+//    public void addSportsman(Sportsman sportsman){
+//        if(sportsmen == null) sportsmen = new HashSet<Sportsman>();
+//        sportsmen.add(sportsman);
+//    }
+
+    public void addGroupSportsmen(GroupSportsman groupSportsman){
+        if(groupSportsmen == null) groupSportsmen = new HashSet<GroupSportsman>();
+        groupSportsmen.add(groupSportsman);
     }
 }

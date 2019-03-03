@@ -20,6 +20,8 @@ public class LapResourceProcessor implements ResourceProcessor<Resource<Lap>> {
         if (lap.getSportsman() != null) {
             resource.add(entityLinks.linkForSingleResource(Sportsman.class, lap.getSportsman().getId())
             .withRel("sportsmanSelf"));
+            resource.add(entityLinks.linkForSingleResource(Sportsman.class, lap.getSportsman().getId())
+                    .withRel("sportsmanId").withHref(lap.getSportsman().getId().toString()));
         }
         return resource;
     }

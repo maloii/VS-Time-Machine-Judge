@@ -1,6 +1,7 @@
 package com.vstimemachine.judge.component;
 
 import com.vstimemachine.judge.dao.JudgeRepository;
+import com.vstimemachine.judge.model.Judge;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -17,9 +18,11 @@ public class DatabaseLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        /*Judge demo = this.judgeRepository.save(new Judge("demo", "demo",
-                "ROLE_JUDGE"));
-        Judge oliver = this.judgeRepository.save(new Judge("oliver", "gierke",
+        if(this.judgeRepository.findByName("demo") == null) {
+            Judge demo = this.judgeRepository.save(new Judge("demo", "demo",
+                    "ROLE_JUDGE"));
+        }
+        /*Judge oliver = this.judgeRepository.save(new Judge("oliver", "gierke",
                 "ROLE_JUDGE"));
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken("demo", "doesn't matter",

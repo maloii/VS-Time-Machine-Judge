@@ -2,12 +2,10 @@ package com.vstimemachine.judge.component.event;
 
 
 import com.vstimemachine.judge.dao.GroupRepository;
+import com.vstimemachine.judge.dao.GroupSportsmanRepository;
 import com.vstimemachine.judge.dao.RoundRepository;
 import com.vstimemachine.judge.dao.SportsmanRepository;
-import com.vstimemachine.judge.model.Group;
-import com.vstimemachine.judge.model.Round;
-import com.vstimemachine.judge.model.Sportsman;
-import com.vstimemachine.judge.model.TypeGenerateRound;
+import com.vstimemachine.judge.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +35,7 @@ public class RoundEventHandler {
     private final RoundRepository roundRepository;
     private final GroupRepository groupRepository;
     private final SportsmanRepository sportsmanRepository;
+    private final GroupSportsmanRepository groupSportsmanRepository;
 
     @HandleBeforeCreate
     @HandleBeforeSave
@@ -62,10 +61,17 @@ public class RoundEventHandler {
                         groupRepository.save(group);
                         log.info("Greate new group: {}", group.getName());
                     }
+                    GroupSportsman groupSportsman = new GroupSportsman();
                     Sportsman sportsman = sportsmen.get(i);
-                    sportsman.addGroup(group);
-                    group.addSportsman(sportsman);
-                    sportsmanRepository.save(sportsman);
+                    sportsman.setGroupSportsman(groupSportsman);
+                    groupSportsman.setSportsman(sportsman);
+                    groupSportsman.setGroup(group);
+                    groupSportsman.setSort(i);
+//                    sportsman.addGroup(group);
+//                    group.addSportsman(sportsman);
+                    group.addGroupSportsmen(groupSportsman);
+//                    sportsmanRepository.save(sportsman);
+                    groupSportsmanRepository.save(groupSportsman);
                     log.info("Add sportsman: {} {} to group: {}", sportsman.getFirstName(), sportsman.getLastName(), group.getName());
                 }
             }else{
@@ -77,16 +83,16 @@ public class RoundEventHandler {
                 MESSAGE_PREFIX + "/newRound", getPath(round));
     }
 
-    @HandleBeforeDelete
-    public void deleteRoundBefore(Round round) {
-        round.getGroups().forEach(group->{
-            group.getSportsmen().forEach(sportsman->{
-                sportsman.getGroups().remove(group);
-                log.info("Remove links between sportsmen:{} and group:{}", sportsman.getId(), group.getId());
-
-            });
-        });
-    }
+//    @HandleBeforeDelete
+//    public void deleteRoundBefore(Round round) {
+//        round.getGroups().forEach(group->{
+//            group.getSportsmen().forEach(sportsman->{
+//                sportsman.getGroups().remove(group);
+//                log.info("Remove links between sportsmen:{} and group:{}", sportsman.getId(), group.getId());
+//
+//            });
+//        });
+//    }
 
     @HandleAfterDelete
     public void deleteRound(Round round) {

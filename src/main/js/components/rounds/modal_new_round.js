@@ -95,7 +95,7 @@ class ModalNewRound extends React.Component {
             submit = <Button color="primary" onClick={this.handleUpdate}>
                 Update
             </Button>
-            deleteButton = <Button color="danger" onClick={this.handleUDelete} className="mr-auto">
+            deleteButton = <Button color="danger" onClick={this.handleDelete} className="mr-auto">
                 Delete
             </Button>
             header = 'Edit round';

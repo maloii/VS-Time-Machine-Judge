@@ -17,7 +17,7 @@ public interface GroupRepository extends CrudRepository<Group, Long> {
     Group save(@Param("group") Group group);
 
 
-    @EntityGraph(attributePaths = {"sportsmen", "round", "competition", "competition.gates"})
+    @EntityGraph(attributePaths = {"groupSportsmen", "round", "competition", "competition.gates"})
     Optional<Group> findById(@Param("id") Long id);
 
     @Override

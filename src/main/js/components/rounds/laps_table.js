@@ -5,6 +5,7 @@ import stompClient from "../../websocket_listener";
 import client from "../../client";
 import {ContextMenu, ContextMenuTrigger, MenuItem, Badge} from "react-contextmenu";
 import ReactDOM from "react-dom";
+import Settings from "../../settings";
 
 Number.prototype.toHHMMSSMSSS = function () {
     var minus = false;
@@ -50,7 +51,7 @@ class LapsTable  extends React.Component {
         super(props);
 
         this.state = {
-            sportsmen: [],
+            groupSportsmen: this.props.groupSportsmen,
             laps:[],
             group:{}
         }
@@ -104,9 +105,9 @@ class LapsTable  extends React.Component {
         }
     }
     contextMenuHide(e){
-        if(this.contextSelectedItem != null){
+        if(this.contextSelectedItem != null && this.contextSelectedItemData != null){
             let outOfScope = '';
-            if(lap.typeLap === 'OUT_OF_SCORE') outOfScope = 'out-of-scope';
+            if(this.contextSelectedItemData.typeLap === 'OUT_OF_SCORE') outOfScope = 'out-of-scope';
             this.contextSelectedItem.className = outOfScope;
         }
     }
@@ -116,8 +117,6 @@ class LapsTable  extends React.Component {
         }else{
             ReactDOM.findDOMNode(this.refs['outOfScore']).innerText = "Out of score";
         }
-        console.log(e.detail.data.typeLap);
-        console.log(ReactDOM.findDOMNode(this.refs['outOfScore']));
     }
     refreshTableLaps() {
         if(this.group != null) {
@@ -131,8 +130,8 @@ class LapsTable  extends React.Component {
                 }).then(lapsResponse => {
                     let laps = [];
                     lapsResponse.entity._embedded.laps.map(lap => {
-                        if (laps[lap._links.sportsmanSelf.href] == null) laps[lap._links.sportsmanSelf.href] = [];
-                        laps[lap._links.sportsmanSelf.href].push(lap);
+                        if (laps[lap._links.sportsmanId.href] == null) laps[lap._links.sportsmanId.href] = [];
+                        laps[lap._links.sportsmanId.href].push(lap);
                     });
 
                     this.setState({
@@ -152,7 +151,10 @@ class LapsTable  extends React.Component {
         this.stomp = stompClient.register([
             {route: '/topic/newLap', callback: this.refreshTableLaps},
             {route: '/topic/updateLap', callback: this.refreshTableLaps},
-            {route: '/topic/deleteLap', callback: this.refreshTableLaps}
+            {route: '/topic/deleteLap', callback: this.refreshTableLaps},
+            {route: '/topic/newGroupSportsman', callback: this.refreshTableLaps},
+            {route: '/topic/deleteGroupSportsman', callback: this.refreshTableLaps},
+            {route: '/topic/updateGroupSportsman', callback: this.refreshTableLaps}
         ]);
     }
     componentWillUnmount(){
@@ -168,38 +170,77 @@ class LapsTable  extends React.Component {
             this.group = nextProps.group;
             this.refreshTableLaps();
         }
+        if(nextProps.groupSportsmen != null){
+            this.setState({groupSportsmen: nextProps.groupSportsmen})
+        }
     }
+    onDragSportsmenStart = (e, index) => {
+        this.draggedItem = this.state.groupSportsmen[index];
+        e.dataTransfer.effectAllowed = "move";
+    };
+    onDragSportsmenOver = index => {
+        const draggedOverItem = this.state.groupSportsmen[index];
+        if (this.draggedItem === draggedOverItem) {
+            return;
+        }
+        let items = this.state.groupSportsmen.filter(item => item !== this.draggedItem);
+        items.splice(index, 0, this.draggedItem);
+        this.setState({ groupSportsmen:items });
+    };
+
+    onDragSportsmenEnd = () => {
+        this.state.groupSportsmen.map((groupSportsmen, indx)=>{
+            let gs = {
+                id:groupSportsmen.id,
+                sort: indx
+            };
+            client({
+                method: 'POST',
+                path: Settings.raceApiRoot+'/sort_group_sportsmen',
+                entity: gs,
+                headers: {'Content-Type': 'application/json'}
+            });
+        });
+        this.draggedIdx = null;
+    };
     render(){
         const headerTable = [];
         const lapsTable = [];
         let countRows = 0;
+        let width = "100%";
+        if(this.state.groupSportsmen.length > 0) width = Math.floor(100/this.state.groupSportsmen.length);
 
         headerTable.push(<th key="lap" width="50" style={{textAlign: 'center'}}>LAP</th>);
-        this.props.sportsmen.map(sportsman=>{
-            headerTable.push(<th key={sportsman._links.self.href}>{sportsman.firstName} {sportsman.lastName}</th>);
-            if(this.state.laps[sportsman._links.self.href] != null) {
-                let lengthLaps = this.state.laps[sportsman._links.self.href].length
+        this.state.groupSportsmen.map((groupSportsman, idx)=>{
+            headerTable.push(<th width={width + '%'}
+                                 key={groupSportsman._links.self.href}
+                                 onDragOver={() => this.onDragSportsmenOver(idx)}
+                                 draggable
+                                 onDragStart={(e) => this.onDragSportsmenStart(e, idx)}
+                                 onDragEnd={this.onDragSportsmenEnd}>{groupSportsman.sportsman.firstName} {groupSportsman.sportsman.lastName}{groupSportsman.sportsman.nick != ""?'('+groupSportsman.sportsman.nick+')':''}</th>);
+            if(this.state.laps[groupSportsman.sportsman.id] != null) {
+                let lengthLaps = this.state.laps[groupSportsman.sportsman.id].length
                 if(lengthLaps > countRows) countRows = lengthLaps;
             }
         });
         for(let i = 0; i < countRows; i++){
             let cels = [<td key={'lap_'+i}  width="50" style={{textAlign: 'center'}}>{i+1}</td>];
-            this.props.sportsmen.map(sportsman=>{
-                if(this.state.laps[sportsman._links.self.href] != null &&
-                    this.state.laps[sportsman._links.self.href].length > i) {
-                    let lap = this.state.laps[sportsman._links.self.href][i];
+            this.state.groupSportsmen.map(groupSportsman=>{
+                if(this.state.laps[groupSportsman.sportsman.id] != null &&
+                    this.state.laps[groupSportsman.sportsman.id].length > i) {
+                    let lap = this.state.laps[groupSportsman.sportsman.id][i];
                     let time = 0;
                     if(i === 0){
                         time = lap.millisecond - this.state.group.startMillisecond;
                     }else{
-                        time = lap.millisecond - this.state.laps[sportsman._links.self.href][i-1].millisecond;
+                        time = lap.millisecond - this.state.laps[groupSportsman.sportsman.id][i-1].millisecond;
                     }
-                    this.state.laps[sportsman._links.self.href][i].time = time;
+                    this.state.laps[groupSportsman.sportsman.id][i].time = time;
                     let outOfScope = '';
                     if(lap.typeLap === 'OUT_OF_SCORE') outOfScope = 'out-of-scope';
                     let gap = '';
                     if(i > 0){
-                        let timeGap = this.state.laps[sportsman._links.self.href][i-1].time - time;
+                        let timeGap = this.state.laps[groupSportsman.sportsman.id][i-1].time - time;
                         if(timeGap > 0){
                             gap = <span className="badge badge-success">{timeGap.toClearHHMMSSMSSS()}</span>
                         }else if (timeGap === 0){
@@ -210,9 +251,9 @@ class LapsTable  extends React.Component {
                     }
 
 
-                    cels.push(<td key={lap._links.self.href} className={outOfScope} onContextMenu={(e) => this.rowEvents(e, lap, i)}>{time.toHHMMSSMSSS()} {gap}</td>)
+                    cels.push(<td width={width + '%'} key={lap._links.self.href} className={outOfScope} onContextMenu={(e) => this.rowEvents(e, lap, i)}>{time.toHHMMSSMSSS()} {gap}</td>)
                 }else{
-                    cels.push(<td key={sportsman._links.self.href+'_empty_'+i}></td>)
+                    cels.push(<td width={width + '%'} key={groupSportsman._links.self.href+'_empty_'+i}></td>)
                 }
             });
             lapsTable.push(<tr key={'row_'+i}>{cels}</tr>);
@@ -231,7 +272,7 @@ class LapsTable  extends React.Component {
                         Delete
                     </MenuItem>
                 </ContextMenu>
-                <Table bordered striped hover>
+                <Table bordered striped hover >
                     <thead>
                     <tr>
                         {headerTable}

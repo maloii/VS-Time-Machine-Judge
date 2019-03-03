@@ -12,6 +12,7 @@ public class SpringDataRestCustomization implements RepositoryRestConfigurer {
 
         config.exposeIdsFor(
                 Group.class,
+                GroupSportsman.class,
                 Round.class,
                 Competition.class,
                 Sportsman.class,

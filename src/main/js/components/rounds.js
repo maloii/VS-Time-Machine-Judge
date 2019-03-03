@@ -140,6 +140,7 @@ class Rounds extends React.Component {
                 <Row>
                     <Col id="rootTabs">
                         <ModalNewRound ref={this.dialogRound} maxSortRound={this.state.maxSortRound} />
+
                         <Tabs activeIndex={activeIndex}
                               onTabEdit={this.handleEdit}
                               onTabChange={this.handleTabChange}
