@@ -50,18 +50,15 @@ public class Sportsman {
     @JoinColumn(name="competition_id")
     private Competition competition;
 
-//    @ManyToMany(mappedBy = "sportsmen")
-//    private Set<Group> groups;
-
     @OneToMany(mappedBy = "sportsman", cascade = CascadeType.ALL)
     @OrderBy("millisecond ASC")
     private Set<Lap> laps;
 
-    @OneToOne(mappedBy = "sportsman", cascade = CascadeType.ALL)
-    private GroupSportsman groupSportsman;
+    @OneToMany(mappedBy = "sportsman", cascade = CascadeType.ALL)
+    private Set<GroupSportsman> groupSportsmen;
 
-//    public void addGroup(Group group){
-//        if(groups == null) groups = new HashSet<Group>();
-//        groups.add(group);
-//    }
+    public void addGroupSportsman(GroupSportsman groupSportsman){
+        if(groupSportsman == null) groupSportsmen = new HashSet<GroupSportsman>();
+        groupSportsmen.add(groupSportsman);
+    }
 }

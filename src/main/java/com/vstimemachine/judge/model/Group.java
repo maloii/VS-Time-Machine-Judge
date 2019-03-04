@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 @Data
@@ -21,7 +22,6 @@ public class Group {
 
     @Id
     @GeneratedValue
-    @JsonInclude
     private Long id;
 
     @Version
@@ -45,9 +45,6 @@ public class Group {
     @ManyToOne
     private Round round;
 
-//    @ManyToMany
-//    private Set<Sportsman> sportsmen;
-
     @ManyToMany(mappedBy = "group", cascade = CascadeType.ALL)
     @OrderBy("sort ASC")
     private Set<GroupSportsman> groupSportsmen;
@@ -63,13 +60,20 @@ public class Group {
         this.competition = competition;
     }
 
-//    public void addSportsman(Sportsman sportsman){
-//        if(sportsmen == null) sportsmen = new HashSet<Sportsman>();
-//        sportsmen.add(sportsman);
-//    }
-
     public void addGroupSportsmen(GroupSportsman groupSportsman){
         if(groupSportsmen == null) groupSportsmen = new HashSet<GroupSportsman>();
         groupSportsmen.add(groupSportsman);
+    }
+
+    @PreRemove
+    private void removeGroup() {
+        if(round != null && round.getGroups() != null) round.getGroups().remove(this);
+        if(competition != null && competition.getGroups() != null) competition.getGroups().remove(this);
+        if(league != null && league.getGroups() != null) league.getGroups().remove(this);
+        Iterator<GroupSportsman> iterator = groupSportsmen.iterator();
+        while (iterator.hasNext()) {
+            GroupSportsman groupSportsman = iterator.next();
+            groupSportsman.getSportsman().getGroupSportsmen().remove(groupSportsman);
+        }
     }
 }

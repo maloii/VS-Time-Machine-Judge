@@ -63,7 +63,7 @@ public class RoundEventHandler {
                     }
                     GroupSportsman groupSportsman = new GroupSportsman();
                     Sportsman sportsman = sportsmen.get(i);
-                    sportsman.setGroupSportsman(groupSportsman);
+                    sportsman.addGroupSportsman(groupSportsman);
                     groupSportsman.setSportsman(sportsman);
                     groupSportsman.setGroup(group);
                     groupSportsman.setSort(i);

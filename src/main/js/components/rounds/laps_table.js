@@ -1,11 +1,11 @@
 'use strict';
 import React from 'react';
-import {Table} from "reactstrap";
+import {Button, Table} from "reactstrap";
+import {WindowCloseIcon} from "mdi-react";
 import stompClient from "../../websocket_listener";
 import client from "../../client";
-import {ContextMenu, ContextMenuTrigger, MenuItem, Badge} from "react-contextmenu";
+import {Badge, ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
 import ReactDOM from "react-dom";
-import Settings from "../../settings";
 
 Number.prototype.toHHMMSSMSSS = function () {
     var minus = false;
@@ -152,8 +152,6 @@ class LapsTable  extends React.Component {
             {route: '/topic/newLap', callback: this.refreshTableLaps},
             {route: '/topic/updateLap', callback: this.refreshTableLaps},
             {route: '/topic/deleteLap', callback: this.refreshTableLaps},
-            {route: '/topic/newGroupSportsman', callback: this.refreshTableLaps},
-            {route: '/topic/deleteGroupSportsman', callback: this.refreshTableLaps},
             {route: '/topic/updateGroupSportsman', callback: this.refreshTableLaps}
         ]);
     }
@@ -190,19 +188,24 @@ class LapsTable  extends React.Component {
 
     onDragSportsmenEnd = () => {
         this.state.groupSportsmen.map((groupSportsmen, indx)=>{
-            let gs = {
-                id:groupSportsmen.id,
-                sort: indx
-            };
+            var copyGroupSportsmen = Object.assign({}, groupSportsmen);
+            copyGroupSportsmen.sort = indx;
+            delete copyGroupSportsmen.sportsman;
+            delete copyGroupSportsmen.group;
             client({
-                method: 'POST',
-                path: Settings.raceApiRoot+'/sort_group_sportsmen',
-                entity: gs,
+                method: 'PUT',
+                path: groupSportsmen._links.self.href,
+                entity: copyGroupSportsmen,
                 headers: {'Content-Type': 'application/json'}
             });
         });
         this.draggedIdx = null;
     };
+    onDeleteGroupSportsman = (e, groupSportsman) =>{
+        if(confirm('Do you really want to delete the record?')) {
+            client({method: 'DELETE', path: groupSportsman._links.self.href});
+        }
+    }
     render(){
         const headerTable = [];
         const lapsTable = [];
@@ -217,12 +220,19 @@ class LapsTable  extends React.Component {
                                  onDragOver={() => this.onDragSportsmenOver(idx)}
                                  draggable
                                  onDragStart={(e) => this.onDragSportsmenStart(e, idx)}
-                                 onDragEnd={this.onDragSportsmenEnd}>{groupSportsman.sportsman.firstName} {groupSportsman.sportsman.lastName}{groupSportsman.sportsman.nick != ""?'('+groupSportsman.sportsman.nick+')':''}</th>);
+                                 onDragEnd={this.onDragSportsmenEnd}>
+                {groupSportsman.sportsman.firstName} {groupSportsman.sportsman.lastName}{groupSportsman.sportsman.nick != ""?'('+groupSportsman.sportsman.nick+')':''}
+                    <WindowCloseIcon
+                        color="grey"
+                        style={{float:'right', cursor:'pointer'}}
+                        onClick={(e) => this.onDeleteGroupSportsman(e, groupSportsman)}/>
+                        </th>);
             if(this.state.laps[groupSportsman.sportsman.id] != null) {
                 let lengthLaps = this.state.laps[groupSportsman.sportsman.id].length
                 if(lengthLaps > countRows) countRows = lengthLaps;
             }
         });
+
         for(let i = 0; i < countRows; i++){
             let cels = [<td key={'lap_'+i}  width="50" style={{textAlign: 'center'}}>{i+1}</td>];
             this.state.groupSportsmen.map(groupSportsman=>{

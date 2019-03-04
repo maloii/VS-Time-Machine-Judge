@@ -32,7 +32,6 @@ public class Lap {
     private LocalDateTime dateCreate = LocalDateTime.now();
 
     @ManyToOne
-    //@RestResource(exported = false)
     private Sportsman sportsman;
 
     @ManyToOne
@@ -43,6 +42,9 @@ public class Lap {
 
     @ManyToOne
     private Gate gate;
+
+    @ManyToOne
+    private GroupSportsman groupSportsman;
 
 
 }

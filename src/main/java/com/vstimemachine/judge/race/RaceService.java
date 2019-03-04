@@ -1,6 +1,7 @@
 package com.vstimemachine.judge.race;
 
 import com.vstimemachine.judge.dao.GroupRepository;
+import com.vstimemachine.judge.dao.GroupSportsmanRepository;
 import com.vstimemachine.judge.dao.LapRepository;
 import com.vstimemachine.judge.dao.SportsmanRepository;
 import com.vstimemachine.judge.model.Group;
@@ -9,7 +10,6 @@ import com.vstimemachine.judge.model.TypeLap;
 import com.vstimemachine.judge.race.speech.SpeechService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -39,6 +39,7 @@ public class RaceService {
     private final SportsmanRepository sportsmanRepository;
     private final GroupRepository groupRepository;
     private final LapRepository lapRepository;
+    private final GroupSportsmanRepository groupSportsmanRepository;
 
     private Long startTime;
     private RaceStatus raceStatus = STOP;
@@ -111,14 +112,20 @@ public class RaceService {
                                     lap.setGate(gate);
                                     lap.setGroup(selectedGroup);
                                     lap.setRound(selectedGroup.getRound());
-                                    lapRepository.save(lap);
+                                    selectedGroup.getGroupSportsmen()
+                                            .stream()
+                                            .filter(groupSportsmen->groupSportsmen.getSportsman().equals(sportsman))
+                                            .findFirst().ifPresent(groupSportsmen->{
+                                                lap.setGroupSportsman(groupSportsmen);
+                                                lapRepository.save(lap);
+                                        log.info("New lap created for sportsmen: [{}] in round: [{}] in group: [{}] with time: [{}] type: [{}]",
+                                                sportsman.getLastName(),
+                                                selectedGroup.getRound().getName(),
+                                                selectedGroup.getName(),
+                                                milliseconds,
+                                                typeLap);
+                                    });
                                     numberPackages.add(numberPackage);
-                                    log.info("New lap created for sportsmen: [{}] in round: [{}] in group: [{}] with time: [{}] type: [{}]",
-                                            sportsman.getLastName(),
-                                            selectedGroup.getRound().getName(),
-                                            selectedGroup.getName(),
-                                            milliseconds,
-                                            typeLap);
                                 });
                     });
         }

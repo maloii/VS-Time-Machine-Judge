@@ -7,7 +7,9 @@ import stompClient from "../../websocket_listener";
 import LapsTable from "./laps_table";
 import Settings from "../../settings"
 import ModalNewGroup from  "./modal_new_group"
+import {ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
 
+let contextTrigger = null;
 
 String.prototype.toHHMMSS = function () {
     var sec_num = parseInt(this, 10); // don't forget the second param
@@ -41,9 +43,12 @@ class Groups  extends React.Component {
         this.handleStopRace = this.handleStopRace.bind(this);
         this.handleSearchTransponders = this.handleSearchTransponders.bind(this);
         this.toggleShowNewGroup = this.toggleShowNewGroup.bind(this);
-
+        this.addGroupSportsmen = this.addGroupSportsmen.bind(this);
+        this.deleteGroup = this.deleteGroup.bind(this);
+        this.editGroup = this.editGroup.bind(this);
         this.dialogGroup = React.createRef();
 
+        this.contextSelectedGroupData = null;
     }
 
 
@@ -101,6 +106,24 @@ class Groups  extends React.Component {
         });
         this.setState({group:group})
     }
+    rowGroupEvents(e, group){
+        if(contextTrigger) {
+            this.contextSelectedGroupData = group;
+            contextTrigger.handleContextClick(e);
+        }
+    }
+    addGroupSportsmen(e){
+        console.log(this.contextSelectedGroupData);
+    }
+    editGroup(e){
+        this.dialogGroup.current.toggleShow(this.contextSelectedGroupData);
+    }
+    deleteGroup(){
+        if(confirm('Do you really want to delete the record?')){
+            client({method: 'DELETE', path: this.contextSelectedGroupData._links.self.href});
+        }
+    }
+
     loadSelectGroup(group, groups){
         client({
             method: 'GET',
@@ -151,6 +174,10 @@ class Groups  extends React.Component {
             {route: '/topic/updateGroup', callback: this.refreshListGroups},
             {route: '/topic/deleteGroup', callback: this.refreshListGroups},
             {route: '/topic/updateRound', callback: this.refreshListGroups},
+            {route: '/topic/newGroupSportsman', callback: this.refreshListGroups},
+            {route: '/topic/deleteGroupSportsman', callback: this.refreshListGroups},
+            {route: '/topic/updateGroupSportsman', callback: this.refreshListGroups},
+
             {route: '/topic/reportTimeRace', callback: this.refreshTimeRace}
         ]);
     }
@@ -162,52 +189,14 @@ class Groups  extends React.Component {
         }
     }
     render(){
-
-        // let columns = [];
-        // this.state.sportsmen.map(sportsman=>{
-        //     columns = [...columns, {dataField:sportsman._links.self.href, text:sportsman.firstName+' '+sportsman.lastName}];
-        // });
-        // const columns = [{
-        //     dataField: 'id',
-        //     text: 'Product ID'
-        // }, {
-        //     dataField: 'name',
-        //     text: 'Product Name'
-        // }, {
-        //     dataField: 'price',
-        //     text: 'Product Price'
-        // }, {
-        //     dataField: 'buttons',
-        //     text: '',
-        //     editable: false,
-        //     formatter: (cellContent, row) => (
-        //         <AccountEditIcon style={{cursor:'pointer'}} onClick={()=>this.editToOutOfScore({data:row})} />
-        //     )
-        // }];
-
-        // const products = [];
-        // let tableSportsmen = <></>;
-        // if(columns.length > 0){ tableSportsmen =
-        //     <>
-        //
-        //         <BootstrapTable
-        //             keyField="id"
-        //             data={products}
-        //             columns={columns}
-        //             cellEdit={cellEditFactory({mode: 'click'})}
-        //             rowEvents={this.rowEvents}
-        //         />
-        //     </>
-        // }
-
         const disabledStop = (this.state.statusRace === 'STOP')? true:false;
         const disabledStart = (this.state.statusRace === 'STOP')? false:true;
         return(
             <Container fluid>
                 <Row>
-                    <Col md={2} className="text-center">
-                        <ModalNewGroup ref={this.dialogGroup} />
-                        <Button color="primary" style={{marginBottom: '10px' }} onClick={this.toggleShowNewGroup}>
+                    <Col className="text-center" style={{maxWidth:'200px', minWidth:'200px'}}>
+                        <ModalNewGroup ref={this.dialogGroup} groups={this.state.groups} round={this.props.round} />
+                        <Button color="primary" style={{marginBottom: '10px', whiteSpace: 'nowrap'}} onClick={this.toggleShowNewGroup}>
                             <AccountPlusIcon/> Add new group
                         </Button>
                         <ListGroup>
@@ -218,11 +207,27 @@ class Groups  extends React.Component {
                                     onClick={()=>this.handleSelectGroup(group)}
                                     action
                                     active={group.selected}
+                                    onContextMenu={(e) => this.rowGroupEvents(e, group)}
                                     >{group.name}</ListGroupItem>
+
                             })}
                         </ListGroup>
+                        <ContextMenuTrigger id={'context_menu_group'}  ref={c => contextTrigger = c} >
+                            <div></div>
+                        </ContextMenuTrigger>
+                        <ContextMenu id={'context_menu_group'}>
+                            <MenuItem onClick={this.editGroup}>
+                                Edit
+                            </MenuItem>
+                            <MenuItem onClick={this.addGroupSportsmen}>
+                                Add spotrsmen
+                            </MenuItem>
+                            <MenuItem onClick={this.deleteGroup}>
+                                Delete
+                            </MenuItem>
+                        </ContextMenu>
                     </Col>
-                    <Col md={10}>
+                    <Col>
                         <Container fluid>
                             <Row>
                                 <Col md={2}>

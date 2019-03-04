@@ -56,6 +56,13 @@ public class RaceController {
             groupSportsmanRepository.save(groupSportsman);
         });
 
-        return new ResponseEntity<>(new ResponseMessage("status", raceService.status().toString()), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseMessage("status", "OK"), HttpStatus.OK);
+    }
+
+    @RequestMapping("/delete_group")
+    public ResponseEntity<ResponseMessage> deleteGroup(@RequestBody Map<String, String> body) {
+        groupRepository.deleteById(Long.parseLong(body.get("id")));
+
+        return new ResponseEntity<>(new ResponseMessage("status", "OK"), HttpStatus.OK);
     }
 }

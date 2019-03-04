@@ -22,19 +22,15 @@ import client from "../../client";
 import Settings from "../../settings";
 
 
-const selectRowProp = {
-    mode: 'checkbox',
-    clickToSelect: true,
-    style: { backgroundColor: '#c8e6c9' }
-};
 
 class ModalNewGroup extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            group: {},
             sportsmen:[],
+            group:{},
+            selected:[],
             url: null
         }
 
@@ -53,13 +49,45 @@ class ModalNewGroup extends React.Component {
         });
     }
 
-    toggleShow() {
-        this.refreshTableSportsmen();
-        this.setState({
-            modalGroup: !this.state.modalGroup
-        });
+    toggleShow(group) {
+        if(group == null) {
+            this.refreshTableSportsmen();
+            this.setState({
+                modalGroup: !this.state.modalGroup,
+                group: {name: 'Group ' + (this.props.groups.length + 1)}
+            });
+        }else{
+            this.setState({
+                modalGroup: !this.state.modalGroup,
+                group: group
+            });
+        }
     }
 
+    handleOnSelect = (row, isSelect) => {
+        if (isSelect) {
+            this.setState(() => ({
+                selected: [...this.state.selected, row.id]
+            }));
+        } else {
+            this.setState(() => ({
+                selected: this.state.selected.filter(x => x !== row.id)
+            }));
+        }
+    }
+
+    handleOnSelectAll = (isSelect, rows) => {
+        const ids = rows.map(r => r.id);
+        if (isSelect) {
+            this.setState(() => ({
+                selected: ids
+            }));
+        } else {
+            this.setState(() => ({
+                selected: []
+            }));
+        }
+    }
     refreshTableSportsmen(){
         if (Global.competition !== null) {
             client({
@@ -73,34 +101,60 @@ class ModalNewGroup extends React.Component {
         }
     }
 
-    toggleEditShow(url) {
+    toggleEditShow() {
 
     }
     handleSave() {
-        // const newRound = {
-        //     name: ReactDOM.findDOMNode(this.refs['name']).value.trim(),
-        //     typeRound: ReactDOM.findDOMNode(this.refs['typeRound']).value.trim(),
-        //     typeGenerateRound: ReactDOM.findDOMNode(this.refs['autoGenerate']).value.trim(),
-        //     countSportsmen: ReactDOM.findDOMNode(this.refs['countSportsmen']).value.trim(),
-        //     sort: this.props.maxSortRound+1,
-        //     selected: true,
-        //     competition: Global.competition._links.competition.href
-        // };
-        // follow(client, Settings.root, ['rounds']).then(response => {
-        //     return client({
-        //         method: 'POST',
-        //         path: response.entity._links.self.href,
-        //         entity: newRound,
-        //         headers: {'Content-Type': 'application/json'}
-        //     })
-        // });
+        const newGroup = {
+            name: ReactDOM.findDOMNode(this.refs['name']).value.trim(),
+            sort: this.props.groups.length,
+            selected: false,
+            competition: Global.competition._links.competition.href,
+            round:this.props.round._links.self.href
+        };
+        follow(client, Settings.root, ['groups']).then(response => {
+            client({
+                method: 'POST',
+                path: response.entity._links.self.href,
+                entity: newGroup,
+                headers: {'Content-Type': 'application/json'}
+            }).then(group=>{
+                follow(client, Settings.root, ['groupSportsmen']).then(responseGroupSportsmen => {
+                    this.state.selected.map(i=>{
+                        let sportsman = this.state.sportsmen.filter(sportsman=>{return sportsman.id===i});
+                        if(sportsman.length > 0) {
+                            const groupSportsmen = {
+                                sort: i,
+                                sportsman: sportsman[0]._links.self.href,
+                                group: group.entity._links.self.href
+                            };
+                            client({
+                                method: 'POST',
+                                path: responseGroupSportsmen.entity._links.self.href,
+                                entity: groupSportsmen,
+                                headers: {'Content-Type': 'application/json'}
+                            })
+                        }
+                    })
+                });
+            })
+        });
         this.toggle();
     }
     handleUpdate() {
-
+        var copyGroup = Object.assign({}, this.state.group);
+        copyGroup.name = ReactDOM.findDOMNode(this.refs['name']).value.trim();
+        client({
+            method: 'PUT',
+            path: this.state.group._links.self.href,
+            entity: copyGroup,
+            headers: {'Content-Type': 'application/json'}
+        }).done(response=>this.toggle())
     }
     handleDelete(){
-
+        if(confirm('Do you really want to delete the record?')){
+            client({method: 'DELETE', path: this.state.group._links.self.href}).done(response=>this.toggle())
+        }
     }
 
     render(){
@@ -117,12 +171,22 @@ class ModalNewGroup extends React.Component {
             text: 'Nick(OSD)',
             sort: true
         }];
+
+        const selectRowProp = {
+            mode: 'checkbox',
+            clickToSelect: true,
+            selected: this.state.selected,
+            style: { backgroundColor: '#c8e6c9' },
+            onSelect: this.handleOnSelect,
+            onSelectAll: this.handleOnSelectAll
+        };
+
         let submit = <Button color="primary" onClick={this.handleSave}>
             Save
         </Button>
         let deleteButton = '';
         let header = 'New group';
-        if (this.state.url !== null) {
+        if (this.state.group.id != null) {
             submit = <Button color="primary" onClick={this.handleUpdate}>
                 Update
             </Button>
@@ -131,6 +195,21 @@ class ModalNewGroup extends React.Component {
             </Button>
             header = 'Edit group';
 
+        }
+        let table = '';
+        if(this.state.group.id == null) {
+            table = <Row>
+                        <Col>
+                            <FormGroup>
+                                <Label for="selectSportsmen">Select sportsmen:</Label>
+                                <BootstrapTable
+                                    keyField='id'
+                                    data={this.state.sportsmen}
+                                    columns={columns}
+                                    selectRow={selectRowProp}/>
+                            </FormGroup>
+                        </Col>
+                    </Row>
         }
         return(
             <Modal isOpen={this.state.modalGroup} toggle={this.toggle}>
@@ -152,18 +231,7 @@ class ModalNewGroup extends React.Component {
                                 </FormGroup>
                             </Col>
                         </Row>
-                        <Row>
-                            <Col>
-                                <FormGroup>
-                                    <Label for="selectSportsmen">Select sportsmen:</Label>
-                                <BootstrapTable
-                                    keyField='id'
-                                    data={this.state.sportsmen}
-                                    columns={ columns }
-                                    selectRow={ selectRowProp } />
-                                </FormGroup>
-                            </Col>
-                        </Row>
+                        {table}
                     </Container>
                 </ModalBody>
                 <ModalFooter>

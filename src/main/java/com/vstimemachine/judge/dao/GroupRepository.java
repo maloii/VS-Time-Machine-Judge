@@ -28,6 +28,6 @@ public interface GroupRepository extends CrudRepository<Group, Long> {
 
 
     @Modifying(clearAutomatically = true)
-    @Query(value = "UPDATE groups  SET selected=false WHERE round_id=?1", nativeQuery = true)
+    @Query(value = "UPDATE GROUPS  SET selected=false WHERE round_id=?1", nativeQuery = true)
     void clearAllSelected(Long roundId);
 }
