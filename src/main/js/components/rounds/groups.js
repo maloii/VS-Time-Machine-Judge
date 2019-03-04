@@ -7,6 +7,7 @@ import stompClient from "../../websocket_listener";
 import LapsTable from "./laps_table";
 import Settings from "../../settings"
 import ModalNewGroup from  "./modal_new_group"
+import ModalNewSportsmenToGroup from "./modal_add_sportsmen_to_group"
 import {ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
 
 let contextTrigger = null;
@@ -47,6 +48,7 @@ class Groups  extends React.Component {
         this.deleteGroup = this.deleteGroup.bind(this);
         this.editGroup = this.editGroup.bind(this);
         this.dialogGroup = React.createRef();
+        this.dialogAddSportsmenToGroup = React.createRef();
 
         this.contextSelectedGroupData = null;
     }
@@ -113,7 +115,7 @@ class Groups  extends React.Component {
         }
     }
     addGroupSportsmen(e){
-        console.log(this.contextSelectedGroupData);
+        this.dialogAddSportsmenToGroup.current.toggleShow(this.contextSelectedGroupData);
     }
     editGroup(e){
         this.dialogGroup.current.toggleShow(this.contextSelectedGroupData);
@@ -196,6 +198,7 @@ class Groups  extends React.Component {
                 <Row>
                     <Col className="text-center" style={{maxWidth:'200px', minWidth:'200px'}}>
                         <ModalNewGroup ref={this.dialogGroup} groups={this.state.groups} round={this.props.round} />
+                        <ModalNewSportsmenToGroup ref={this.dialogAddSportsmenToGroup} round={this.props.round} />
                         <Button color="primary" style={{marginBottom: '10px', whiteSpace: 'nowrap'}} onClick={this.toggleShowNewGroup}>
                             <AccountPlusIcon/> Add new group
                         </Button>

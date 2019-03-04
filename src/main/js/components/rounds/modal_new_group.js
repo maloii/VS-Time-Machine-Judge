@@ -38,7 +38,6 @@ class ModalNewGroup extends React.Component {
         this.handleUpdate = this.handleUpdate.bind(this);
         this.toggle = this.toggle.bind(this);
         this.toggleShow = this.toggleShow.bind(this);
-        this.toggleEditShow = this.toggleEditShow.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
         this.refreshTableSportsmen = this.refreshTableSportsmen.bind(this);
     }
@@ -54,12 +53,14 @@ class ModalNewGroup extends React.Component {
             this.refreshTableSportsmen();
             this.setState({
                 modalGroup: !this.state.modalGroup,
-                group: {name: 'Group ' + (this.props.groups.length + 1)}
+                group: {name: 'Group ' + (this.props.groups.length + 1)},
+                selected:[]
             });
         }else{
             this.setState({
                 modalGroup: !this.state.modalGroup,
-                group: group
+                group: group,
+                selected:[]
             });
         }
     }
@@ -101,9 +102,6 @@ class ModalNewGroup extends React.Component {
         }
     }
 
-    toggleEditShow() {
-
-    }
     handleSave() {
         const newGroup = {
             name: ReactDOM.findDOMNode(this.refs['name']).value.trim(),
