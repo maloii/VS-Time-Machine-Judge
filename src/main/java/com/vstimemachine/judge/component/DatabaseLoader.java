@@ -18,9 +18,9 @@ public class DatabaseLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if(this.judgeRepository.findByName("demo") == null) {
-            Judge demo = this.judgeRepository.save(new Judge("demo", "demo",
-                    "ROLE_JUDGE"));
+        if(this.judgeRepository.findByName("admin") == null) {
+            Judge demo = this.judgeRepository.save(new Judge("admin", "admin",
+                    "ROLE_MAIN_JUDGE"));
         }
         /*Judge oliver = this.judgeRepository.save(new Judge("oliver", "gierke",
                 "ROLE_JUDGE"));

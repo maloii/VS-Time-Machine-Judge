@@ -10,6 +10,9 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import static com.vstimemachine.judge.model.Channel.*;
+import static com.vstimemachine.judge.model.Color.*;
+
 @Data
 @Entity
 @AllArgsConstructor
@@ -30,6 +33,43 @@ public class Competition {
     private String logo;
     private LocalDateTime dateCreate = LocalDateTime.now();
     private Boolean selected = false;
+
+    private Boolean skipFirstGate = false;
+
+    @Enumerated(EnumType.STRING)
+    private Color color1 = BLUE;
+    @Enumerated(EnumType.STRING)
+    private Color color2 = RED;
+    @Enumerated(EnumType.STRING)
+    private Color color3 = GREEN;
+    @Enumerated(EnumType.STRING)
+    private Color color4 = YELLOW;
+    @Enumerated(EnumType.STRING)
+    private Color color5 = MAGENTA;
+    @Enumerated(EnumType.STRING)
+    private Color color6 = CYAN;
+    @Enumerated(EnumType.STRING)
+    private Color color7 = WHITE;
+    @Enumerated(EnumType.STRING)
+    private Color color8 = BLACK;
+
+    @Enumerated(EnumType.STRING)
+    private Channel channel1 = R1;
+    @Enumerated(EnumType.STRING)
+    private Channel channel2 = R2;
+    @Enumerated(EnumType.STRING)
+    private Channel channel3 = R3;
+    @Enumerated(EnumType.STRING)
+    private Channel channel4 = R4;
+    @Enumerated(EnumType.STRING)
+    private Channel channel5 = R5;
+    @Enumerated(EnumType.STRING)
+    private Channel channel6 = R6;
+    @Enumerated(EnumType.STRING)
+    private Channel channel7 = R7;
+    @Enumerated(EnumType.STRING)
+    private Channel channel8 = R8;
+
 
     @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
     private Set<Gate> gates;
