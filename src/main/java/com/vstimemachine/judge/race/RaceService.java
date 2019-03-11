@@ -48,6 +48,10 @@ public class RaceService {
     private Set<Integer> numberPackages = new HashSet<>();
 
 
+    private ScheduledExecutorService scheduler1;
+    private ScheduledExecutorService scheduler2;
+    private ScheduledExecutorService scheduler3;
+
     public void start(Group group) throws RaceException {
         if(raceStatus == STOP){
             lapRepository.deleteAllByGroup(group);
@@ -63,9 +67,9 @@ public class RaceService {
             raceStatus = READY;
             startTime = System.currentTimeMillis();
 
-            ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-            scheduler.schedule(this::beep, new Random().nextInt(4001)+4000, TimeUnit.MILLISECONDS);
-            scheduler.shutdown();
+            scheduler1 = Executors.newSingleThreadScheduledExecutor();
+            scheduler1.schedule(this::beep, new Random().nextInt(4001)+4000, TimeUnit.MILLISECONDS);
+            scheduler1.shutdown();
         }else{
             String errorMessage = String.format("You can not start a race because the race statute is not STOP. Current race status: %s", raceStatus.toString());
             log.error(errorMessage);
@@ -151,6 +155,37 @@ public class RaceService {
             startTime = System.currentTimeMillis();
             log.error("Start race at {}", startTime);
 
+
+            scheduler2 = Executors.newSingleThreadScheduledExecutor();
+            scheduler2.schedule(this::beep2, 90_000, TimeUnit.MILLISECONDS);
+            scheduler2.shutdown();
+
+
+            scheduler3 = Executors.newSingleThreadScheduledExecutor();
+            scheduler3.schedule(this::sec15, 75_000, TimeUnit.MILLISECONDS);
+            scheduler3.shutdown();
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new ClassPathResource("/media/beep.wav").getFile().getAbsoluteFile());
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (UnsupportedAudioFileException e) {
+            e.printStackTrace();
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sec15(){
+        try {
+            Runtime.getRuntime().exec(String.format("say 15 секунд"));
+        } catch (IOException e) {
+        }
+    }
+    private void beep2() {
+        try {
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new ClassPathResource("/media/beep.wav").getFile().getAbsoluteFile());
             Clip clip = AudioSystem.getClip();
             clip.open(audioInputStream);

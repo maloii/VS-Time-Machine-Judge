@@ -40,11 +40,11 @@ class Groups  extends React.Component {
         this.loadSelectGroup = this.loadSelectGroup.bind(this);
         this.refreshTimeRace = this.refreshTimeRace.bind(this);
 
-        this.handleStartRace = this.handleStartRace.bind(this);
-        this.handleStopRace = this.handleStopRace.bind(this);
         this.handleSearchTransponders = this.handleSearchTransponders.bind(this);
         this.toggleShowNewGroup = this.toggleShowNewGroup.bind(this);
         this.addGroupSportsmen = this.addGroupSportsmen.bind(this);
+        this.handleStartRace = this.handleStartRace.bind(this);
+        this.handleStopRace = this.handleStopRace.bind(this);
         this.deleteGroup = this.deleteGroup.bind(this);
         this.editGroup = this.editGroup.bind(this);
         this.dialogGroup = React.createRef();
@@ -95,7 +95,14 @@ class Groups  extends React.Component {
         });
     }
     handleSearchTransponders(){
-
+        client({
+            method: 'GET',
+            path: Settings.raceApiRoot+'/search',
+        }).then(response=>{
+            this.setState({
+                statusRace:response.entity.message
+            });
+        });
     }
 
     handleSelectGroup(group){
@@ -180,6 +187,13 @@ class Groups  extends React.Component {
             {route: '/topic/deleteGroupSportsman', callback: this.refreshListGroups},
             {route: '/topic/updateGroupSportsman', callback: this.refreshListGroups},
 
+
+            {route: '/topic/newSportsman', callback: this.refreshListGroups},
+            {route: '/topic/updateSportsman', callback: this.refreshListGroups},
+            {route: '/topic/deleteSportsman', callback: this.refreshListGroups},
+            {route: '/topic/newTransponder', callback: this.refreshListGroups},
+            {route: '/topic/deleteTransponder', callback: this.refreshListGroups},
+
             {route: '/topic/reportTimeRace', callback: this.refreshTimeRace}
         ]);
     }
@@ -192,7 +206,7 @@ class Groups  extends React.Component {
     }
     render(){
         const disabledStop = (this.state.statusRace === 'STOP')? true:false;
-        const disabledStart = (this.state.statusRace === 'STOP')? false:true;
+        const disabledStart = (this.state.statusRace === 'STOP' || this.state.statusRace === 'SEARCH')? false:true;
         return(
             <Container fluid>
                 <Row>
@@ -232,11 +246,14 @@ class Groups  extends React.Component {
                     </Col>
                     <Col>
                         <Container fluid>
-                            <Row>
-                                <Col md={2}>
-                                    <span>{this.state.timeRace.toHHMMSS()}</span>
+                            <Row style={{position: 'sticky', top: 0, backgroundColor: 'white', zIndex:999}}>
+                                <Col md={5} className="text-left py-md-2">
+                                    <Button color="primary" disabled={disabledStart} onClick={this.handleSearchTransponders} >SEARCH</Button>
                                 </Col>
-                                <Col className="text-right py-md-2" md={10}>
+                                <Col md={2} className="text-center  py-md-2">
+                                    <span className="timer text-monospace">{this.state.timeRace.toHHMMSS()}</span>
+                                </Col>
+                                <Col className="text-right py-md-2" md={5}>
                                     <Button color="danger" disabled={disabledStop} onClick={this.handleStopRace} >STOP</Button>{'  '}
                                     <Button color="success" disabled={disabledStart} onClick={this.handleStartRace} >START</Button>
                                 </Col>

@@ -1,11 +1,15 @@
 'use strict';
 import React from 'react';
 import {Button, Table} from "reactstrap";
-import {WindowCloseIcon} from "mdi-react";
+import {WindowCloseIcon, MenuIcon} from "mdi-react";
 import stompClient from "../../websocket_listener";
 import client from "../../client";
+import Global from "../../global"
+import Settings from "../../settings"
 import {Badge, ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
 import ReactDOM from "react-dom";
+import ModalSportsman from "../sportsman/modal_new_sportsman";
+
 
 Number.prototype.toHHMMSSMSSS = function () {
     var minus = false;
@@ -55,6 +59,7 @@ class LapsTable  extends React.Component {
             laps:[],
             group:{}
         }
+        this.showEditSportsman = this.showEditSportsman.bind(this);
         this.refreshTableLaps = this.refreshTableLaps.bind(this);
         this.contextMenuHide  = this.contextMenuHide.bind(this);
         this.contextMenuShow  = this.contextMenuShow.bind(this);
@@ -64,6 +69,8 @@ class LapsTable  extends React.Component {
         this.group = null;
         this.contextSelectedItem = null;
         this.contextSelectedItemData = null;
+
+        this.dialogSportsman = React.createRef();
     }
 
 
@@ -142,7 +149,9 @@ class LapsTable  extends React.Component {
             });
         }
     }
-
+    showEditSportsman(url) {
+        this.dialogSportsman.current.toggleEditShow(url);
+    }
     componentDidMount() {
         if(this.props.group != null){
             this.group = this.props.group;
@@ -213,25 +222,86 @@ class LapsTable  extends React.Component {
         let width = "100%";
         if(this.state.groupSportsmen.length > 0) width = Math.floor(100/this.state.groupSportsmen.length);
 
-        headerTable.push(<th key="lap" width="50" style={{textAlign: 'center'}}>LAP</th>);
+        let cels_names = [<th key="lap" width="50" style={{textAlign: 'center', verticalAlign:'middle'}}>LAP</th>];
         this.state.groupSportsmen.map((groupSportsman, idx)=>{
-            headerTable.push(<th width={width + '%'}
+            cels_names.push(<th width={width + '%'}
                                  key={groupSportsman._links.self.href}
+                                 onDoubleClick={() => this.showEditSportsman(groupSportsman._links.sportsman.href)}
                                  onDragOver={() => this.onDragSportsmenOver(idx)}
                                  draggable
                                  onDragStart={(e) => this.onDragSportsmenStart(e, idx)}
                                  onDragEnd={this.onDragSportsmenEnd}>
-                {groupSportsman.sportsman.firstName} {groupSportsman.sportsman.lastName}{groupSportsman.sportsman.nick != ""?'('+groupSportsman.sportsman.nick+')':''}
-                    <WindowCloseIcon
-                        color="grey"
-                        style={{float:'right', cursor:'pointer'}}
-                        onClick={(e) => this.onDeleteGroupSportsman(e, groupSportsman)}/>
+                <WindowCloseIcon
+                    color="grey"
+                    style={{float:'right', cursor:'pointer'}}
+                    onClick={(e) => this.onDeleteGroupSportsman(e, groupSportsman)}/>
+                {groupSportsman.sportsman.firstName} {groupSportsman.sportsman.lastName} {groupSportsman.sportsman.nick != ""?'('+groupSportsman.sportsman.nick+')':''}
                         </th>);
             if(this.state.laps[groupSportsman.sportsman.id] != null) {
                 let lengthLaps = this.state.laps[groupSportsman.sportsman.id].length
                 if(lengthLaps > countRows) countRows = lengthLaps;
             }
         });
+        headerTable.push(<tr key={'row_names'}>{cels_names}</tr>);
+        let cels_colors = [<td key={'cell_color'}></td>];
+        this.state.groupSportsmen.map((groupSportsman, indx)=>{
+            let color = {};
+            let channel = {};
+            let textColor = 'BLACK';
+            let border = '0px';
+            switch (indx) {
+                case 0:
+                    color = Global.competition.color1;
+                    channel = Global.competition.channel1;
+                    break;
+                case 1:
+                    color = Global.competition.color2;
+                    channel = Global.competition.channel2;
+                    break;
+                case 2:
+                    color = Global.competition.color3;
+                    channel = Global.competition.channel3;
+                    break;
+                case 3:
+                    color = Global.competition.color4;
+                    channel = Global.competition.channel4;
+                    break;
+                case 4:
+                    color = Global.competition.color5;
+                    channel = Global.competition.channel5;
+                    break;
+                case 5:
+                    color = Global.competition.color6;
+                    channel = Global.competition.channel6;
+                    break;
+                case 6:
+                    color = Global.competition.color7;
+                    channel = Global.competition.channel7;
+                    break;
+                case 7:
+                    color = Global.competition.color8;
+                    channel = Global.competition.channel8;
+                    break;
+            }
+            if(color === 'BLACK' || color === 'BLUE') textColor = 'WHITE';
+            if(color === 'WHITE') border = '1px solid black';
+            let channelNumber = Settings.channelNumber[channel];
+            cels_colors.push(<td
+                                 key={'cell_color_'+indx}>
+            <MenuIcon
+                color="grey"
+                style={{float:'right', cursor:'pointer'}}/>
+                <span style={{  backgroundColor: color,
+                                color: textColor,
+                                borderRadius:'15px ',
+                                padding:'5px',
+                                border: border
+                }}>
+                    {channel}
+                </span>[{channelNumber}]
+            </td>);
+        });
+        headerTable.push(<tr key={'row_colors'}>{cels_colors}</tr>);
 
         for(let i = 0; i < countRows; i++){
             let cels = [<td key={'lap_'+i}  width="50" style={{textAlign: 'center'}}>{i+1}</td>];
@@ -252,16 +322,18 @@ class LapsTable  extends React.Component {
                     if(i > 0){
                         let timeGap = this.state.laps[groupSportsman.sportsman.id][i-1].time - time;
                         if(timeGap > 0){
-                            gap = <span className="badge badge-success">{timeGap.toClearHHMMSSMSSS()}</span>
+                            gap = <span className="badge badge-success" style={{fontWeight:'normal'}}>{timeGap.toClearHHMMSSMSSS()}</span>
                         }else if (timeGap === 0){
-                            gap = <span className="badge badge-primary">{timeGap.toClearHHMMSSMSSS()}</span>
+                            gap = <span className="badge badge-primary" style={{fontWeight:'normal'}}>{timeGap.toClearHHMMSSMSSS()}</span>
                         }else{
-                            gap = <span className="badge badge-danger">{timeGap.toClearHHMMSSMSSS()}</span>
+                            gap = <span className="badge badge-danger" style={{fontWeight:'normal'}}>{timeGap.toClearHHMMSSMSSS()}</span>
                         }
                     }
-
-
-                    cels.push(<td width={width + '%'} key={lap._links.self.href} className={outOfScope} onContextMenu={(e) => this.rowEvents(e, lap, i)}>{time.toHHMMSSMSSS()} {gap}</td>)
+                    cels.push(<td width={width + '%'}
+                                  key={lap._links.self.href}
+                                  className={outOfScope}
+                                  style={{whiteSpace:'nowrap'}}
+                                  onContextMenu={(e) => this.rowEvents(e, lap, i)}>{time.toHHMMSSMSSS()} {gap}</td>)
                 }else{
                     cels.push(<td width={width + '%'} key={groupSportsman._links.self.href+'_empty_'+i}></td>)
                 }
@@ -270,6 +342,7 @@ class LapsTable  extends React.Component {
         }
         return(
             <>
+                <ModalSportsman ref={this.dialogSportsman}/>
                 <ContextMenuTrigger id="some_unique_identifier" ref={c => contextTrigger = c} collect={props => props}>
                     <div></div>
                 </ContextMenuTrigger>
@@ -282,11 +355,9 @@ class LapsTable  extends React.Component {
                         Delete
                     </MenuItem>
                 </ContextMenu>
-                <Table bordered striped hover >
+                <Table bordered striped hover className="tableFixHead">
                     <thead>
-                    <tr>
                         {headerTable}
-                    </tr>
                     </thead>
                     <tbody>
                         {lapsTable}

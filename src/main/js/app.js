@@ -40,6 +40,7 @@ class App extends React.Component {
 
 
     render() {
+        let height = window.innerHeight-130;
         return (
             <div>
                 <Navbar color="light"  light expand="md" className="shadow">
@@ -53,7 +54,7 @@ class App extends React.Component {
                     </Collapse>
                 </Navbar>
                 <SideBar idContainer="mainContainer" loggedInJadge={this.state.loggedInJadge}/>
-                <div id="mainContainer" className="mainContainer">
+                <div id="mainContainer" className="mainContainer" style={{height:height, minHeight:height, overflowY: 'auto'}}>
                 </div>
             </div>
         );

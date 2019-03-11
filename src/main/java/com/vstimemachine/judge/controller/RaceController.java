@@ -49,6 +49,17 @@ public class RaceController {
         return new ResponseEntity<>(new ResponseMessage("status", raceService.status().toString()), HttpStatus.OK);
     }
 
+
+    @RequestMapping("/search")
+    public ResponseEntity<ResponseMessage> search() {
+        try {
+            raceService.search();
+        } catch (RaceException e) {
+
+        }
+        return new ResponseEntity<>(new ResponseMessage("status", raceService.status().toString()), HttpStatus.OK);
+    }
+
     @RequestMapping("/sort_group_sportsmen")
     public ResponseEntity<ResponseMessage> sortGroupSportsmen(@RequestBody Map<String, String> body) {
         groupSportsmanRepository.findById(Long.parseLong(body.get("id"))).ifPresent(groupSportsman->{
