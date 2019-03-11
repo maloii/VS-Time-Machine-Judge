@@ -2,12 +2,15 @@ package com.vstimemachine.judge.controller;
 
 import com.vstimemachine.judge.dao.GroupRepository;
 import com.vstimemachine.judge.dao.GroupSportsmanRepository;
+import com.vstimemachine.judge.dao.RoundRepository;
 import com.vstimemachine.judge.model.Group;
 import com.vstimemachine.judge.race.RaceException;
 import com.vstimemachine.judge.race.RaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,6 +25,7 @@ public class RaceController {
 
     private final RaceService raceService;
     private final GroupRepository groupRepository;
+    private final RoundRepository roundRepository;
     private final GroupSportsmanRepository groupSportsmanRepository;
 
     @RequestMapping("/status")
@@ -70,9 +74,16 @@ public class RaceController {
         return new ResponseEntity<>(new ResponseMessage("status", "OK"), HttpStatus.OK);
     }
 
-    @RequestMapping("/delete_group")
+    @RequestMapping(value = "/delete_group", method = RequestMethod.POST)
     public ResponseEntity<ResponseMessage> deleteGroup(@RequestBody Map<String, String> body) {
         groupRepository.deleteById(Long.parseLong(body.get("id")));
+
+        return new ResponseEntity<>(new ResponseMessage("status", "OK"), HttpStatus.OK);
+    }
+    @RequestMapping(value = "/delete_round", method = RequestMethod.POST)
+    @Transactional(propagation= Propagation.REQUIRES_NEW)
+    public ResponseEntity<ResponseMessage> deleteRound(@RequestBody Map<String, String> body) {
+        roundRepository.deleteById(Long.parseLong(body.get("id")));
 
         return new ResponseEntity<>(new ResponseMessage("status", "OK"), HttpStatus.OK);
     }

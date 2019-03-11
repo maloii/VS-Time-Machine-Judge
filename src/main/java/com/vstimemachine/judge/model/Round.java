@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Iterator;
 import java.util.Set;
 
 @Data
@@ -44,12 +45,18 @@ public class Round {
 
 
     @ManyToOne
-    @JoinColumn
     private Competition competition;
 
     @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
+            fetch = FetchType.LAZY,
             mappedBy = "round")
     @OrderBy("sort ASC")
     private Set<Group> groups;
+
+    @PreRemove
+    private void removeRound() {
+        groups.forEach(group-> {
+            group.setRound(null);
+        });
+    }
 }

@@ -42,7 +42,7 @@ public class Group {
     @ManyToOne
     private League league;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Round round;
 
     @ManyToMany(mappedBy = "group", cascade = CascadeType.ALL)

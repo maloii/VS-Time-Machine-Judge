@@ -48,15 +48,23 @@ class ModalNewRound extends React.Component {
     toggleShow() {
         this.setState({
             modalRound: !this.state.modalRound,
-            sportsman: {},
-            url: null,
-            srcPhoto: null,
-            tags: []
+            round: {},
+            url: null
         });
     }
 
     toggleEditShow(url) {
+        client({
+            method: 'GET',
+            path: url
+        }).then(round=>{
+            this.setState({
+                round:round.entity,
+                modalRound: !this.state.modalRound,
+                url: url
+            });
 
+        })
     }
     handleSave() {
         const newRound = {
@@ -79,10 +87,22 @@ class ModalNewRound extends React.Component {
         this.toggle();
     }
     handleUpdate() {
-
+        var copyRound = Object.assign({}, this.state.round);
+        copyRound.name = ReactDOM.findDOMNode(this.refs['name']).value.trim();
+        copyRound.typeRound = ReactDOM.findDOMNode(this.refs['typeRound']).value.trim();
+        copyRound.typeGenerateRound = ReactDOM.findDOMNode(this.refs['autoGenerate']).value.trim();
+        copyRound.countSportsmen = ReactDOM.findDOMNode(this.refs['countSportsmen']).value.trim();
+        client({
+            method: 'PUT',
+            path: this.state.url,
+            entity: copyRound,
+            headers: {'Content-Type': 'application/json'}
+        }).done(response=>this.toggle())
     }
     handleDelete(){
-
+        if(confirm('Do you really want to delete the record?')){
+            client({method: 'DELETE', path: this.state.url}).done(response=>this.toggle())
+        }
     }
 
     render(){
@@ -91,6 +111,7 @@ class ModalNewRound extends React.Component {
         </Button>
         let deleteButton = '';
         let header = 'New round';
+        let countInGroup = 4;
         if (this.state.url !== null) {
             submit = <Button color="primary" onClick={this.handleUpdate}>
                 Update
@@ -99,6 +120,7 @@ class ModalNewRound extends React.Component {
                 Delete
             </Button>
             header = 'Edit round';
+            countInGroup = this.state.round.countSportsmen;
 
         }
 
@@ -129,7 +151,8 @@ class ModalNewRound extends React.Component {
                                     <Input type="select"
                                            name="typeRound"
                                            id="typeRound"
-                                           ref="typeRound">
+                                           ref="typeRound"
+                                           defaultValue={this.state.round.typeRound}>
                                         <option value="PRACTICE">PRACTICE</option>
                                         <option value="QUALIFICATION">QUALIFICATION</option>
                                         <option value="RACE">RACE</option>
@@ -148,7 +171,8 @@ class ModalNewRound extends React.Component {
                                         type="select"
                                         name="autoGenerate"
                                         id="autoGenerate"
-                                        ref="autoGenerate">
+                                        ref="autoGenerate"
+                                        defaultValue={this.state.round.typeGenerateRound}>
                                         <option value="NONE">NONE</option>
                                         <option value="RANDOM">RANDOM</option>
                                         <option value="COPY_BEFORE_ROUND">COPY BEFORE ROUND</option>
@@ -167,7 +191,7 @@ class ModalNewRound extends React.Component {
                                         name="countSportsmen"
                                         id="countSportsmen"
                                         ref="countSportsmen"
-                                        defaultValue="4"
+                                        defaultValue={countInGroup}
                                     />
                                 </Col>
                             </FormGroup>

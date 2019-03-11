@@ -9,6 +9,7 @@ import ModalNewRound from './rounds/modal_new_round'
 import stompClient from "../websocket_listener";
 import client from "../client";
 import Global from "../global";
+import Settings from "../settings";
 import eventClient from "../event_client";
 import Groups from './rounds/groups';
 
@@ -24,6 +25,7 @@ class Rounds extends React.Component {
         }
         this.selectCompetition = this.selectCompetition.bind(this);
         this.handleTabChange = this.handleTabChange.bind(this);
+        this.handleRoundChange = this.handleRoundChange.bind(this);
         this.handleTabSequenceChange = this.handleTabSequenceChange.bind(this);
         this.handleExtraButton = this.handleExtraButton.bind(this);
 
@@ -77,7 +79,10 @@ class Rounds extends React.Component {
             })
         });
     }
+    handleRoundChange(tab){
+        this.dialogRound.current.toggleEditShow(tab.url);
 
+    }
     refreshListRound() {
         if (Global.competition !== null) {
             client({
@@ -134,7 +139,7 @@ class Rounds extends React.Component {
         const tabTemplate = [];
         const panelTemplate = [];
         tabs.forEach((tab, i) => {
-            tabTemplate.push(<DragTab key={i} closable={true}>{tab.title}</DragTab>);
+            tabTemplate.push(<DragTab key={i} closable={true}><span onDoubleClick={e=>this.handleRoundChange(tab)}>{tab.title}</span></DragTab>);
             panelTemplate.push(<Panel key={i}><Groups round={tab.content} activeIndex={activeIndex} indx={i} /></Panel>);
         })
         if (this.state.competition === null) {

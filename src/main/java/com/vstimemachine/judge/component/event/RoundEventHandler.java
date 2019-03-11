@@ -14,10 +14,7 @@ import org.springframework.hateoas.EntityLinks;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static com.vstimemachine.judge.configuration.WebSocketConfiguration.MESSAGE_PREFIX;
@@ -83,16 +80,13 @@ public class RoundEventHandler {
                 MESSAGE_PREFIX + "/newRound", getPath(round));
     }
 
-//    @HandleBeforeDelete
-//    public void deleteRoundBefore(Round round) {
-//        round.getGroups().forEach(group->{
-//            group.getSportsmen().forEach(sportsman->{
-//                sportsman.getGroups().remove(group);
-//                log.info("Remove links between sportsmen:{} and group:{}", sportsman.getId(), group.getId());
-//
-//            });
-//        });
-//    }
+    @HandleBeforeDelete
+    public void deleteRoundBefore(Round round) {
+        round.getGroups().forEach(group->{
+            group.setRound(null);
+            groupRepository.findById(group.getId()).ifPresent(groupRepository::delete);
+        });
+    }
 
     @HandleAfterDelete
     public void deleteRound(Round round) {
