@@ -37,13 +37,13 @@ public class MessageService {
                     new PingMessage(arrDataMessage).parse();
                 } else if (arrMessage[0].equals("timesynchok")) {
                     new TimesynchOkMessage(arrDataMessage, connectorService).parse();
+                } else if (arrMessage[0].equals("echotrans")) {
+                    new EchoTransMessage(arrDataMessage, raceService, connectorService).parse();
                 }
 
                 //"systime:%lld,%d,%d,%s,%d,%d,%d,%d",getRealTime(), sensitivity, gate, VERSION, frequencyIndex, capacitorCalbr, frequencyOffset1, frequencyOffset2)
                 //"info:%lld,%d,%d,%s,%d,,,,,,",time, sensitivity, gate, VERSION,frequencyIndex)
                 //"gate:%d,%d,%d,%lld", gate, colorGate, idTransponder, lapTime);
-                //"echotrans:%d", idTransponder)
-                //"echotrans:%d,%d", idTransponder, versionTrans)
                 //"bootflashok:%d\r\n", idTransponder)
                 //"bootflasherror:%d\r\n", idTransponder)
                 //"infocalibrtrans:%d,%d,%d", idTransponder, rssi, calbr)

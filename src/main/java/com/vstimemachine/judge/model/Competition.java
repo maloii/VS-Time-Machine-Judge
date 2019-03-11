@@ -89,4 +89,27 @@ public class Competition {
 
     @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
     private Set<Transponder> transponders;
+
+
+    public Color colorPosition(int pos){
+        switch (pos){
+            case 1:
+                return color1;
+            case 2:
+                return color2;
+            case 3:
+                return color3;
+            case 4:
+                return color4;
+            case 5:
+                return color5;
+            case 6:
+                return color6;
+            case 7:
+                return color7;
+            case 8:
+                return color8;
+        }
+        return BLACK;
+    }
 }

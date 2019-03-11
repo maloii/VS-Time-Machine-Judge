@@ -36,10 +36,6 @@ public class LapMessage implements Message {
 
         raceService.newLap(lapTime, transponder, numberPackage);
 
-        try {
-            connectorService.send(String.format("lapreceived:%d,%d", numberPackage, gateNumber));
-        } catch (HardwareException e) {
-            e.printStackTrace();
-        }
+        connectorService.send(String.format("lapreceived:%d,%d", numberPackage, gateNumber));
     }
 }

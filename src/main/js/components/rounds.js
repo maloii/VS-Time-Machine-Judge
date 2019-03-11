@@ -1,6 +1,6 @@
 'use strict';
 import React from 'react';
-import {Button, Col, Container, Row} from "reactstrap";
+import {Alert, Button, Col, Container, Row} from "reactstrap";
 import {AsyncPanel, DragTab, DragTabList, ExtraButton, Panel, PanelList, Tabs} from 'react-tabtab';
 import {AccountEditIcon, AccountPlusIcon} from "mdi-react";
 import * as customStyle from 'react-tabtab/lib/themes/bootstrap';
@@ -109,10 +109,12 @@ class Rounds extends React.Component {
     }
     componentWillMount() {
         eventClient.on('SELECT_COMPETITION', this.selectCompetition);
+        eventClient.on('CHANGED_CONNECTION', this.selectCompetition);
     }
 
     componentWillUnmount() {
         eventClient.removeEventListener('SELECT_COMPETITION', this.selectCompetition);
+        eventClient.removeEventListener('CHANGED_CONNECTION', this.selectCompetition);
         for (const sub in this.stomp.subscriptions) {
             if (this.stomp.subscriptions.hasOwnProperty(sub)) {
                 this.stomp.unsubscribe(sub);
@@ -135,40 +137,50 @@ class Rounds extends React.Component {
             tabTemplate.push(<DragTab key={i} closable={true}>{tab.title}</DragTab>);
             panelTemplate.push(<Panel key={i}><Groups round={tab.content} activeIndex={activeIndex} indx={i} /></Panel>);
         })
-        return(
-            <Container fluid>
-                <Row>
-                    <Col id="rootTabs">
-                        <ModalNewRound ref={this.dialogRound} maxSortRound={this.state.maxSortRound} />
+        if (this.state.competition === null) {
+            return (
+                <Container>
+                    <Alert color="primary">
+                        Create and select a competition!
+                    </Alert>
+                </Container>
+            )
+        } else {
+            return (
+                <Container fluid>
+                    <Row>
+                        <Col id="rootTabs">
+                            <ModalNewRound ref={this.dialogRound} maxSortRound={this.state.maxSortRound}/>
 
-                        <Tabs activeIndex={activeIndex}
-                              onTabEdit={this.handleEdit}
-                              onTabChange={this.handleTabChange}
-                              onTabSequenceChange={this.handleTabSequenceChange}
-                              customStyle={customStyle}
-                              showArrowButton="auto"
-                              showModalButton={2}
-                              ExtraButton={
-                                  <Button color="primary" onClick={this.handleExtraButton}
-                                          style={{
-                                              float:'right',
-                                              marginTop:'5px',
-                                              marginLeft:'12px'
-                                          }}>
-                                      <AccountPlusIcon/> Add new round
-                                  </Button>
-                              }>
-                            <DragTabList>
-                                {tabTemplate}
-                            </DragTabList>
-                            <PanelList>
-                                {panelTemplate}
-                            </PanelList>
-                        </Tabs>
-                    </Col>
-                </Row>
-            </Container>
-        );
+                            <Tabs activeIndex={activeIndex}
+                                  onTabEdit={this.handleEdit}
+                                  onTabChange={this.handleTabChange}
+                                  onTabSequenceChange={this.handleTabSequenceChange}
+                                  customStyle={customStyle}
+                                  showArrowButton="auto"
+                                  showModalButton={2}
+                                  ExtraButton={
+                                      <Button color="primary" onClick={this.handleExtraButton}
+                                              style={{
+                                                  float: 'right',
+                                                  marginTop: '5px',
+                                                  marginLeft: '12px'
+                                              }}>
+                                          <AccountPlusIcon/> Add new round
+                                      </Button>
+                                  }>
+                                <DragTabList>
+                                    {tabTemplate}
+                                </DragTabList>
+                                <PanelList>
+                                    {panelTemplate}
+                                </PanelList>
+                            </Tabs>
+                        </Col>
+                    </Row>
+                </Container>
+            );
+        }
     }
 }
 export default Rounds;

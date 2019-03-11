@@ -10,12 +10,15 @@ import com.vstimemachine.judge.model.TypeLap;
 import com.vstimemachine.judge.race.speech.SpeechService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.sound.sampled.*;
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Random;
@@ -38,8 +41,9 @@ public class RaceService {
     private final SpeechService speechService;
     private final SportsmanRepository sportsmanRepository;
     private final GroupRepository groupRepository;
-    private final LapRepository lapRepository;
     private final GroupSportsmanRepository groupSportsmanRepository;
+    private final LapRepository lapRepository;
+    final private ApplicationContext context;
 
     private Long startTime;
     private RaceStatus raceStatus = STOP;
@@ -47,6 +51,7 @@ public class RaceService {
 
     private Set<Integer> numberPackages = new HashSet<>();
 
+    private SearchTransponders searchTransponders;
 
     private ScheduledExecutorService scheduler1;
     private ScheduledExecutorService scheduler2;
@@ -65,6 +70,7 @@ public class RaceService {
             speechService.say(FOCUS_ON_START);
             numberPackages.clear();
             raceStatus = READY;
+            this.websocket.convertAndSend(MESSAGE_PREFIX + "/updateStatusRace", READY.toString());
             startTime = System.currentTimeMillis();
 
             scheduler1 = Executors.newSingleThreadScheduledExecutor();
@@ -78,19 +84,44 @@ public class RaceService {
     }
 
     public void stop() {
+        if(raceStatus == SEARCH){
+            searchTransponders.interrupt();
+        }else if(raceStatus == RUN) {
+            try {if (scheduler1 != null) scheduler1.shutdownNow();} catch (Exception e) {}
+            try {
+                if (scheduler2 != null) scheduler2.shutdownNow();
+            } catch (Exception e) {}
+            try {if (scheduler3 != null) scheduler3.shutdownNow();} catch (Exception e) {}
+            speechService.say(RACE_IS_OVER);
+        }
         raceStatus = STOP;
-        try{if(scheduler1 != null)scheduler1.shutdownNow();}catch (Exception e){}
-        try{if(scheduler2 != null)scheduler2.shutdownNow();}catch (Exception e){}
-        try{if(scheduler3 != null)scheduler3.shutdownNow();}catch (Exception e){}
-        speechService.say(RACE_IS_OVER);
+
+        this.websocket.convertAndSend(MESSAGE_PREFIX + "/updateStatusRace", STOP.toString());
         log.error("Stop race at {}", System.currentTimeMillis());
 
     }
 
     public void search(Group group) throws RaceException {
         if(raceStatus == STOP){
+            Hibernate.initialize(group.getGroupSportsmen());
+            group.getGroupSportsmen().stream().forEach(groupSportsman -> {
+                Hibernate.initialize(groupSportsman.getSportsman().getTransponders());
+            });
+            Hibernate.initialize(group.getCompetition());
             startTime = System.currentTimeMillis();
+            group.getGroupSportsmen()
+                    .stream()
+                    .forEach(groupSportsman -> {
+                        groupSportsman.setSearchTransponder(false);
+                        groupSportsmanRepository.save(groupSportsman);
+
+                        this.websocket.convertAndSend(MESSAGE_PREFIX + "/updateGroupSportsman", "");
+                    });
+            selectedGroup = group;
             raceStatus = SEARCH;
+            this.websocket.convertAndSend(MESSAGE_PREFIX + "/updateStatusRace", SEARCH.toString());
+            searchTransponders = new SearchTransponders(this, context);
+            searchTransponders.start();
             log.error("Start search at {}", startTime);
         }else{
             String errorMessage = String.format("You can not start a search transponders because the race statute is not STOP. Current race status: %s", raceStatus.toString());
@@ -156,6 +187,7 @@ public class RaceService {
     private void beep() {
         try {
             raceStatus = RUN;
+            this.websocket.convertAndSend(MESSAGE_PREFIX + "/updateStatusRace", RUN.toString());
             startTime = System.currentTimeMillis();
             log.error("Start race at {}", startTime);
 
@@ -205,5 +237,22 @@ public class RaceService {
 
     public Group group() {
         return selectedGroup;
+    }
+
+    public void transponderHasBeenFound(int transponder) {
+        if(raceStatus == SEARCH){
+            selectedGroup.getGroupSportsmen()
+                    .stream()
+                    .filter(groupSportsman -> {
+                        return  groupSportsman.getSportsman().getTransponders()
+                                .stream()
+                                .filter(trs->trs.getNumber().equals(transponder)).count()>0;
+                    }).findFirst()
+                    .ifPresent(groupSportsman -> {
+                        groupSportsman.setSearchTransponder(true);
+                        groupSportsmanRepository.searchOk(groupSportsman.getId());
+                        this.websocket.convertAndSend(MESSAGE_PREFIX + "/updateGroupSportsman", "");
+                    });
+        }
     }
 }

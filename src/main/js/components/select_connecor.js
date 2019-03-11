@@ -3,6 +3,8 @@
 import React from "react";
 import client from "../client";
 import ReactDOM from "react-dom";
+import Global from "../global"
+import eventClient from '../event_client'
 import {
     Button,
     Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle,
@@ -19,7 +21,6 @@ import {
 import stompClient from "../websocket_listener";
 
 
-let isConnect = false;
 
 class DialogWlanConnect extends React.Component {
     constructor(props) {
@@ -43,7 +44,8 @@ class DialogWlanConnect extends React.Component {
             },
             headers: {'Content-Type': 'application/json'}
         }).done(response => {
-            isConnect = response.entity.status === 'STATUS_OK';
+            Global.isConnectHardware = response.entity.status === 'STATUS_OK';
+            eventClient.emit('CHANGED_CONNECTION', {});
         });
         this.toggle();
 
@@ -109,7 +111,7 @@ class Select_connecor extends React.Component {
         this.state = {
             listComPorts: [],
             btnDropConnector: false,
-            statusConnect: isConnect,
+            statusConnect: Global.isConnectHardware,
             consoleLineFooter: ''
 
         };
@@ -124,10 +126,11 @@ class Select_connecor extends React.Component {
 
     refresListComPorts() {
         client({method: 'GET', path: '/api/hardware/list_com_ports'}).done(response => {
-            isConnect = (response.entity.status === 'STATUS_CONNECT');
+            Global.isConnectHardware = (response.entity.status === 'STATUS_CONNECT');
+            eventClient.emit('CHANGED_CONNECTION', {});
             this.setState({
                 listComPorts: response.entity.list,
-                statusConnect: isConnect
+                statusConnect: Global.isConnectHardware
             });
         });
     }
@@ -137,8 +140,9 @@ class Select_connecor extends React.Component {
     }
 
     vsConnectStatus(message) {
-        isConnect = (message.body === 'STATUS_CONNECT');
-        this.setState({statusConnect: isConnect});
+        Global.isConnectHardware = (message.body === 'STATUS_CONNECT');
+        eventClient.emit('CHANGED_CONNECTION', {});
+        this.setState({statusConnect: Global.isConnectHardware});
     }
 
     componentDidMount() {
@@ -170,8 +174,9 @@ class Select_connecor extends React.Component {
                 },
                 headers: {'Content-Type': 'application/json'}
             }).done(response => {
-                isConnect = (response.entity.status === 'STATUS_OK');
-                this.setState({statusConnect: isConnect});
+                Global.isConnectHardware = (response.entity.status === 'STATUS_OK');
+                eventClient.emit('CHANGED_CONNECTION', {});
+                this.setState({statusConnect: Global.isConnectHardware});
             });
         }
 
@@ -183,8 +188,9 @@ class Select_connecor extends React.Component {
             path: '/api/hardware/disconnect',
             headers: {'Content-Type': 'application/json'}
         }).done(response => {
-            isConnect = !(response.entity.status === 'STATUS_OK');
-            this.setState({statusConnect: isConnect});
+            Global.isConnectHardware = !(response.entity.status === 'STATUS_OK');
+            eventClient.emit('CHANGED_CONNECTION', {});
+            this.setState({statusConnect: Global.isConnectHardware});
         });
     }
 

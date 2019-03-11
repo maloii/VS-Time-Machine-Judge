@@ -33,6 +33,9 @@ public class GroupSportsman {
 
     private Integer sort;
 
+    @Column(name = "SEARCH_TRANSPONDER")
+    private Boolean searchTransponder = false;
+
     @ManyToOne()
     private Sportsman sportsman;
 

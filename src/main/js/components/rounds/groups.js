@@ -1,6 +1,6 @@
 'use strict';
 import React from 'react';
-import {Button, Col, Container, ListGroup, ListGroupItem, Row} from "reactstrap";
+import {Alert, Button, Col, Container, ListGroup, ListGroupItem, Row} from "reactstrap";
 import {AccountPlusIcon} from "mdi-react";
 import client from "../../client";
 import stompClient from "../../websocket_listener";
@@ -9,6 +9,7 @@ import Settings from "../../settings"
 import ModalNewGroup from  "./modal_new_group"
 import ModalNewSportsmenToGroup from "./modal_add_sportsmen_to_group"
 import {ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
+import Global from "../../global";
 
 let contextTrigger = null;
 
@@ -83,11 +84,31 @@ class Groups  extends React.Component {
     }
 
     handleStartRace(){
-        this.sendRaceCommand('start');
+
+        if(this.state.group != null) {
+            client({
+                method: 'GET',
+                path: this.state.group._links.self.href
+            }).then(g => {
+                client({
+                    method: 'GET',
+                    path: g.entity._links.laps.href
+                }).then(lapsResponse => {
+                    if(lapsResponse.entity._embedded.laps.length == 0 || confirm('If you start the race again, the old data will be deleted!')){
+                        this.sendRaceCommand('start');
+                    }
+                });
+            });
+
+        }
     }
 
     handleSearchTransponders(){
-        this.sendRaceCommand('search');
+        if(Global.isConnectHardware) {
+            this.sendRaceCommand('search');
+        }else{
+            alert('No connection to the timing system!');
+        }
     }
 
     handleStopRace(){
@@ -176,6 +197,9 @@ class Groups  extends React.Component {
             timeRace:time.body
         });
     }
+    transponderHasBeenFound(transponder){
+        console.log(transponder);
+    }
     componentDidMount() {
         this.refreshListGroups();
         this.stomp = stompClient.register([
@@ -194,7 +218,11 @@ class Groups  extends React.Component {
             {route: '/topic/newTransponder', callback: this.refreshListGroups},
             {route: '/topic/deleteTransponder', callback: this.refreshListGroups},
 
-            {route: '/topic/reportTimeRace', callback: this.refreshTimeRace}
+            {route: '/topic/reportTimeRace', callback: this.refreshTimeRace},
+
+            {route: '/topic/updateStatusRace', callback: this.refreshListGroups}
+
+
         ]);
     }
     componentWillUnmount(){
@@ -205,8 +233,36 @@ class Groups  extends React.Component {
         }
     }
     render(){
-        const disabledStop = (this.state.statusRace === 'STOP')? true:false;
+        const disabledStop = false;//(this.state.statusRace === 'STOP')? true:false;
         const disabledStart = (this.state.statusRace === 'STOP' || this.state.statusRace === 'SEARCH')? false:true;
+        const disabledSearch = (this.state.statusRace === 'STOP')? false:true;
+        const searchButton = (Global.isConnectHardware? [<Button key="search_button" color="primary" disabled={disabledSearch} onClick={this.handleSearchTransponders} >SEARCH</Button>]:[]);
+        const lapsTable = (this.state.group == null)?[
+            <Container key="alert">
+                <Alert color="primary">
+                    Create or select a group!
+                </Alert>
+            </Container>
+        ]:[
+            <Container fluid key="laps_table">
+                <Row style={{position: 'sticky', top: 0, backgroundColor: 'white', zIndex:999}}>
+                    <Col md={5} className="text-left py-md-2">
+                        {searchButton}
+                    </Col>
+                    <Col md={2} className="text-center  py-md-2">
+                        <span className="timer text-monospace">{this.state.timeRace.toHHMMSS()}</span>
+                    </Col>
+                    <Col className="text-right py-md-2" md={5}>
+                        <Button color="danger" disabled={disabledStop} onClick={this.handleStopRace} >STOP</Button>{'  '}
+                        <Button color="success" disabled={disabledStart} onClick={this.handleStartRace} >START</Button>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <LapsTable groupSportsmen={this.state.groupSportsmen} group={this.state.group}/>
+                    </Col>
+                </Row>
+            </Container>];
         return(
             <Container fluid>
                 <Row>
@@ -245,25 +301,7 @@ class Groups  extends React.Component {
                         </ContextMenu>
                     </Col>
                     <Col>
-                        <Container fluid>
-                            <Row style={{position: 'sticky', top: 0, backgroundColor: 'white', zIndex:999}}>
-                                <Col md={5} className="text-left py-md-2">
-                                    <Button color="primary" disabled={disabledStart} onClick={this.handleSearchTransponders} >SEARCH</Button>
-                                </Col>
-                                <Col md={2} className="text-center  py-md-2">
-                                    <span className="timer text-monospace">{this.state.timeRace.toHHMMSS()}</span>
-                                </Col>
-                                <Col className="text-right py-md-2" md={5}>
-                                    <Button color="danger" disabled={disabledStop} onClick={this.handleStopRace} >STOP</Button>{'  '}
-                                    <Button color="success" disabled={disabledStart} onClick={this.handleStartRace} >START</Button>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col>
-                                    <LapsTable groupSportsmen={this.state.groupSportsmen} group={this.state.group}/>
-                                </Col>
-                            </Row>
-                        </Container>
+                        {lapsTable}
                     </Col>
                 </Row>
             </Container>

@@ -1,12 +1,13 @@
 'use strict';
 import React from 'react';
-import {Button, Table} from "reactstrap";
-import {WindowCloseIcon, MenuIcon} from "mdi-react";
+import {Button, Table, Tooltip} from "reactstrap";
+import {WindowCloseIcon, MenuIcon, ClipboardCheckOutlineIcon} from "mdi-react";
 import stompClient from "../../websocket_listener";
 import client from "../../client";
 import Global from "../../global"
 import Settings from "../../settings"
 import {Badge, ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
+
 import ReactDOM from "react-dom";
 import ModalSportsman from "../sportsman/modal_new_sportsman";
 
@@ -57,13 +58,15 @@ class LapsTable  extends React.Component {
         this.state = {
             groupSportsmen: this.props.groupSportsmen,
             laps:[],
-            group:{}
+            group:{},
+            tooltipOpen: false
         }
         this.showEditSportsman = this.showEditSportsman.bind(this);
         this.refreshTableLaps = this.refreshTableLaps.bind(this);
+        this.editToOutOfScore = this.editToOutOfScore.bind(this);
         this.contextMenuHide  = this.contextMenuHide.bind(this);
         this.contextMenuShow  = this.contextMenuShow.bind(this);
-        this.editToOutOfScore = this.editToOutOfScore.bind(this);
+        this.toggleTooltip = this.toggleTooltip.bind(this);
         this.rowEvents = this.rowEvents.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
         this.group = null;
@@ -73,7 +76,11 @@ class LapsTable  extends React.Component {
         this.dialogSportsman = React.createRef();
     }
 
-
+    toggleTooltip() {
+        this.setState({
+            tooltipOpen: !this.state.tooltipOpen
+        });
+    }
 
     deleteRow(e){
         if(confirm('Do you really want to delete the record?')){
@@ -286,19 +293,31 @@ class LapsTable  extends React.Component {
             if(color === 'BLACK' || color === 'BLUE') textColor = 'WHITE';
             if(color === 'WHITE') border = '1px solid black';
             let channelNumber = Settings.channelNumber[channel];
+
+            let hasBeenFound = [];
+
+            if(groupSportsman.searchTransponder) hasBeenFound = [<ClipboardCheckOutlineIcon key="has_been_found" color="green" style={{float:'right', cursor:'pointer'}} />]
+
+
             cels_colors.push(<td
                                  key={'cell_color_'+indx}>
             <MenuIcon
+                key="menu_icon"
                 color="grey"
                 style={{float:'right', cursor:'pointer'}}/>
-                <span style={{  backgroundColor: color,
+                <span id={'span_color_'+indx}
+                    style={{  backgroundColor: color,
                                 color: textColor,
                                 borderRadius:'15px ',
                                 padding:'5px',
                                 border: border
                 }}>
                     {channel}
-                </span>[{channelNumber}]
+                </span>
+                <Tooltip placement="right" isOpen={this.state.tooltipOpen} target={'span_color_'+indx} toggle={this.toggleTooltip}>
+                    [{channelNumber}]
+                </Tooltip>
+                {hasBeenFound}
             </td>);
         });
         headerTable.push(<tr key={'row_colors'}>{cels_colors}</tr>);
