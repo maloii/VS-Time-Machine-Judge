@@ -43,21 +43,21 @@ public class RaceController {
     public ResponseEntity<ResponseMessage> stop() {
         try {
             raceService.stop();
+            return new ResponseEntity<>(new ResponseMessage("status", raceService.status().toString()), HttpStatus.OK);
         } catch (RaceException e) {
-
+            return new ResponseEntity<>(new ResponseMessage("error", e.getMessage()), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(new ResponseMessage("status", raceService.status().toString()), HttpStatus.OK);
     }
 
 
-    @RequestMapping("/search")
-    public ResponseEntity<ResponseMessage> search() {
+    @RequestMapping(value = "/search", method = RequestMethod.POST)
+    public ResponseEntity<ResponseMessage> search(@RequestBody Group group) {
         try {
-            raceService.search();
+            groupRepository.findById(group.getId()).ifPresent(raceService::search);
+            return new ResponseEntity<>(new ResponseMessage("status", raceService.status().toString()), HttpStatus.OK);
         } catch (RaceException e) {
-
+            return new ResponseEntity<>(new ResponseMessage("error", e.getMessage()), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(new ResponseMessage("status", raceService.status().toString()), HttpStatus.OK);
     }
 
     @RequestMapping("/sort_group_sportsmen")

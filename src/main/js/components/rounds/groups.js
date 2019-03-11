@@ -54,7 +54,7 @@ class Groups  extends React.Component {
     }
 
 
-    handleStartRace(){
+    sendRaceCommand(command){
         if(this.state.group != null) {
             client({
                 method: 'GET',
@@ -67,7 +67,7 @@ class Groups  extends React.Component {
                 if (response.entity.message === 'STOP') {
                     client({
                         method: 'POST',
-                        path: Settings.raceApiRoot + '/start',
+                        path: Settings.raceApiRoot + '/'+command,
                         entity: this.state.group,
                         headers: {'Content-Type': 'application/json'}
                     }).then(response => {
@@ -78,12 +78,18 @@ class Groups  extends React.Component {
                 }
             });
         }else{
-           alert('Mistake! The group is not selected.');
+            alert('Mistake! The group is not selected.');
         }
     }
-    toggleShowNewGroup(){
-        this.dialogGroup.current.toggleShow();
+
+    handleStartRace(){
+        this.sendRaceCommand('start');
     }
+
+    handleSearchTransponders(){
+        this.sendRaceCommand('search');
+    }
+
     handleStopRace(){
         client({
             method: 'GET',
@@ -94,15 +100,9 @@ class Groups  extends React.Component {
             });
         });
     }
-    handleSearchTransponders(){
-        client({
-            method: 'GET',
-            path: Settings.raceApiRoot+'/search',
-        }).then(response=>{
-            this.setState({
-                statusRace:response.entity.message
-            });
-        });
+
+    toggleShowNewGroup(){
+        this.dialogGroup.current.toggleShow();
     }
 
     handleSelectGroup(group){

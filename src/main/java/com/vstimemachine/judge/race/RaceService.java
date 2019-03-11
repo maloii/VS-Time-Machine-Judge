@@ -79,11 +79,15 @@ public class RaceService {
 
     public void stop() {
         raceStatus = STOP;
+        try{if(scheduler1 != null)scheduler1.shutdownNow();}catch (Exception e){}
+        try{if(scheduler2 != null)scheduler2.shutdownNow();}catch (Exception e){}
+        try{if(scheduler3 != null)scheduler3.shutdownNow();}catch (Exception e){}
         speechService.say(RACE_IS_OVER);
         log.error("Stop race at {}", System.currentTimeMillis());
+
     }
 
-    public void search() throws RaceException {
+    public void search(Group group) throws RaceException {
         if(raceStatus == STOP){
             startTime = System.currentTimeMillis();
             raceStatus = SEARCH;
