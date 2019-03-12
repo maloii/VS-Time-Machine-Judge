@@ -64,10 +64,7 @@ public class RoundEventHandler {
                     groupSportsman.setSportsman(sportsman);
                     groupSportsman.setGroup(group);
                     groupSportsman.setSort(i);
-//                    sportsman.addGroup(group);
-//                    group.addSportsman(sportsman);
                     group.addGroupSportsmen(groupSportsman);
-//                    sportsmanRepository.save(sportsman);
                     groupSportsmanRepository.save(groupSportsman);
                     log.info("Add sportsman: {} {} to group: {}", sportsman.getFirstName(), sportsman.getLastName(), group.getName());
                 }

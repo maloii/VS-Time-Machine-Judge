@@ -259,7 +259,7 @@ class Groups  extends React.Component {
                 </Row>
                 <Row>
                     <Col>
-                        <LapsTable groupSportsmen={this.state.groupSportsmen} group={this.state.group}/>
+                        <LapsTable groupSportsmen={this.state.groupSportsmen} group={this.state.group} round={this.props.round}/>
                     </Col>
                 </Row>
             </Container>];
