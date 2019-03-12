@@ -137,6 +137,7 @@ class ModalListAllLaps extends React.Component {
         let lastTimeOk = this.state.group.startMillisecond;
         this.state.laps.map((lap, indx)=>{
             let time = 0;
+            let timeRace = lap.millisecond - this.state.group.startMillisecond;
             let fullTime = 0;
             if(indx === 0){
                 time = lap.millisecond - this.state.group.startMillisecond;
@@ -144,7 +145,7 @@ class ModalListAllLaps extends React.Component {
                 time = lap.millisecond - this.state.laps[indx-1].millisecond;
             }
             let strLapNumber = '';
-            if(lap.typeLap !== 'HIDDEN'){
+            if(lap.typeLap !== 'HIDDEN' && lap.typeLap !== 'START'){
                 lapNumber++;
                 strLapNumber = lapNumber;
                 fullTime = lap.millisecond - lastTimeOk;
@@ -154,6 +155,7 @@ class ModalListAllLaps extends React.Component {
             lapsTable.push(<tr key={'lap_'+indx}>
                                 <td onContextMenu={(e) => this.rowEvents(e, lap, indx)}>{strLapNumber}</td>
                                 <td onContextMenu={(e) => this.rowEvents(e, lap, indx)}>{time.toHHMMSSMSSS()} {fullTime>0?'['+fullTime.toHHMMSSMSSS()+']':''}</td>
+                                <td onContextMenu={(e) => this.rowEvents(e, lap, indx)}>{timeRace.toHHMMSSMSSS()}</td>
                                 <td onContextMenu={(e) => this.rowEvents(e, lap, indx)}>{lap.typeLap}</td>
                             </tr>)
         })
@@ -186,7 +188,8 @@ class ModalListAllLaps extends React.Component {
                                 <thead>
                                     <tr>
                                         <th>LAP</th>
-                                        <th>TIME</th>
+                                        <th>TIME LAP</th>
+                                        <th>TIME RACE</th>
                                         <th>STATUS</th>
                                     </tr>
                                 </thead>

@@ -4,9 +4,7 @@ import com.vstimemachine.judge.dao.GroupRepository;
 import com.vstimemachine.judge.dao.GroupSportsmanRepository;
 import com.vstimemachine.judge.dao.LapRepository;
 import com.vstimemachine.judge.dao.SportsmanRepository;
-import com.vstimemachine.judge.model.Group;
-import com.vstimemachine.judge.model.Lap;
-import com.vstimemachine.judge.model.TypeLap;
+import com.vstimemachine.judge.model.*;
 import com.vstimemachine.judge.race.speech.SpeechService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.sound.sampled.*;
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -61,9 +56,7 @@ public class RaceService {
 
     public void start(Group group) throws RaceException {
         if(raceStatus == STOP){
-            lapRepository.deleteAllByGroup(group);
-            group.setStartMillisecond(System.currentTimeMillis());
-            groupRepository.save(group);
+            lapRepository.deleteAllByGroup(selectedGroup);
 //            Hibernate.initialize(group.getSportsmen());
 
             selectedGroup = group;
@@ -140,25 +133,54 @@ public class RaceService {
                                 .stream()
                                 .filter(gate -> gate.getNumber()==0).findFirst()
                                 .ifPresent(gate -> {
-                                    long timeLap = milliseconds - lastTimeLap.get(sportsman.getId());
-                                    long gateDalay = gate.getDelay()*1000L;
-                                    TypeLap typeLap = ((gateDalay>0
-                                                        && gateDalay < timeLap)
-                                                        || gateDalay == 0)? TypeLap.OK:TypeLap.HIDDEN;
-                                    if(typeLap == TypeLap.OK){
-                                        lastTimeLap.put(sportsman.getId(), milliseconds);
-                                    }
-                                    Lap lap = new Lap();
-                                    lap.setTypeLap(typeLap);
-                                    lap.setMillisecond(milliseconds);
-                                    lap.setSportsman(sportsman);
-                                    lap.setGate(gate);
-                                    lap.setGroup(selectedGroup);
-                                    lap.setRound(selectedGroup.getRound());
                                     selectedGroup.getGroupSportsmen()
                                             .stream()
                                             .filter(groupSportsmen->groupSportsmen.getSportsman().equals(sportsman))
                                             .findFirst().ifPresent(groupSportsmen->{
+                                            Round round  = selectedGroup.getRound();
+                                            long timeLap = milliseconds - lastTimeLap.get(sportsman.getId());
+                                            long gateDalay = gate.getDelay()*1000L;
+                                            TypeLap typeLap = ((gateDalay>0
+                                                    && gateDalay < timeLap)
+                                                    || gateDalay == 0)? TypeLap.OK:TypeLap.HIDDEN;
+                                            if(round.getMaxTimeRace() != null
+                                                    && round.getMaxTimeRace().longValue() > 0){
+                                                long maxTimeRace = round.getMaxTimeRace().longValue() * 1000L;
+                                                if(round.getTypeRace() == TypeRace.FIXED_COUNT_LAPS
+                                                        || round.getTypeRace() == TypeRace.FIXED_TIME) {
+                                                    if ((milliseconds - selectedGroup.getStartMillisecond()) >= maxTimeRace)
+                                                        typeLap = TypeLap.HIDDEN;
+                                                }else if(round.getTypeRace() == TypeRace.FIXED_TIME_AND_ONE_LAP_AFTER){
+                                                    System.out.println(lastTimeLap.get(sportsman.getId()) - selectedGroup.getStartMillisecond());
+                                                    System.out.println(maxTimeRace);
+                                                    if ((lastTimeLap.get(sportsman.getId()) - selectedGroup.getStartMillisecond()) >= maxTimeRace)
+                                                        typeLap = TypeLap.HIDDEN;
+
+                                                }
+                                            }
+                                            List<Lap> laps = lapRepository.findByGroupSportsmanId(groupSportsmen.getId());
+                                            System.out.println(laps.size());
+                                            if(typeLap != TypeLap.HIDDEN && round.getCountLap() != null &&
+                                                    round.getCountLap() > 0){
+                                                if(laps
+                                                        .stream()
+                                                        .filter(lap -> lap.getTypeLap() == TypeLap.OK)
+                                                        .count()>=round.getCountLap()) typeLap = TypeLap.HIDDEN;
+                                            }
+                                            if(selectedGroup.getCompetition().getSkipFirstGate() && laps.size() == 0){
+                                                typeLap = TypeLap.START;
+                                            }
+                                            if(typeLap == TypeLap.OK || typeLap == TypeLap.START){
+                                                lastTimeLap.put(sportsman.getId(), milliseconds);
+                                            }
+                                            Lap lap = new Lap();
+                                            lap.setTypeLap(typeLap);
+                                            lap.setMillisecond(milliseconds);
+                                            lap.setSportsman(sportsman);
+                                            lap.setGate(gate);
+                                            lap.setGroup(selectedGroup);
+                                            lap.setRound(round);
+
                                                 lap.setGroupSportsman(groupSportsmen);
                                                 lapRepository.save(lap);
                                         log.info("New lap created for sportsmen: [{}] in round: [{}] in group: [{}] with time: [{}] type: [{}]",
@@ -193,20 +215,26 @@ public class RaceService {
             raceStatus = RUN;
             this.websocket.convertAndSend(MESSAGE_PREFIX + "/updateStatusRace", RUN.toString());
             startTime = System.currentTimeMillis();
+            selectedGroup.setStartMillisecond(System.currentTimeMillis());
+            groupRepository.save(selectedGroup);
             selectedGroup.getGroupSportsmen().stream().forEach(groupSportsman -> {
                 lastTimeLap.put(groupSportsman.getSportsman().getId(), startTime);
             });
             log.error("Start race at {}", startTime);
 
 
-            scheduler2 = Executors.newSingleThreadScheduledExecutor();
-            scheduler2.schedule(this::beep2, 90_000, TimeUnit.MILLISECONDS);
-            scheduler2.shutdown();
+            if (selectedGroup.getRound().getMaxTimeRace() > 0){
+                scheduler2 = Executors.newSingleThreadScheduledExecutor();
+                scheduler2.schedule(this::beep2, selectedGroup.getRound().getMaxTimeRace()*1000L, TimeUnit.MILLISECONDS);
+                scheduler2.shutdown();
 
 
-            scheduler3 = Executors.newSingleThreadScheduledExecutor();
-            scheduler3.schedule(this::sec15, 75_000, TimeUnit.MILLISECONDS);
-            scheduler3.shutdown();
+                if(selectedGroup.getRound().getMaxTimeRace() > 15) {
+                    scheduler3 = Executors.newSingleThreadScheduledExecutor();
+                    scheduler3.schedule(this::sec15, (selectedGroup.getRound().getMaxTimeRace()-15)*1000L, TimeUnit.MILLISECONDS);
+                    scheduler3.shutdown();
+                }
+            }
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new ClassPathResource("/media/beep.wav").getFile().getAbsoluteFile());
             Clip clip = AudioSystem.getClip();
             clip.open(audioInputStream);

@@ -333,7 +333,8 @@ class LapsTable  extends React.Component {
         headerTable.push(<tr key={'row_colors'}>{cels_colors}</tr>);
 
         for(let i = 0; i < countRows; i++){
-            let cels = [<td key={'lap_'+i}  width="50" style={{textAlign: 'center'}}>{i+1}</td>];
+            let lapNumber = (Global.competition.skipFirstGate? i:i+1);
+            let cels = [<td key={'lap_'+i}  width="50" style={{textAlign: 'center'}}>{lapNumber}</td>];
             this.state.groupSportsmen.map(groupSportsman=>{
                 if(this.state.laps[groupSportsman.sportsman.id] != null &&
                     this.state.laps[groupSportsman.sportsman.id].length > i) {
@@ -358,11 +359,17 @@ class LapsTable  extends React.Component {
                             gap = <span className="badge badge-danger" style={{fontWeight:'normal'}}>{timeGap.toClearHHMMSSMSSS()}</span>
                         }
                     }
+                    let timeString  = time.toHHMMSSMSSS();
+                    if(Global.competition.skipFirstGate && i == 0){
+                        timeString = 'START';
+                        gap = <span className="badge badge-primary" style={{fontWeight:'normal'}}>{time.toClearHHMMSSMSSS()}</span>
+                    }
+
                     cels.push(<td width={width + '%'}
                                   key={lap._links.self.href}
                                   className={outOfScope}
                                   style={{whiteSpace:'nowrap'}}
-                                  onContextMenu={(e) => this.rowEvents(e, lap, i)}>{time.toHHMMSSMSSS()} {gap}</td>)
+                                  onContextMenu={(e) => this.rowEvents(e, lap, i)}>{timeString} {gap}</td>)
                 }else{
                     cels.push(<td width={width + '%'} key={groupSportsman._links.self.href+'_empty_'+i}></td>)
                 }
