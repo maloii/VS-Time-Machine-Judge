@@ -7,7 +7,7 @@ import client from "../../client";
 import Global from "../../global"
 import Settings from "../../settings"
 import {Badge, ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
-
+import ModalListAllLaps from "./modal_list_all_laps";
 import ReactDOM from "react-dom";
 import ModalSportsman from "../sportsman/modal_new_sportsman";
 
@@ -66,6 +66,7 @@ class LapsTable  extends React.Component {
         this.editToOutOfScore = this.editToOutOfScore.bind(this);
         this.contextMenuHide  = this.contextMenuHide.bind(this);
         this.contextMenuShow  = this.contextMenuShow.bind(this);
+        this.showListAllLaps = this.showListAllLaps.bind(this);
         this.toggleTooltip = this.toggleTooltip.bind(this);
         this.rowEvents = this.rowEvents.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
@@ -74,6 +75,7 @@ class LapsTable  extends React.Component {
         this.contextSelectedItemData = null;
 
         this.dialogSportsman = React.createRef();
+        this.dialogListAllLaps = React.createRef();
     }
 
     toggleTooltip() {
@@ -144,8 +146,12 @@ class LapsTable  extends React.Component {
                 }).then(lapsResponse => {
                     let laps = [];
                     lapsResponse.entity._embedded.laps.map(lap => {
-                        if (laps[lap._links.sportsmanId.href] == null) laps[lap._links.sportsmanId.href] = [];
-                        laps[lap._links.sportsmanId.href].push(lap);
+                        if (laps[lap._links.sportsmanId.href] == null){
+                            laps[lap._links.sportsmanId.href] = [];
+                        }
+                        if(lap.typeLap !== 'HIDDEN') {
+                            laps[lap._links.sportsmanId.href].push(lap);
+                        }
                     });
 
                     this.setState({
@@ -158,6 +164,9 @@ class LapsTable  extends React.Component {
     }
     showEditSportsman(url) {
         this.dialogSportsman.current.toggleEditShow(url);
+    }
+    showListAllLaps(e, groupSportsman){
+        this.dialogListAllLaps.current.toggleShow(groupSportsman);
     }
     componentDidMount() {
         if(this.props.group != null){
@@ -304,7 +313,8 @@ class LapsTable  extends React.Component {
             <MenuIcon
                 key="menu_icon"
                 color="grey"
-                style={{float:'right', cursor:'pointer'}}/>
+                style={{float:'right', cursor:'pointer'}}
+                onClick={(e) => this.showListAllLaps(e, groupSportsman)}/>
                 <span id={'span_color_'+indx}
                     style={{  backgroundColor: color,
                                 color: textColor,
@@ -361,6 +371,7 @@ class LapsTable  extends React.Component {
         }
         return(
             <>
+                <ModalListAllLaps ref={this.dialogListAllLaps}/>
                 <ModalSportsman ref={this.dialogSportsman}/>
                 <ContextMenuTrigger id="some_unique_identifier" ref={c => contextTrigger = c} collect={props => props}>
                     <div></div>

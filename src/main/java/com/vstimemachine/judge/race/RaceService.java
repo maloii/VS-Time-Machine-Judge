@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import javax.sound.sampled.*;
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -50,6 +51,7 @@ public class RaceService {
     private Group selectedGroup;
 
     private Set<Integer> numberPackages = new HashSet<>();
+    private HashMap<Long, Long> lastTimeLap = new HashMap<>();
 
     private SearchTransponders searchTransponders;
 
@@ -63,9 +65,7 @@ public class RaceService {
             group.setStartMillisecond(System.currentTimeMillis());
             groupRepository.save(group);
 //            Hibernate.initialize(group.getSportsmen());
-//            Hibernate.initialize(group.getCompetition());
-//            Hibernate.initialize(group.getCompetition().getGates());
-//            Hibernate.initialize(group.getRound());
+
             selectedGroup = group;
             speechService.say(FOCUS_ON_START);
             numberPackages.clear();
@@ -140,10 +140,14 @@ public class RaceService {
                                 .stream()
                                 .filter(gate -> gate.getNumber()==0).findFirst()
                                 .ifPresent(gate -> {
-                                    long timeLap = milliseconds-startTime;
-                                    TypeLap typeLap = ((selectedGroup.getRound().getMinTimeLap()>0
-                                                        && selectedGroup.getRound().getMinTimeLap() < timeLap)
-                                                        || selectedGroup.getRound().getMinTimeLap() == 0)? TypeLap.OK:TypeLap.HIDDEN;
+                                    long timeLap = milliseconds - lastTimeLap.get(sportsman.getId());
+                                    long gateDalay = gate.getDelay()*1000L;
+                                    TypeLap typeLap = ((gateDalay>0
+                                                        && gateDalay < timeLap)
+                                                        || gateDalay == 0)? TypeLap.OK:TypeLap.HIDDEN;
+                                    if(typeLap == TypeLap.OK){
+                                        lastTimeLap.put(sportsman.getId(), milliseconds);
+                                    }
                                     Lap lap = new Lap();
                                     lap.setTypeLap(typeLap);
                                     lap.setMillisecond(milliseconds);
@@ -189,6 +193,9 @@ public class RaceService {
             raceStatus = RUN;
             this.websocket.convertAndSend(MESSAGE_PREFIX + "/updateStatusRace", RUN.toString());
             startTime = System.currentTimeMillis();
+            selectedGroup.getGroupSportsmen().stream().forEach(groupSportsman -> {
+                lastTimeLap.put(groupSportsman.getSportsman().getId(), startTime);
+            });
             log.error("Start race at {}", startTime);
 
 

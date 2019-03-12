@@ -531,18 +531,18 @@ class DialogNewCompetition extends React.Component {
                                                 defaultValue={this.state.name} />
                                         </Col>
                                     </FormGroup>
-                                    <FormGroup row>
-                                        <Label for="logo" sm={2}>Logo</Label>
-                                        <Col sm={10}>
-                                            <CustomInput type="file" id="logo" name="logo" onChange={this.handleUpload} />
-                                        </Col>
-                                    </FormGroup>
-                                    <FormGroup row>
-                                        <Label for="logo" sm={2}>Map</Label>
-                                        <Col sm={10}>
-                                            <CustomInput type="file" id="map" name="map" onChange={this.handleUpload} />
-                                        </Col>
-                                    </FormGroup>
+                                    {/*<FormGroup row>*/}
+                                        {/*<Label for="logo" sm={2}>Logo</Label>*/}
+                                        {/*<Col sm={10}>*/}
+                                            {/*<CustomInput type="file" id="logo" name="logo" onChange={this.handleUpload} />*/}
+                                        {/*</Col>*/}
+                                    {/*</FormGroup>*/}
+                                    {/*<FormGroup row>*/}
+                                        {/*<Label for="logo" sm={2}>Map</Label>*/}
+                                        {/*<Col sm={10}>*/}
+                                            {/*<CustomInput type="file" id="map" name="map" onChange={this.handleUpload} />*/}
+                                        {/*</Col>*/}
+                                    {/*</FormGroup>*/}
                                     <FormGroup row>
                                         <Label for="selected" sm={4}>Select</Label>
                                         <Col sm={8}>
