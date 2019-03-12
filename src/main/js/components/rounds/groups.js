@@ -1,7 +1,7 @@
 'use strict';
 import React from 'react';
 import {Alert, Button, Col, Container, ListGroup, ListGroupItem, Row} from "reactstrap";
-import {AccountPlusIcon} from "mdi-react";
+import {PlusIcon, ContentCopyIcon} from "mdi-react";
 import client from "../../client";
 import stompClient from "../../websocket_listener";
 import LapsTable from "./laps_table";
@@ -43,6 +43,7 @@ class Groups  extends React.Component {
 
         this.handleSearchTransponders = this.handleSearchTransponders.bind(this);
         this.toggleShowNewGroup = this.toggleShowNewGroup.bind(this);
+        this.copyGpoupsToBuffer = this.copyGpoupsToBuffer.bind(this);
         this.addGroupSportsmen = this.addGroupSportsmen.bind(this);
         this.handleStartRace = this.handleStartRace.bind(this);
         this.handleStopRace = this.handleStopRace.bind(this);
@@ -125,6 +126,58 @@ class Groups  extends React.Component {
     toggleShowNewGroup(){
         this.dialogGroup.current.toggleShow();
     }
+    copyGpoupsToBuffer(){
+        const buff = [];
+        this.state.groups.map(group=>{
+            buff.push('-='+group.name+'=-');
+            group._embedded.groupSportsmen.map((groupSportsmen, indx)=>{
+                let color = {};
+                let channel = {};
+                switch (indx) {
+                    case 0:
+                        color = Global.competition.color1;
+                        channel = Global.competition.channel1;
+                        break;
+                    case 1:
+                        color = Global.competition.color2;
+                        channel = Global.competition.channel2;
+                        break;
+                    case 2:
+                        color = Global.competition.color3;
+                        channel = Global.competition.channel3;
+                        break;
+                    case 3:
+                        color = Global.competition.color4;
+                        channel = Global.competition.channel4;
+                        break;
+                    case 4:
+                        color = Global.competition.color5;
+                        channel = Global.competition.channel5;
+                        break;
+                    case 5:
+                        color = Global.competition.color6;
+                        channel = Global.competition.channel6;
+                        break;
+                    case 6:
+                        color = Global.competition.color7;
+                        channel = Global.competition.channel7;
+                        break;
+                    case 7:
+                        color = Global.competition.color8;
+                        channel = Global.competition.channel8;
+                        break;
+                }
+                buff.push((indx+1)+'. ' + channel + ' - '+color+' - '+groupSportsmen.sportsman.firstName +' '+ groupSportsmen.sportsman.lastName+ (groupSportsmen.sportsman.nick?'['+groupSportsmen.sportsman.nick+']':''));
+            })
+        });
+        navigator.clipboard.writeText(buff.join('\n'))
+            .then(() => {
+               alert('Group data copied to clipboard!');
+            })
+            .catch(err => {
+                alert('Error! Failed to copy data to clipboard!');
+            });
+    }
 
     handleSelectGroup(group){
         group.selected = true;
@@ -188,7 +241,6 @@ class Groups  extends React.Component {
             }else{
                 this.setState({groups: groups.entity._embedded.groups});
             }
-
         });
 
     }
@@ -269,9 +321,18 @@ class Groups  extends React.Component {
                     <Col className="text-center" style={{maxWidth:'200px', minWidth:'200px'}}>
                         <ModalNewGroup ref={this.dialogGroup} groups={this.state.groups} round={this.props.round} />
                         <ModalNewSportsmenToGroup ref={this.dialogAddSportsmenToGroup} round={this.props.round} />
-                        <Button color="primary" style={{marginBottom: '10px', whiteSpace: 'nowrap'}} onClick={this.toggleShowNewGroup}>
-                            <AccountPlusIcon/> Add new group
-                        </Button>
+                        <Row>
+                            <Col md={6}>
+                                <Button color="primary" outline style={{marginBottom: '10px'}} onClick={this.copyGpoupsToBuffer}>
+                                    <ContentCopyIcon />
+                                </Button>
+                            </Col>
+                            <Col md={6}>
+                                <Button color="primary" style={{marginBottom: '10px'}} onClick={this.toggleShowNewGroup}>
+                                    <PlusIcon />
+                                </Button>
+                            </Col>
+                        </Row>
                         <ListGroup>
                             {this.state.groups.map(group=>{
                                 return <ListGroupItem

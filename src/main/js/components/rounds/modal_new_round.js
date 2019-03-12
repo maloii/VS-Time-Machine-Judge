@@ -60,7 +60,8 @@ class ModalNewRound extends React.Component {
                     typeGenerateRound: 'NONE',
                     countLap: 5,
                     maxTimeRace: 180,
-                    countSportsmen: 4
+                    countSportsmen: 4,
+                    fromRoundCopy:0
                 },
                 rounds:rounds.entity._embedded.rounds.sort((a, b)=>b.sort - a.sort),
                 url: null
@@ -101,7 +102,6 @@ class ModalNewRound extends React.Component {
         copyRound.name = ReactDOM.findDOMNode(this.refs['name']).value.trim();
         copyRound.typeRound = ReactDOM.findDOMNode(this.refs['typeRound']).value.trim();
         copyRound.typeGenerateRound = ReactDOM.findDOMNode(this.refs['autoGenerate']).value.trim();
-        copyRound.countSportsmen = countSportsmen;
         copyRound.sort = this.props.maxSortRound+1;
         copyRound.selected = true;
         copyRound.competition = Global.competition._links.competition.href;
@@ -111,8 +111,10 @@ class ModalNewRound extends React.Component {
             copyRound.countLap = ReactDOM.findDOMNode(this.refs['countLap']).value.trim();
         if(this.refs['maxTimeRace'])
             copyRound.maxTimeRace = ReactDOM.findDOMNode(this.refs['maxTimeRace']).value.trim();
-        if(this.refs['maxTimeRace'])
+        if(this.refs['countSportsmen'])
             copyRound.countSportsmen = ReactDOM.findDOMNode(this.refs['countSportsmen']).value.trim();
+        if(this.refs['fromRoundCopy'])
+            copyRound.fromRoundCopy = ReactDOM.findDOMNode(this.refs['fromRoundCopy']).value.trim();
 
         follow(client, Settings.root, ['rounds']).then(response => {
             return client({
@@ -261,8 +263,7 @@ class ModalNewRound extends React.Component {
                                         type="select"
                                         name="fromRoundCopy"
                                         id="fromRoundCopy"
-                                        ref="fromRoundCopy"
-                                        defaultValue={this.state.round.typeGenerateRound}>
+                                        ref="fromRoundCopy">
                                         {listRounds}
                                     </Input>
                                 </Col>

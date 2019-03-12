@@ -171,7 +171,7 @@ class Rounds extends React.Component {
                                                   marginTop: '5px',
                                                   marginLeft: '12px'
                                               }}>
-                                          <AccountPlusIcon/> Add new round
+                                          New round
                                       </Button>
                                   }>
                                 <DragTabList>
