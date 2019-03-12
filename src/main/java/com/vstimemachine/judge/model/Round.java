@@ -35,13 +35,18 @@ public class Round {
     private TypeRound typeRound;
 
     @Enumerated(EnumType.STRING)
+    private TypeRace typeRace;
+
+    @Enumerated(EnumType.STRING)
     private TypeGenerateRound typeGenerateRound;
     private Integer countSportsmen = 0;
     private Boolean selected = false;
     private Integer countLap = 0;
+    private Integer maxTimeRace = 0;
     private Integer minTimeLap = 0;
     private Integer sort = 0;
     private Boolean close = false;
+    private Long fromRoundCopy;
 
 
     @ManyToOne

@@ -26,7 +26,7 @@ const channels = [  'R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8',
     'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8',
     'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8'];
 
-const colors   = [  'BLUE', 'RED', 'GREEN', 'WHITE', 'YELLOW', 'MAGENTA', 'CYAN', 'BLACK'];
+const colors   = [  'BLUE', 'RED', 'GREEN', 'YELLOW', 'MAGENTA', 'CYAN', 'WHITE', 'BLACK'];
 
 class DialogNewCompetition extends React.Component {
     constructor(props){
@@ -121,7 +121,25 @@ class DialogNewCompetition extends React.Component {
             selected: true,
             distance: 0,
             delay: 10,
-            competition:undefined
+            competition:undefined,
+
+            channel1:'R1',
+            channel2:'R2',
+            channel3:'R3',
+            channel4:'R4',
+            channel5:'R5',
+            channel6:'R6',
+            channel7:'R7',
+            channel8:'R8',
+
+            color1: 'BLUE',
+            color2: 'RED',
+            color3: 'GREEN',
+            color4: 'YELLOW',
+            color5: 'MAGENTA',
+            color6: 'CYAN',
+            color7: 'WHITE',
+            color8: 'BLACK',
         });
     }
 
@@ -544,8 +562,8 @@ class DialogNewCompetition extends React.Component {
                                         {/*</Col>*/}
                                     {/*</FormGroup>*/}
                                     <FormGroup row>
-                                        <Label for="selected" sm={4}>Select</Label>
-                                        <Col sm={8}>
+                                        <Label for="selected" sm={6}>Select this competition</Label>
+                                        <Col sm={6}>
                                             <Input
                                                 type="checkbox"
                                                 id="selected"
@@ -555,8 +573,8 @@ class DialogNewCompetition extends React.Component {
                                         </Col>
                                     </FormGroup>
                                     <FormGroup row>
-                                        <Label for="selected" sm={4}>skip the gate</Label>
-                                        <Col sm={8}>
+                                        <Label for="selected" sm={6}>Skip the first gate</Label>
+                                        <Col sm={6}>
                                             <Input
                                                 type="checkbox"
                                                 id="skipFirstGate"
