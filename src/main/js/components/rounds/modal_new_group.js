@@ -31,6 +31,7 @@ class ModalNewGroup extends React.Component {
             sportsmen:[],
             group:{},
             selected:[],
+            invalidName: false,
             url: null
         }
 
@@ -44,7 +45,8 @@ class ModalNewGroup extends React.Component {
 
     toggle() {
         this.setState({
-            modalGroup: !this.state.modalGroup
+            modalGroup: !this.state.modalGroup,
+            invalidName: false,
         });
     }
 
@@ -54,12 +56,14 @@ class ModalNewGroup extends React.Component {
             this.setState({
                 modalGroup: !this.state.modalGroup,
                 group: {name: 'Group ' + (this.props.groups.length + 1)},
+                invalidName: false,
                 selected:[]
             });
         }else{
             this.setState({
                 modalGroup: !this.state.modalGroup,
                 group: group,
+                invalidName: false,
                 selected:[]
             });
         }
@@ -103,8 +107,15 @@ class ModalNewGroup extends React.Component {
     }
 
     handleSave() {
+        let name = ReactDOM.findDOMNode(this.refs['name']);
+        if(name.value.trim() === '') {
+            this.setState({
+                invalidName: true
+            })
+            return;
+        }
         const newGroup = {
-            name: ReactDOM.findDOMNode(this.refs['name']).value.trim(),
+            name: name.value.trim(),
             sort: this.props.groups.length,
             selected: false,
             competition: Global.competition._links.competition.href,
@@ -140,8 +151,15 @@ class ModalNewGroup extends React.Component {
         this.toggle();
     }
     handleUpdate() {
+        let name = ReactDOM.findDOMNode(this.refs['name']);
+        if(name.value.trim() === '') {
+            this.setState({
+                invalidName: true
+            })
+            return;
+        }
         var copyGroup = Object.assign({}, this.state.group);
-        copyGroup.name = ReactDOM.findDOMNode(this.refs['name']).value.trim();
+        copyGroup.name = name.value.trim();
         client({
             method: 'PUT',
             path: this.state.group._links.self.href,
@@ -220,6 +238,7 @@ class ModalNewGroup extends React.Component {
                                     <Label for="name" sm={4}>Name</Label>
                                     <Col sm={8}>
                                         <Input
+                                            invalid={this.state.invalidName}
                                             type="text"
                                             name="name"
                                             id="name"

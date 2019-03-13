@@ -35,6 +35,7 @@ class DialogNewCompetition extends React.Component {
             modalNewCompetition:false,
             activeTab: '1',
             id: 0,
+            invalidName: false,
             channel1:'R1',
             channel2:'R2',
             channel3:'R3',
@@ -164,8 +165,15 @@ class DialogNewCompetition extends React.Component {
     }
 
     handleUpdate(){
+        let name = ReactDOM.findDOMNode(this.refs['name']);
+        if(name.value.trim() === '') {
+            this.setState({
+                invalidName: true
+            })
+            return;
+        }
         const newCompetition = {
-            name: ReactDOM.findDOMNode(this.refs['name']).value.trim(),
+            name: name.value.trim(),
             selected: ReactDOM.findDOMNode(this.refs['selected']).checked,
             skipFirstGate: ReactDOM.findDOMNode(this.refs['skipFirstGate']).checked,
 
@@ -212,8 +220,16 @@ class DialogNewCompetition extends React.Component {
         this.toggle();
     }
     handleSave(){
+        let name = ReactDOM.findDOMNode(this.refs['name']);
+        if(name.value.trim() === '') {
+            this.setState({
+                invalidName: true
+            })
+            return;
+        }
+
         const newCompetition = {
-            name: ReactDOM.findDOMNode(this.refs['name']).value.trim(),
+            name: name.value.trim(),
             selected: ReactDOM.findDOMNode(this.refs['selected']).checked,
             skipFirstGate: ReactDOM.findDOMNode(this.refs['skipFirstGate']).checked,
 
@@ -267,6 +283,7 @@ class DialogNewCompetition extends React.Component {
         this.setState({
             competition: competition,
             name: competition.entity.name,
+            invalidName: false,
             selected: competition.entity.selected,
             skipFirstGate: competition.entity.skipFirstGate,
 
@@ -298,7 +315,8 @@ class DialogNewCompetition extends React.Component {
     toggle() {
         this.toggleTabs('1');
         this.setState({
-            modalNewCompetition: !this.state.modalNewCompetition
+            modalNewCompetition: !this.state.modalNewCompetition,
+            invalidName: false
         });
     }
 
@@ -541,6 +559,7 @@ class DialogNewCompetition extends React.Component {
                                         <Label for="name" sm={2}>Name</Label>
                                         <Col sm={10}>
                                             <Input
+                                                invalid={this.state.invalidName}
                                                 type="text"
                                                 name="name"
                                                 id="name"

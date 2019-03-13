@@ -31,19 +31,19 @@ public class Lap {
     private TypeLap typeLap;
     private LocalDateTime dateCreate = LocalDateTime.now();
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Sportsman sportsman;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Round round;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Group group;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Gate gate;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private GroupSportsman groupSportsman;
 
 

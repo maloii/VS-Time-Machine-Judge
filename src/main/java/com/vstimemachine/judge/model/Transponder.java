@@ -37,7 +37,7 @@ public class Transponder {
     @JoinColumn(name = "sportsman_id")
     private Sportsman sportsman;
 
-    @ManyToOne()
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "competition_id")
     private Competition competition;
 

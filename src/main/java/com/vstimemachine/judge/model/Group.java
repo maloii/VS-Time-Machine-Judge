@@ -36,10 +36,10 @@ public class Group {
     private Long timeSatart;
     private Long startMillisecond;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Competition competition;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private League league;
 
     @ManyToOne(cascade = CascadeType.PERSIST)

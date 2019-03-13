@@ -3,8 +3,10 @@ package com.vstimemachine.judge;
 import com.vstimemachine.judge.controller.storage.StorageProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -27,16 +29,22 @@ public class JudgeApplication {
 
 	public static final String APPLICATION_NAME = "VS Time Machine Judge";
 	public static final String ICON_STR = "/logo_300.png";
-
+	public static TrayIcon trayIcon;
 	public static void main(String[] args) {
+
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				createGUI();
 			}
 		});
-		SpringApplication.run(JudgeApplication.class, args);
+		ConfigurableApplicationContext ctx = new SpringApplicationBuilder(JudgeApplication.class)
+				.headless(false).run(args);//SpringApplication.run(JudgeApplication.class, args);
 
+		EventQueue.invokeLater(()-> {
+			trayIcon.displayMessage(APPLICATION_NAME, "Application started!",
+					TrayIcon.MessageType.INFO);
+		});
 	}
 
 	private static void createGUI() {
@@ -70,7 +78,7 @@ public class JudgeApplication {
 		URL imageURL = JudgeApplication.class.getResource(ICON_STR);
 
 		Image icon = Toolkit.getDefaultToolkit().getImage(imageURL);
-		TrayIcon trayIcon = new TrayIcon(icon, APPLICATION_NAME, trayMenu);
+		trayIcon = new TrayIcon(icon, APPLICATION_NAME, trayMenu);
 		trayIcon.setImageAutoSize(true);
 
 		SystemTray tray = SystemTray.getSystemTray();
@@ -80,8 +88,6 @@ public class JudgeApplication {
 			e.printStackTrace();
 		}
 
-		trayIcon.displayMessage(APPLICATION_NAME, "Application started!",
-				TrayIcon.MessageType.INFO);
 		itemOpen.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

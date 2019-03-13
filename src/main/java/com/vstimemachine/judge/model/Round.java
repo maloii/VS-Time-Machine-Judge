@@ -49,7 +49,7 @@ public class Round {
     private Long fromRoundCopy;
 
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Competition competition;
 
     @OneToMany(cascade = CascadeType.ALL,

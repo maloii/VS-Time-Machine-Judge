@@ -46,7 +46,7 @@ public class Sportsman {
             mappedBy = "sportsman")
     private Set<Transponder> transponders;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name="competition_id")
     private Competition competition;
 

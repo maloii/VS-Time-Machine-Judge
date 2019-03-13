@@ -29,6 +29,7 @@ class ModalNewRound extends React.Component {
         this.state = {
             round: {},
             rounds:[],
+            invalidName: false,
             url: null
         }
 
@@ -44,7 +45,8 @@ class ModalNewRound extends React.Component {
     }
     toggle() {
         this.setState({
-            modalRound: !this.state.modalRound
+            modalRound: !this.state.modalRound,
+            invalidName: false
         });
     }
 
@@ -64,6 +66,7 @@ class ModalNewRound extends React.Component {
                     fromRoundCopy:0
                 },
                 rounds:rounds.entity._embedded.rounds.sort((a, b)=>b.sort - a.sort),
+                invalidName: false,
                 url: null
             });
         });
@@ -77,6 +80,7 @@ class ModalNewRound extends React.Component {
             this.setState({
                 round:round.entity,
                 modalRound: !this.state.modalRound,
+                invalidName: false,
                 url: url
             });
 
@@ -97,9 +101,16 @@ class ModalNewRound extends React.Component {
         });
     }
     handleSave() {
+        let name = ReactDOM.findDOMNode(this.refs['name']);
+        if(name.value.trim() === '') {
+            this.setState({
+                invalidName: true
+            })
+            return;
+        }
         var copyRound = Object.assign({}, this.state.round);
 
-        copyRound.name = ReactDOM.findDOMNode(this.refs['name']).value.trim();
+        copyRound.name = name.value.trim();
         copyRound.typeRound = ReactDOM.findDOMNode(this.refs['typeRound']).value.trim();
         copyRound.typeGenerateRound = ReactDOM.findDOMNode(this.refs['autoGenerate']).value.trim();
         copyRound.sort = this.props.maxSortRound+1;
@@ -127,8 +138,15 @@ class ModalNewRound extends React.Component {
         this.toggle();
     }
     handleUpdate() {
+        let name = ReactDOM.findDOMNode(this.refs['name']);
+        if(name.value.trim() === '') {
+            this.setState({
+                invalidName: true
+            })
+            return;
+        }
         var copyRound = Object.assign({}, this.state.round);
-        copyRound.name = ReactDOM.findDOMNode(this.refs['name']).value.trim();
+        copyRound.name = name.value.trim();
         copyRound.typeRound = ReactDOM.findDOMNode(this.refs['typeRound']).value.trim();
         copyRound.typeRace = ReactDOM.findDOMNode(this.refs['typeRace']).value.trim();
         if(this.refs['countLap'])
@@ -283,6 +301,7 @@ class ModalNewRound extends React.Component {
                                 <Label for="name" sm={4}>Name</Label>
                                 <Col sm={8}>
                                     <Input
+                                        invalid={this.state.invalidName}
                                         type="text"
                                         name="name"
                                         id="name"
