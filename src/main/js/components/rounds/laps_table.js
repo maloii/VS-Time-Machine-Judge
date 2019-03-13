@@ -378,23 +378,24 @@ class LapsTable  extends React.Component {
             lapsTable.push(<tr key={'row_'+i}>{cels}</tr>);
         }
 
-
-            const colFooterTable = [<td key="footer_table_total">{this.props.round.typeRace ==='FIXED_COUNT_LAPS'?'POS':'Total'}</td>];
+        if(countRows > 0) {
+            const colFooterTable = [<td
+                key="footer_table_total">{this.props.round.typeRace === 'FIXED_COUNT_LAPS' ? 'POS' : 'Total'}</td>];
             const resalts = [];
-            this.state.groupSportsmen.map(groupSportsman=>{
+            this.state.groupSportsmen.map(groupSportsman => {
                 let time = 0;
                 let count = 0;
-                if(this.state.laps[groupSportsman.sportsman.id] != null){
-                    let laps = this.state.laps[groupSportsman.sportsman.id].filter(lap=>lap.typeLap==='OK');
+                if (this.state.laps[groupSportsman.sportsman.id] != null) {
+                    let laps = this.state.laps[groupSportsman.sportsman.id].filter(lap => lap.typeLap === 'OK');
                     count = laps.length;
-                    if(count > 0) time = laps[laps.length-1].millisecond - this.state.group.startMillisecond;
+                    if (count > 0) time = laps[laps.length - 1].millisecond - this.state.group.startMillisecond;
                 }
                 resalts[groupSportsman.sportsman.id] = {
                     count: count,
                     time: time
                 }
             });
-            if(this.props.round.typeRace ==='FIXED_COUNT_LAPS') {
+            if (this.props.round.typeRace === 'FIXED_COUNT_LAPS') {
                 this.state.groupSportsmen.map(groupSportsman => {
                     let pos = this.state.groupSportsmen
                         .filter(gs => gs.sportsman.id !== groupSportsman.sportsman.id)
@@ -409,25 +410,25 @@ class LapsTable  extends React.Component {
                     resalts[groupSportsman.sportsman.id] = resalt;
                 });
             }
-            this.state.groupSportsmen.map(groupSportsman=>{
+            this.state.groupSportsmen.map(groupSportsman => {
                 let total = [];
                 let resalt = resalts[groupSportsman.sportsman.id];
-                if(this.props.round.typeRace ==='FIXED_COUNT_LAPS'){
+                if (this.props.round.typeRace === 'FIXED_COUNT_LAPS') {
                     total.push(<b key="pos">{resalt.pos} </b>)
-                    if(resalt.count == this.props.round.countLap){
-                        total.push(<span key="time">{'('+resalt.time.toHHMMSSMSSS()+')'}</span>);
+                    if (resalt.count == this.props.round.countLap) {
+                        total.push(<span key="time">{'(' + resalt.time.toHHMMSSMSSS() + ')'}</span>);
                     }
-                }else if(this.props.round.typeRace ==='FIXED_TIME' || this.props.round.typeRace ==='FIXED_TIME_AND_ONE_LAP_AFTER'){
+                } else if (this.props.round.typeRace === 'FIXED_TIME' || this.props.round.typeRace === 'FIXED_TIME_AND_ONE_LAP_AFTER') {
                     total.push(<span key="count"><b>{resalt.count}</b> {'laps'}</span>);
                 }
                 colFooterTable.push(<td key={groupSportsman._links.self.href}>{total}</td>)
             });
-            footerTable.push(   <tfoot key="footer_table">
-                                    <tr>
-                                        {colFooterTable}
-                                    </tr>
-                                </tfoot>);
-
+            footerTable.push(<tfoot key="footer_table">
+                                <tr>
+                                    {colFooterTable}
+                                </tr>
+                            </tfoot>);
+        }
         return(
             <>
                 <ModalListAllLaps ref={this.dialogListAllLaps}/>
