@@ -24,20 +24,23 @@ public class SearchTransponders extends Thread {
             while (raceService.status() == SEARCH && raceService.group().getGroupSportsmen()
                     .stream()
                     .filter(groupSportsman -> groupSportsman.getSearchTransponder() == false).count() > 0) {
+                int[] idx = { 0 };
                 raceService.group().getGroupSportsmen()
                         .stream()
-                        .filter(groupSportsman -> groupSportsman.getSearchTransponder() == false)
+                        .sorted((gs1, gs2)-> gs1.getSort().compareTo(gs2.getSort()))
                         .forEach(groupSportsman -> {
-                            groupSportsman.getSportsman().getTransponders().stream().forEach(transponder -> {
-                                Color color = raceService.group().getCompetition().colorPosition(groupSportsman.getSort()-1);
+                            idx[0]++;
+                            groupSportsman.getSportsman().getTransponders().forEach(transponder -> {
+                                Color color = raceService.group().getCompetition().colorPosition(idx[0]);
+
                                 int colorVsCode = color.getVsCode();
                                 //flashInGate
                                 colorVsCode |= ( 1 << 6 );
-                                //hybridMode
-                                colorVsCode |= ( 1 << 7 );
+                                //hybridMode off
+                                //colorVsCode |= ( 1 << 7 );
                                 ConnectorService connectorService = context.getBean(ConnectorService.class);
                                 connectorService.send(String.format("searchtrans:%d,%d", transponder.getNumber(), colorVsCode));
-                                log.error(String.format("Send message searchtrans:%d,%d", transponder.getNumber(), colorVsCode));
+                                log.error(String.format("Send message searchtrans:%d,%d, %s", transponder.getNumber(), colorVsCode, color));
                             });
                         });
                 try {sleep(1000L); } catch (InterruptedException e) { }
