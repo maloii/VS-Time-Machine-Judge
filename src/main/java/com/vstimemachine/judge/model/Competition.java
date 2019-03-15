@@ -90,6 +90,12 @@ public class Competition {
     @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
     private Set<Transponder> transponders;
 
+    @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
+    private Set<Report> reports;
+
+    @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
+    private Set<Settings> settings;
+
 
     public Color colorPosition(int pos){
         switch (pos){

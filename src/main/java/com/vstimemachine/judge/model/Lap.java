@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
@@ -26,6 +27,10 @@ public class Lap {
     private Long version;
 
     private Long millisecond;
+
+    @Formula(value="(SELECT millisecond-l.millisecond FROM Lap l WHERE id>l.id AND l.group_sportsman_id=group_sportsman_id AND (l.type_lap='OK' OR l.type_lap='START') order by l.id DESC LIMIT 1)")
+    @Basic(fetch=FetchType.EAGER)
+    private Long timeLap;
 
     @Enumerated(EnumType.STRING)
     private TypeLap typeLap;

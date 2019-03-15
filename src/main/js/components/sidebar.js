@@ -7,6 +7,7 @@ import './side_bar_menu.css';
 import {Container} from "reactstrap";
 import Sportsmen from "./sportsmen";
 import Rounds from "./rounds";
+import Reports from "./reports";
 
 
 class SideBar extends React.Component {
@@ -41,9 +42,7 @@ class SideBar extends React.Component {
                 mainContainer);
         }else if(idMenu === 'reports'){
             ReactDOM.render(
-                <Container>
-                    Reports
-                </Container>,
+                <Reports />,
                 mainContainer);
         }else if(idMenu === 'settings'){
             ReactDOM.render(
