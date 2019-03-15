@@ -218,3 +218,8 @@ div.ReactTags__suggestions ul li.ReactTags__activeSuggestion {
 }
 /*.tableFixHead    { overflow-y: auto; height: 100px; }*/
 .tableFixHead th { position: sticky; top: 55px; background-color: white; }
+
+/* Print */
+.printComponent{
+    margin: 80px;
+}

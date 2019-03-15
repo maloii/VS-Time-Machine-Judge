@@ -4,24 +4,26 @@ import com.vstimemachine.judge.model.Sportsman;
 import lombok.Data;
 
 @Data
-public class BestLapReportTable implements ReportTable {
-    public BestLapReportTable() {
+public class BestLapReport {
+    public BestLapReport() {
     }
 
-    public BestLapReportTable(Sportsman sportsman, Long timeLap) {
+    public BestLapReport(Sportsman sportsman, Long timeLap) {
         this.sportsman = sportsman;
         this.timeLap = timeLap;
     }
 
-    public BestLapReportTable(Integer position, Sportsman sportsman, Long timeLap, Long gap) {
+    public BestLapReport(Integer position, Sportsman sportsman, Long timeLap, Long gap, Long rel) {
         this.position = position;
         this.sportsman = sportsman;
         this.timeLap = timeLap;
         this.gap = gap;
+        this.rel = rel;
     }
 
     private Integer position;
     private Sportsman sportsman;
     private Long timeLap;
     private Long gap;
+    private Long rel;
 }

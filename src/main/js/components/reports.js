@@ -7,6 +7,7 @@ import Global from "../global";
 import {Button, Col, Container, Row, Table} from "reactstrap";
 import {AccountPlusIcon, PlaylistEditIcon, DeleteForeverIcon} from "mdi-react";
 import ModalNewReport from "./reports/modal_new_report";
+import ModalPrintReport from "./reports/modal_print_report"
 import client from "../client";
 import stompClient from "../websocket_listener";
 
@@ -20,14 +21,18 @@ class Reports extends React.Component {
 
         this.refreshListReports = this.refreshListReports.bind(this);
         this.selectCompetition = this.selectCompetition.bind(this);
+        this.modalPrintReport = this.modalPrintReport.bind(this);
         this.showNewReport = this.showNewReport.bind(this);
         this.changeReport = this.changeReport.bind(this);
         this.deleteReport = this.deleteReport.bind(this);
 
         this.dialogReport = React.createRef();
+        this.dialogPrintReport = React.createRef();
     }
 
-
+    modalPrintReport(report){
+        this.dialogPrintReport.current.toggleShow(report);
+    }
     showNewReport() {
         this.dialogReport.current.toggleShow();
     }
@@ -83,7 +88,9 @@ class Reports extends React.Component {
         let lapsTable = [];
         this.state.reports.map(report=>{
             lapsTable.push(<tr key={report.id}>
-                                <td>{report.name}</td>
+                                <td>
+                                    <Button color="link" onClick={()=>this.modalPrintReport(report)} >{report.name}</Button>
+                                </td>
                                 <td style={{width:'50px'}}>
                                     <PlaylistEditIcon
                                         onClick={()=>this.changeReport(report._links.self.href)}
@@ -96,6 +103,7 @@ class Reports extends React.Component {
         })
         return(
             <>
+                <ModalPrintReport ref={this.dialogPrintReport} />
                 <ModalNewReport ref={this.dialogReport}/>
                 <Container fluid>
                     <Row>

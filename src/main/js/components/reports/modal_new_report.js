@@ -1,3 +1,4 @@
+'use strict';
 import React from "react";
 import {
     Button,
@@ -34,6 +35,7 @@ class ModalNewReport extends React.Component {
         this.toggle = this.toggle.bind(this);
         this.toggleShow = this.toggleShow.bind(this);
         this.handleSave = this.handleSave.bind(this);
+        this.handleUpdate = this.handleUpdate.bind(this);
         this.handleTypeRound = this.handleTypeRound.bind(this);
 
     }
@@ -115,6 +117,35 @@ class ModalNewReport extends React.Component {
         this.toggle();
     }
 
+    handleUpdate(){
+        let name = ReactDOM.findDOMNode(this.refs['name']);
+        if(name.value.trim() === '') {
+            this.setState({
+                invalidName: true
+            });
+            return;
+        }
+        var copyReport = Object.assign({}, this.state.report);
+        copyReport.name = name.value.trim();
+        if(this.refs['TYPE_ROUND']){
+            copyReport.parametrs.TYPE_ROUND = ReactDOM.findDOMNode(this.refs['TYPE_ROUND']).value.trim()
+        }
+        if(this.refs['COUNT_LAP']){
+            copyReport.parametrs.COUNT_LAP = ReactDOM.findDOMNode(this.refs['COUNT_LAP']).value.trim()
+        }
+        if(this.refs['SUM_ROUNDS']){
+            copyReport.parametrs.SUM_ROUNDS = ReactDOM.findDOMNode(this.refs['SUM_ROUNDS']).value.trim()
+        }
+        if(this.refs['NOT_COUNTED_ROUNDS']){
+            copyReport.parametrs.NOT_COUNTED_ROUNDS = ReactDOM.findDOMNode(this.refs['NOT_COUNTED_ROUNDS']).value.trim()
+        }
+        client({
+            method: 'PUT',
+            path: this.state.report._links.self.href,
+            entity: copyReport,
+            headers: {'Content-Type': 'application/json'}
+        }).done(response=>this.toggle())
+    }
     render(){
         let submit = <Button color="primary" onClick={this.handleSave}>
             Save

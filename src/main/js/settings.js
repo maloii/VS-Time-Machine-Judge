@@ -4,6 +4,7 @@ class Settings {
     constructor() {
         this.root = '/api/data';
         this.raceApiRoot = '/api/race';
+        this.raceApiReport = '/api/report';
 
         this.channelNumber = {
             R1: 5658,

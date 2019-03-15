@@ -1,10 +1,7 @@
 package com.vstimemachine.judge.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -60,5 +57,23 @@ public class Sportsman {
     public void addGroupSportsman(GroupSportsman groupSportsman){
         if(groupSportsman == null) groupSportsmen = new HashSet<GroupSportsman>();
         groupSportsmen.add(groupSportsman);
+    }
+
+    public Sportsman(Sportsman sportsman) {
+        this.id = sportsman.getId();
+        this.version = sportsman.getVersion();
+        this.dateCreate = sportsman.getDateCreate();
+        this.firstName = sportsman.getFirstName();
+        this.lastName = sportsman.getLastName();
+        this.middleName = sportsman.getMiddleName();
+        this.nick = sportsman.getNick();
+        this.photo = sportsman.getPhoto();
+        this.city = sportsman.getCity();
+        this.age = sportsman.getAge();
+        this.team = sportsman.getTeam();
+        this.phone = sportsman.getPhone();
+        this.email = sportsman.getEmail();
+        this.country = sportsman.getCountry();
+        this.selected = sportsman.getSelected();
     }
 }

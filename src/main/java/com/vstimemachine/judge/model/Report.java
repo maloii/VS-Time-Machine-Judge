@@ -34,4 +34,11 @@ public class Report {
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     private Competition competition;
+
+    public Report(Report report) {
+        this.id = report.getId();
+        this.name = report.getName();
+        this.typeReport = report.getTypeReport();
+        this.parametrs = report.getParametrs();
+    }
 }
