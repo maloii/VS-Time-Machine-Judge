@@ -1,14 +1,15 @@
 'use strict';
 import React from 'react';
-//import moment from 'moment';
 import ReactDOM from 'react-dom';
 import SideBar from './components/sidebar'
 import Select_connecor from './components/select_connecor'
 import 'bootstrap/dist/css/bootstrap.css';
 import {Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavLink} from "reactstrap";
-import {LogoutIcon} from 'mdi-react';
-import SelectCompetition from "./components/select_competition";
+import {LogoutIcon, SettingsOutlineIcon} from 'mdi-react';
+import SelectCompetition from './components/select_competition';
+import VSStatusField from './components/vs/vs_status_field';
 import Global from './global'
+import ModalSettings from './components/settings/modal_settings';
 
 class App extends React.Component {
 
@@ -19,9 +20,14 @@ class App extends React.Component {
             isOpen: false
         }
 
-        this.appRef = React.createRef();
         this.toggle = this.toggle.bind(this);
         this.setCompetition = this.setCompetition.bind(this);
+        this.showSettings = this.showSettings.bind(this);
+
+        this.dialogSettings = React.createRef();
+    }
+    showSettings(){
+        this.dialogSettings.current.toggleShow();
     }
     toggle() {
         this.setState({
@@ -43,12 +49,14 @@ class App extends React.Component {
         let height = window.innerHeight-130;
         return (
             <div>
+                <ModalSettings ref={this.dialogSettings} />
                 <Navbar color="light"  light expand="md" className="shadow">
                     <NavbarBrand href="/" className="mr-auto">VS Time Machine Judge</NavbarBrand>
                     <NavbarToggler onClick={this.toggle} />
                     <Collapse isOpen={this.state.isOpen} navbar>
                         <Nav className="ml-auto" navbar>
                             <SelectCompetition />
+                            <NavLink href="javascript:void(0)" onClick={this.showSettings}><SettingsOutlineIcon/></NavLink>
                             <NavLink href="/logout"><LogoutIcon/></NavLink>
                         </Nav>
                     </Collapse>
@@ -60,10 +68,13 @@ class App extends React.Component {
         );
     }
 }
-
 ReactDOM.render(
     <App loggedInJadge={document.getElementById('judge_name').value}/>,
     document.getElementById('react')
+);
+ReactDOM.render(
+    <VSStatusField/>,
+    document.getElementById('status_footer_field')
 );
 ReactDOM.render(
     <Select_connecor/>,

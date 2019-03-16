@@ -18,10 +18,13 @@ public class Settings {
     @GeneratedValue
     private Long id;
 
+    @Column(unique = true)
     private TypeSettings typeSettings;
 
     private String value;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    private Competition competition;
+    public Settings(TypeSettings typeSettings, String value) {
+        this.typeSettings = typeSettings;
+        this.value = value;
+    }
 }

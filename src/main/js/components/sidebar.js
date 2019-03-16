@@ -44,12 +44,6 @@ class SideBar extends React.Component {
             ReactDOM.render(
                 <Reports />,
                 mainContainer);
-        }else if(idMenu === 'settings'){
-            ReactDOM.render(
-                <Container>
-                    Settings
-                </Container>,
-                mainContainer);
         }
     }
 
@@ -65,9 +59,6 @@ class SideBar extends React.Component {
                         </li>
                         <li onClick={this.handleSelect.bind(null, "reports")} id="reports">
                             <a href="#reports" ><div className="img_n"><SettingsIcon /></div><span>Reports</span></a>
-                        </li>
-                        <li onClick={this.handleSelect.bind(null, "settings")} id="settings">
-                            <a href="#settings" ><div className="img_n"><SettingsIcon /></div><span>Settings</span></a>
                         </li>
                     </ul>
                 </nav>

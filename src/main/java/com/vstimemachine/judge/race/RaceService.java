@@ -25,8 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.vstimemachine.judge.configuration.WebSocketConfiguration.MESSAGE_PREFIX;
 import static com.vstimemachine.judge.race.RaceStatus.*;
-import static com.vstimemachine.judge.race.speech.SpeechService.FOCUS_ON_START;
-import static com.vstimemachine.judge.race.speech.SpeechService.RACE_IS_OVER;
+import static com.vstimemachine.judge.race.speech.SpeechService.*;
 
 @Slf4j
 @Service
@@ -250,10 +249,7 @@ public class RaceService {
     }
 
     private void sec15(){
-        try {
-            Runtime.getRuntime().exec(String.format("say 15 секунд"));
-        } catch (IOException e) {
-        }
+        speechService.say(SECONDS_15);
     }
     private void beep2() {
         try {

@@ -118,7 +118,6 @@ class Select_connecor extends React.Component {
 
         this.onSelectComPort = this.onSelectComPort.bind(this);
         this.refresListComPorts = this.refresListComPorts.bind(this);
-        Select_connecor.refresConsoleLog = Select_connecor.refresConsoleLog.bind(this);
         this.onDisconnect = this.onDisconnect.bind(this);
         this.vsConnectStatus = this.vsConnectStatus.bind(this);
     }
@@ -135,9 +134,6 @@ class Select_connecor extends React.Component {
         });
     }
 
-     static refresConsoleLog(parameters) {
-         document.getElementById('status_footer_field').innerText = parameters.body;
-    }
 
     vsConnectStatus(message) {
         Global.isConnectHardware = (message.body === 'STATUS_CONNECT');
@@ -149,7 +145,6 @@ class Select_connecor extends React.Component {
         this.refresListComPorts();
         this.stomp = stompClient.register([
             {route: '/topic/updateListComPorts', callback: this.refresListComPorts},
-            {route: '/topic/vsConsoleLog', callback: Select_connecor.refresConsoleLog},
             {route: '/topic/vsConnectStatus', callback: this.vsConnectStatus}
 
         ]);

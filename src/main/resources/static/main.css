@@ -223,3 +223,25 @@ div.ReactTags__suggestions ul li.ReactTags__activeSuggestion {
 .printComponent{
     margin: 80px;
 }
+
+/* Console */
+.console{
+    position: absolute;
+    width: 500px;
+    height: 600px;
+    bottom: 60px;
+    left: 10px;
+    padding: 10px;
+    /*background-color: darkgrey;*/
+    /*border: 1px solid black;*/
+    z-index: 99999;
+}
+.console_data{
+    overflow-y: scroll;
+    border: 2px inset darkgrey;
+    background-color: black;
+    color: white;
+    width: 480px;
+    height: 580px;
+
+}
