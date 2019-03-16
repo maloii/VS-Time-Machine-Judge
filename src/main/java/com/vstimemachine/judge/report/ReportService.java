@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import static com.vstimemachine.judge.model.TypeLap.OK;
 import static com.vstimemachine.judge.model.TypeReport.BEST_LAP;
+import static com.vstimemachine.judge.model.TypeReport.COUNT_LAPS;
 
 @Slf4j
 @Service
@@ -23,7 +24,7 @@ public class ReportService {
     final static String PARAMETR_SUM_ROUNDS = "SUM_ROUNDS";
     final static String PARAMETR_NOT_COUNTED_ROUNDS = "NOT_COUNTED_ROUNDS";
 
-    final static Long MAX_VALUE_LAP = 999999999L;
+    final static Long MAX_VALUE_TIME_LAP = 999999999L;
 
     final private ReportRepository reportRepository;
     final private LapRepository lapRepository;
@@ -39,15 +40,13 @@ public class ReportService {
 
     private ReportData make(Report report){
         if(report.getTypeReport() == BEST_LAP){
-//            if(report.getParametrs().get("COUNT_LAP").equals("1")) {
-//                return makeBestOneLap(report);
-//            }else{
-                return makeBestSomeLap(report);
-//            }
-
+            return makeBestSomeLap(report);
+        }else if(report.getTypeReport() == COUNT_LAPS){
+            return makeCountLap(report);
         }
         return new ReportData();
     }
+
 
 //    private ReportData<BestLapReport> makeBestOneLap(Report report){
 //        List<BestLapReport> bestLapReportDatas = new ArrayList<BestLapReport>();
@@ -68,7 +67,7 @@ public class ReportService {
 //            if(l.isPresent()){
 //                bestLapReportDatas.add(new BestLapReport(new Sportsman(sportsman), l.get().getTimeLap()));
 //            }else{
-//                bestLapReportDatas.add(new BestLapReport(new Sportsman(sportsman), MAX_VALUE_LAP));
+//                bestLapReportDatas.add(new BestLapReport(new Sportsman(sportsman), MAX_VALUE_TIME_LAP));
 //            }
 //        });
 //
@@ -92,7 +91,7 @@ public class ReportService {
                     .filter(sportsman -> sportsman.getSelected())
                     .collect(Collectors.toMap(
                             sportsman -> sportsman,
-                            sportsman -> MAX_VALUE_LAP)
+                            sportsman -> MAX_VALUE_TIME_LAP)
                     );
 
             if(report.getCompetition().getRounds() != null) {
@@ -100,9 +99,10 @@ public class ReportService {
                     Map<Sportsman, Long> someLaps = report.getCompetition()
                             .getSportsmen()
                             .stream()
+                            .filter(sportsman -> sportsman.getSelected())
                             .collect(Collectors.toMap(
                                     sportsman -> sportsman,
-                                    sportsman -> MAX_VALUE_LAP)
+                                    sportsman -> MAX_VALUE_TIME_LAP)
                             );
                     if (round.getGroups() != null) {
                         round.getGroups().forEach(group -> {
@@ -139,7 +139,7 @@ public class ReportService {
                     bestLapsSportsmen.add(mapSportsman.get(sportsman));
                 }
                 bestLapsSportsmen.sort((l1, l2) -> l1.compareTo(l2));
-                Long resultTime = MAX_VALUE_LAP;
+                Long resultTime = MAX_VALUE_TIME_LAP;
                 if(bestLapsSportsmen.size() >= sumRound){
                     resultTime = bestLapsSportsmen.stream().limit(sumRound).mapToLong(Long::longValue).sum();
                 }
@@ -162,5 +162,81 @@ public class ReportService {
             }
         }
         return bestLapReportDatas;
+    }
+
+
+    private ReportData<CountLapReport> makeCountLap(Report report) {
+        List<CountLapReport> countLapReports = new ArrayList<>();
+        int notCountedRounds = 0;
+        try {
+            notCountedRounds = Integer.parseInt(report.getParametrs().get("NOT_COUNTED_ROUNDS"));
+        }catch (Exception e){}
+        Map<Round, Map<Sportsman, Integer>> someCountLapsRound = new HashMap<>();
+        Map<Sportsman, Integer> resulCountLaps = report.getCompetition()
+                .getSportsmen()
+                .stream()
+                .filter(sportsman -> sportsman.getSelected())
+                .collect(Collectors.toMap(
+                        sportsman -> sportsman,
+                        sportsman -> 0)
+                );
+        if(report.getCompetition().getRounds() != null) {
+            report.getCompetition().getRounds().stream()
+                    .filter(round -> {
+                        return (round.getTypeRound()
+                                .equals(TypeRound.valueOf(report.getParametrs().get(PARAMETR_TYPE_ROUND)))
+                                || report.getParametrs().get(PARAMETR_TYPE_ROUND).equals("ALL"));
+                    }).forEach(round -> {
+                Map<Sportsman, Integer> someCountLaps = report.getCompetition()
+                        .getSportsmen()
+                        .stream()
+                        .filter(sportsman -> sportsman.getSelected())
+                        .collect(Collectors.toMap(
+                                sportsman -> sportsman,
+                                sportsman -> 0)
+                        );
+                if (round.getGroups() != null) {
+                    round.getGroups().forEach(group -> {
+                        group.getGroupSportsmen().forEach(groupSportsman -> {
+                            Long count = groupSportsman.getLaps().stream().filter(lap -> lap.getTypeLap().equals(OK))
+                                    .filter(lap -> lap.getTimeLap() != null)
+                                    .filter(lap -> {
+                                        return (lap.getRound().getTypeRound()
+                                                .equals(TypeRound.valueOf(report.getParametrs().get(PARAMETR_TYPE_ROUND)))
+                                                || report.getParametrs().get(PARAMETR_TYPE_ROUND).equals("ALL"));
+                                    })
+                                    .count();
+                            if(someCountLaps.get(groupSportsman.getSportsman()) < count.intValue())
+                                someCountLaps.put(groupSportsman.getSportsman(), count.intValue());
+                        });
+                    });
+                }
+                someCountLapsRound.put(round, someCountLaps);
+            });
+        }
+        for(Sportsman sportsman : resulCountLaps.keySet()){
+            List<Integer> bestLapsSportsmen = new ArrayList<>();
+            for(Map<Sportsman, Integer> mapSportsman : someCountLapsRound.values()) {
+                bestLapsSportsmen.add(mapSportsman.get(sportsman));
+            }
+            bestLapsSportsmen.sort((l1, l2) -> l2.compareTo(l1));
+            Integer resultCount = bestLapsSportsmen.stream().limit(bestLapsSportsmen.size()-notCountedRounds).mapToInt(Integer::intValue).sum();
+            countLapReports.add(new CountLapReport(new Sportsman(sportsman), resultCount));
+        }
+        return new ReportData<CountLapReport>(new Report(report), sortCountLap(countLapReports));
+
+    }
+
+    private List<CountLapReport> sortCountLap(List<CountLapReport> countLapReportDatas){
+        countLapReportDatas.sort(Comparator.comparing(CountLapReport::getCount).reversed());
+        for (int i = 0; i < countLapReportDatas.size(); i++){
+            CountLapReport countLapReportData = countLapReportDatas.get(i);
+            countLapReportData.setPosition(i+1);
+            if(i > 0){
+                countLapReportData.setRel(countLapReportDatas.get(i-1).getCount() - countLapReportData.getCount());
+                countLapReportData.setGap(countLapReportDatas.get(0).getCount() - countLapReportData.getCount());
+            }
+        }
+        return countLapReportDatas;
     }
 }

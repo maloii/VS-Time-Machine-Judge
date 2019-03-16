@@ -13,6 +13,7 @@ import org.springframework.data.rest.core.annotation.*;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -71,6 +72,7 @@ public class RoundEventHandler {
                 generateRaceFromBeforeRound(round);
             }
         }
+
         this.websocket.convertAndSend(
                 MESSAGE_PREFIX + "/newRound", getPath(round));
     }
@@ -158,6 +160,8 @@ public class RoundEventHandler {
             List<ReportDataInterface> data = reportData.getData();
             int countRounds = round.getTopLimit()/round.getCountSportsmen();
             if(data.size() < round.getTopLimit() || !(countRounds == 2 || countRounds == 4 || countRounds == 8 || countRounds == 16) ){
+                this.websocket.convertAndSend(
+                        MESSAGE_PREFIX + "/newRound", getPath(round));
                 String errorMessage = "The number of pilots in the report is less than is required to form groups";
                 log.error(errorMessage);
                 throw new RaceException(errorMessage);

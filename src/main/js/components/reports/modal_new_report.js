@@ -162,8 +162,7 @@ class ModalNewReport extends React.Component {
             header = 'Edit report';
         }
         let params = [];
-        if(this.state.report.typeReport === 'BEST_LAP'){
-            params.push(<Row key="TYPE_ROUND">
+        let typeRounds = <Row key="TYPE_ROUND">
                             <Col>
                                 <FormGroup row>
                                     <Label for="TYPE_ROUND" sm={4}>Type round</Label>
@@ -180,7 +179,9 @@ class ModalNewReport extends React.Component {
                                     </Col>
                                 </FormGroup>
                             </Col>
-                        </Row>);
+                        </Row>;
+        if(this.state.report.typeReport === 'BEST_LAP'){
+            params.push(typeRounds);
             params.push(<Row key="COUNT_LAP">
                             <Col>
                                 <FormGroup row>
@@ -220,6 +221,7 @@ class ModalNewReport extends React.Component {
                 </Col>
             </Row>);
         }else if(this.state.report.typeReport === 'COUNT_LAPS'){
+            params.push(typeRounds);
             params.push(<Row key="NOT_COUNTED_ROUNDS">
                 <Col>
                     <FormGroup row>
@@ -273,7 +275,7 @@ class ModalNewReport extends React.Component {
                                            id="typeReport"
                                            ref="typeReport"
                                            onChange={this.handleTypeRound}
-                                           defaultValue={this.state.report.typeRound}>
+                                           defaultValue={this.state.report.typeReport}>
                                         <option value="BEST_LAP">BEST LAP</option>
                                         <option value="COUNT_LAPS">COUNT LAPS</option>
                                         <option value="COUNT_SCORE">COUNT SCORE</option>

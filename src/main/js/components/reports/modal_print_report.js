@@ -5,9 +5,10 @@ import {Button, Col, Container, Modal, ModalBody, ModalFooter, ModalHeader, Row}
 import {PrinterIcon, FilePdfIcon} from "mdi-react";
 import client from "../../client";
 import BestLapReport from "./best_lap_report";
-import ReactToPrint from 'react-to-print';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import CountLapReport from "./count_lap_report";
+import ReactToPrint from "react-to-print";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import ReactDOM from "react-dom";
 
 class ModalPrintReport extends React.Component {
@@ -85,7 +86,9 @@ class ModalPrintReport extends React.Component {
         let tableDate = [];
         let name = (this.state.report.report? this.state.report.report.name:'');
         if(this.state.report.report && this.state.report.report.typeReport === "BEST_LAP"){
-            tableDate.push(<BestLapReport  report={this.state.report} key="best_lap" ref={el => (this.componentRef = el)} isPrint={this.state.isPrint} />);
+            tableDate.push(<BestLapReport  report={this.state.report} key="best_lap" ref={el => (this.componentRef = el)} />);
+        }else if(this.state.report.report && this.state.report.report.typeReport === "COUNT_LAPS"){
+            tableDate.push(<CountLapReport  report={this.state.report} key="count_lap" ref={el => (this.componentRef = el)} />);
         }
         return(<Modal isOpen={this.state.modalReport} toggle={this.toggle}  className="modal-lg">
             <ModalHeader toggle={this.toggle}></ModalHeader>

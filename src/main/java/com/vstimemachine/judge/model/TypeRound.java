@@ -4,5 +4,6 @@ public enum TypeRound {
     PRACTICE,
     QUALIFICATION,
     RACE,
-    FINAL
+    FINAL,
+    ALL
 }
