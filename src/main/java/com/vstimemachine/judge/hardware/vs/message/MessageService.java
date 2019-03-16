@@ -24,7 +24,7 @@ public class MessageService {
     public void parseMessage(String message, ConnectorService connectorService) {
         if (message.indexOf("ping") == -1)log.info("VS <= : ".concat(message));
         if (message == null || message.length() < 3 || message.indexOf(":") < 0 || message.indexOf(",") < 0) return;
-        this.websocket.convertAndSend(MESSAGE_PREFIX + "/vsConsoleLog", message);
+        this.websocket.convertAndSend(MESSAGE_PREFIX + "/vsConsoleLog", String.format("==>> %s",message));
 
         String[] arrMessage = message.split(":");
         if (arrMessage.length > 1) {
@@ -47,7 +47,6 @@ public class MessageService {
                 //"bootflashok:%d\r\n", idTransponder)
                 //"bootflasherror:%d\r\n", idTransponder)
                 //"infocalibrtrans:%d,%d,%d", idTransponder, rssi, calbr)
-                //"ping:%lld,%d",time, idGate)
             }
         }
     }

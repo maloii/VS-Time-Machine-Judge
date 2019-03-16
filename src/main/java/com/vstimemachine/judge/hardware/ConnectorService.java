@@ -83,6 +83,7 @@ public class ConnectorService {
     public void send(String message) throws HardwareException{
         if(isConnect){
             connector.send(message);
+            this.websocket.convertAndSend(MESSAGE_PREFIX + "/vsConsoleLog", String.format("<<== %s",message));
             log.info("VS => ".concat(message));
         }
     }

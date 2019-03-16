@@ -275,6 +275,7 @@ class SportsmenDataGrid extends React.Component {
                 onGridSort={(sortColumn, sortDirection) =>
                     this.sortRows(this.props.sportsmenTabl, sortColumn, sortDirection)
                 }
+
             />
         );
     }

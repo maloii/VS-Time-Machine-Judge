@@ -58,7 +58,7 @@ class BestLapReport extends React.Component {
         return(
             <div>
                 <h5 style={{textAlign:'center', marginBottom:'20px'}}>{this.props.report.report.name}</h5>
-                <Table bordered striped hover key="table">
+                <Table bordered striped hover key="table" className="table-sm">
                     <thead>
                     <tr>
                         <th style={{width:'50px'}}>Pos</th>

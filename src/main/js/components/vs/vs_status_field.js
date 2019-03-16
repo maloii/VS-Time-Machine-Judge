@@ -68,7 +68,7 @@ class VSStatusField extends React.Component {
                 <WindowMaximizeIcon onClick={this.showConsole}
                                     style={{cursor:'pointer'}} />
                 <span style={{minWidth:'200px !important'}}>{this.state.lastCli}</span>|
-                <span>{this.state.lastNumberTransponder}</span>
+                <span style={{fontWeight: 'bold'}}>{this.state.lastNumberTransponder}</span>
             </div>
         );
     }

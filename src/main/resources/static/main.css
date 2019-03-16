@@ -239,9 +239,10 @@ div.ReactTags__suggestions ul li.ReactTags__activeSuggestion {
 .console_data{
     overflow-y: scroll;
     border: 2px inset darkgrey;
-    background-color: black;
-    color: white;
+    background-color: #21282d;
+    color: #e0e2e4;
     width: 480px;
-    height: 580px;
+    height: 510px;
+    margin-bottom: 20px;
 
 }
