@@ -36,13 +36,13 @@ public class Group {
     private Long timeSatart;
     private Long startMillisecond;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     private Competition competition;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     private League league;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     private Round round;
 
     @ManyToMany(mappedBy = "group", cascade = CascadeType.ALL)

@@ -42,6 +42,10 @@ class ModalNewRound extends React.Component {
         this.handleDelete = this.handleDelete.bind(this);
         this.toggleAutoGenerate = this.toggleAutoGenerate.bind(this);
         this.toggleTypeRace = this.toggleTypeRace.bind(this);
+        this.toggleTypeRound = this.toggleTypeRound.bind(this);
+        this.toggleTypeRaceElimination = this.toggleTypeRaceElimination.bind(this);
+        this.toggleTypeParentEntity = this.toggleTypeParentEntity.bind(this);
+        this.toggleCountSportsmen = this.toggleCountSportsmen.bind(this);
     }
     toggle() {
         this.setState({
@@ -55,19 +59,29 @@ class ModalNewRound extends React.Component {
             method: 'GET',
             path: Global.competition._links.rounds.href
         }).then(rounds => {
-            this.setState({
-                modalRound: !this.state.modalRound,
-                round: {
-                    typeRace: 'FIXED_COUNT_LAPS',
-                    typeGenerateRound: 'NONE',
-                    countLap: 5,
-                    maxTimeRace: 180,
-                    countSportsmen: 4,
-                    fromRoundCopy:0
-                },
-                rounds:rounds.entity._embedded.rounds.sort((a, b)=>b.sort - a.sort),
-                invalidName: false,
-                url: null
+            client({
+                method: 'GET',
+                path: Global.competition._links.reports.href
+            }).then(reports => {
+
+                this.setState({
+                    reports:reports.entity._embedded.reports,
+                    modalRound: !this.state.modalRound,
+                    round: {
+                        typeRound: 'PRACTICE',
+                        typeRace: 'FIXED_COUNT_LAPS',
+                        typeGenerateRound: 'NONE',
+                        typeRaceElimination: 'NONE',
+                        typeParentEntity: 'NONE',
+                        countLap: 5,
+                        maxTimeRace: 180,
+                        countSportsmen: 4,
+                        fromRoundCopy:0
+                    },
+                    rounds:rounds.entity._embedded.rounds.sort((a, b)=>b.sort - a.sort),
+                    invalidName: false,
+                    url: null
+                });
             });
         });
     }
@@ -85,6 +99,34 @@ class ModalNewRound extends React.Component {
             });
 
         })
+    }
+    toggleCountSportsmen(){
+        let round = Object.assign({}, this.state.round);
+        round.countSportsmen = ReactDOM.findDOMNode(this.refs['countSportsmen']).value.trim();
+        this.setState({
+            round:round
+        });
+    }
+    toggleTypeParentEntity(){
+        let round = Object.assign({}, this.state.round);
+        round.typeParentEntity = ReactDOM.findDOMNode(this.refs['typeParentEntity']).value.trim();
+        this.setState({
+            round:round
+        });
+    }
+    toggleTypeRaceElimination(){
+        let round = Object.assign({}, this.state.round);
+        round.typeRaceElimination = ReactDOM.findDOMNode(this.refs['typeRaceElimination']).value.trim();
+        this.setState({
+            round:round
+        });
+    }
+    toggleTypeRound(){
+        let round = Object.assign({}, this.state.round);
+        round.typeRound = ReactDOM.findDOMNode(this.refs['typeRound']).value.trim();
+        this.setState({
+            round:round
+        });
     }
     toggleTypeRace(){
         let round = Object.assign({}, this.state.round);
@@ -112,12 +154,14 @@ class ModalNewRound extends React.Component {
 
         copyRound.name = name.value.trim();
         copyRound.typeRound = ReactDOM.findDOMNode(this.refs['typeRound']).value.trim();
-        copyRound.typeGenerateRound = ReactDOM.findDOMNode(this.refs['autoGenerate']).value.trim();
         copyRound.sort = this.props.maxSortRound+1;
         copyRound.selected = true;
         copyRound.competition = Global.competition._links.competition.href;
-
         copyRound.typeRace = ReactDOM.findDOMNode(this.refs['typeRace']).value.trim();
+
+
+        if(this.refs['typeGenerateRound'])
+            copyRound.typeGenerateRound = ReactDOM.findDOMNode(this.refs['autoGenerate']).value.trim();
         if(this.refs['countLap'])
             copyRound.countLap = ReactDOM.findDOMNode(this.refs['countLap']).value.trim();
         if(this.refs['maxTimeRace'])
@@ -127,15 +171,29 @@ class ModalNewRound extends React.Component {
         if(this.refs['fromRoundCopy'])
             copyRound.fromRoundCopy = ReactDOM.findDOMNode(this.refs['fromRoundCopy']).value.trim();
 
+
+        if(this.refs['topLimit'])
+            copyRound.topLimit = ReactDOM.findDOMNode(this.refs['topLimit']).value.trim();
+        if(this.refs['parentEntityId'])
+            copyRound.parentEntityId = ReactDOM.findDOMNode(this.refs['parentEntityId']).value.trim();
+        if(this.refs['typeParentEntity'])
+            copyRound.typeParentEntity = ReactDOM.findDOMNode(this.refs['typeParentEntity']).value.trim();
+        if(this.refs['typeRaceElimination'])
+            copyRound.typeRaceElimination = ReactDOM.findDOMNode(this.refs['typeRaceElimination']).value.trim();
+
         follow(client, Settings.root, ['rounds']).then(response => {
             return client({
                 method: 'POST',
                 path: response.entity._links.self.href,
                 entity: copyRound,
                 headers: {'Content-Type': 'application/json'}
+            }).then(response=>{
+                //console.log(response)
+                this.toggle();
+            }, error=>{
+                alert(error.entity.message);
             })
         });
-        this.toggle();
     }
     handleUpdate() {
         let name = ReactDOM.findDOMNode(this.refs['name']);
@@ -175,6 +233,7 @@ class ModalNewRound extends React.Component {
         let deleteButton = '';
         let header = 'New round';
         let countInGroup = 4;
+        let topLimit = 16;
 
 
         let rowCountLaps = <Row key="rowCountLaps">
@@ -207,6 +266,31 @@ class ModalNewRound extends React.Component {
                                     </FormGroup>
                                 </Col>
                             </Row>;
+        let countSportsmenInGroup = <Row key="countSportsmenInGroup">
+                                    <Col>
+                                        <FormGroup row>
+                                            <Label for="countSportsmen" sm={4}>Count sportsmen in group</Label>
+                                            <Col sm={8}>
+                                                <Input
+                                                    type="select"
+                                                    name="countSportsmen"
+                                                    id="countSportsmen"
+                                                    ref="countSportsmen"
+                                                    onChange={this.toggleCountSportsmen}
+                                                    defaultValue={countInGroup}>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                    <option value="8">8</option>
+                                                </Input>
+                                            </Col>
+                                        </FormGroup>
+                                    </Col>
+                                </Row>;
         if(this.state.round.typeRace === 'FIXED_COUNT_LAPS'){
             autoGenerate.push(rowCountLaps);
         }
@@ -223,71 +307,159 @@ class ModalNewRound extends React.Component {
             countInGroup = this.state.round.countSportsmen;
 
         }else{
-            autoGenerate.push(
-                <Row key="autoGenerate">
-                    <Col>
-                        <FormGroup row>
-                            <Label for="autoGenerate" sm={4}>Auto generate</Label>
-                            <Col sm={8}>
-                                <Input
-                                    type="select"
-                                    name="autoGenerate"
-                                    id="autoGenerate"
-                                    ref="autoGenerate"
-                                    onChange={this.toggleAutoGenerate}
-                                    defaultValue={this.state.round.typeGenerateRound}>
-                                    <option value="NONE">NONE</option>
-                                    <option value="RANDOM">RANDOM</option>
-                                    <option value="COPY_BEFORE_ROUND">COPY BEFORE ROUND</option>
-                                    <option value="EVERY_WITH_EVERY">EVERY WITH EVERY(only for 16 sportsmen)</option>
-
-                                </Input>
-                            </Col>
-                        </FormGroup>
-                    </Col>
-                </Row>);
-
-            if(this.state.round.typeGenerateRound === 'RANDOM'){
+            if(this.state.round.typeRound === 'PRACTICE' || this.state.round.typeRound === 'QUALIFICATION' ) {
                 autoGenerate.push(
-                    <Row key="randomCopy">
+                    <Row key="autoGenerate">
                         <Col>
                             <FormGroup row>
-                                <Label for="countSportsmen" sm={4}>Count sportsmen in group</Label>
-                                <Col sm={8}>
-                                    <Input
-                                        type="number"
-                                        name="countSportsmen"
-                                        id="countSportsmen"
-                                        ref="countSportsmen"
-                                        defaultValue={countInGroup}
-                                    />
-                                </Col>
-                            </FormGroup>
-                        </Col>
-                    </Row>);
-            }else if(this.state.round.typeGenerateRound === 'COPY_BEFORE_ROUND'){
-
-                let listRounds = [];
-                this.state.rounds.map(round=>{
-                    listRounds.push(<option value={round.id} key={round._links.self.href}>{round.name}</option>)
-                })
-                autoGenerate.push(
-                    <Row key="copyBeforeRound">
-                        <Col>
-                            <FormGroup row>
-                                <Label for="countSportsmen" sm={4}>Which round to copy from</Label>
+                                <Label for="autoGenerate" sm={4}>Auto generate</Label>
                                 <Col sm={8}>
                                     <Input
                                         type="select"
-                                        name="fromRoundCopy"
-                                        id="fromRoundCopy"
-                                        ref="fromRoundCopy">
-                                        {listRounds}
+                                        name="autoGenerate"
+                                        id="autoGenerate"
+                                        ref="autoGenerate"
+                                        onChange={this.toggleAutoGenerate}
+                                        defaultValue={this.state.round.typeGenerateRound}>
+                                        <option value="NONE">NONE</option>
+                                        <option value="RANDOM">RANDOM</option>
+                                        <option value="COPY_BEFORE_ROUND">COPY BEFORE ROUND</option>
+                                        {/*<option value="EVERY_WITH_EVERY">EVERY WITH EVERY(only for 16 sportsmen)</option>*/}
+
                                     </Input>
                                 </Col>
                             </FormGroup>
                         </Col>
                     </Row>);
+
+                if (this.state.round.typeGenerateRound === 'RANDOM') {
+                    autoGenerate.push(countSportsmenInGroup);
+                } else if (this.state.round.typeGenerateRound === 'COPY_BEFORE_ROUND') {
+
+                    let listRounds = [];
+                    this.state.rounds.map(round => {
+                        listRounds.push(<option value={round.id} key={round._links.self.href}>{round.name}</option>)
+                    })
+                    autoGenerate.push(
+                        <Row key="copyBeforeRound">
+                            <Col>
+                                <FormGroup row>
+                                    <Label for="countSportsmen" sm={4}>Which round to copy from</Label>
+                                    <Col sm={8}>
+                                        <Input
+                                            type="select"
+                                            name="fromRoundCopy"
+                                            id="fromRoundCopy"
+                                            ref="fromRoundCopy">
+                                            {listRounds}
+                                        </Input>
+                                    </Col>
+                                </FormGroup>
+                            </Col>
+                        </Row>);
+                }
+            }else{
+                autoGenerate.push(
+                    <Row key="typeRaceElimination">
+                        <Col>
+                            <FormGroup row>
+                                <Label for="countSportsmen" sm={4}>Auto generate race</Label>
+                                <Col sm={8}>
+                                    <Input type="select"
+                                           name="typeRaceElimination"
+                                           id="typeRaceElimination"
+                                           ref="typeRaceElimination"
+                                           onChange={this.toggleTypeRaceElimination}
+                                           defaultValue={this.state.round.typeRaceElimination}>
+                                        <option value="NONE">NONE</option>
+                                        <option value="SINGLE_ELIMINATION">SINGLE ELIMINATION</option>
+                                        <option value="DOUBLE_ELIMINATION">DOUBLE ELIMINATION</option>
+                                    </Input>
+                                </Col>
+                            </FormGroup>
+                        </Col>
+                    </Row>);
+                if(this.state.round.typeRaceElimination !== 'NONE'){
+                    autoGenerate.push(
+                        <Row key="typeParentEntity">
+                            <Col>
+                                <FormGroup row>
+                                    <Label for="countSportsmen" sm={4}>Type parent entity</Label>
+                                    <Col sm={8}>
+                                        <Input type="select"
+                                               name="typeParentEntity"
+                                               id="typeParentEntity"
+                                               ref="typeParentEntity"
+                                               onChange={this.toggleTypeParentEntity}
+                                               defaultValue={this.state.round.typeParentEntity}>
+                                            <option value="NONE">NONE</option>
+                                            <option value="REPORT">REPORT</option>
+                                            <option value="ROUND">ROUND</option>
+                                        </Input>
+                                    </Col>
+                                </FormGroup>
+                            </Col>
+                        </Row>);
+                }
+                if(this.state.round.typeParentEntity !== 'NONE'){
+
+                    let rowsParentEntity = [];
+                    if(this.state.round.typeParentEntity === 'REPORT'){
+                        this.state.reports.map(report=>{
+                            rowsParentEntity.push(<option value={report.id} key={report.id}>{report.name}</option>);
+                        })
+                    }else if(this.state.round.typeParentEntity === 'ROUND'){
+                        this.state.rounds.map(round=>{
+                            rowsParentEntity.push(<option value={round.id} key={round.id}>{round.name}</option>);
+                        })
+                    }
+                    autoGenerate.push(
+                        <Row key="parentEntityId">
+                            <Col>
+                                <FormGroup row>
+                                    <Label for="countSportsmen" sm={4}>Type parent entity</Label>
+                                    <Col sm={8}>
+                                        <Input type="select"
+                                               name="parentEntityId"
+                                               id="parentEntityId"
+                                               ref="parentEntityId"
+                                               defaultValue={this.state.round.parentEntityId}>
+                                            {rowsParentEntity}
+                                        </Input>
+                                    </Col>
+                                </FormGroup>
+                            </Col>
+                        </Row>);
+                    if(this.state.round.typeParentEntity === 'REPORT'){
+                        autoGenerate.push(countSportsmenInGroup);
+                        let optionsTopLimit = [];
+                        if(this.state.round.countSportsmen*2 >= (this.state.round.countSportsmen*this.state.round.countSportsmen))
+                            optionsTopLimit.push(<option key="1" value={this.state.round.countSportsmen*2}>{this.state.round.countSportsmen*2}</option>);
+                        if(this.state.round.countSportsmen*4 >= (this.state.round.countSportsmen*this.state.round.countSportsmen))
+                            optionsTopLimit.push(<option key="2" value={this.state.round.countSportsmen*4}>{this.state.round.countSportsmen*4}</option>);
+                        if(this.state.round.countSportsmen*8 >= (this.state.round.countSportsmen*this.state.round.countSportsmen))
+                            optionsTopLimit.push(<option key="3" value={this.state.round.countSportsmen*8}>{this.state.round.countSportsmen*8}</option>);
+                        if(this.state.round.countSportsmen*16 >= (this.state.round.countSportsmen*this.state.round.countSportsmen))
+                            optionsTopLimit.push(<option key="4" value={this.state.round.countSportsmen*16}>{this.state.round.countSportsmen*16}</option>);
+                        autoGenerate.push( <Row key="topLimit">
+                                            <Col>
+                                                <FormGroup row>
+                                                    <Label for="countSportsmen" sm={4}>The number of sportsmen who are in the race</Label>
+                                                    <Col sm={8}>
+                                                        <Input
+                                                            type="select"
+                                                            name="topLimit"
+                                                            id="topLimit"
+                                                            ref="topLimit"
+                                                            defaultValue={topLimit}>
+                                                            {optionsTopLimit}
+                                                        </Input>
+                                                    </Col>
+                                                </FormGroup>
+                                            </Col>
+                                        </Row>);
+                    }
+                }
             }
         }
 
@@ -320,6 +492,7 @@ class ModalNewRound extends React.Component {
                                            name="typeRound"
                                            id="typeRound"
                                            ref="typeRound"
+                                           onChange={this.toggleTypeRound}
                                            defaultValue={this.state.round.typeRound}>
                                         <option value="PRACTICE">PRACTICE</option>
                                         <option value="QUALIFICATION">QUALIFICATION</option>
@@ -333,7 +506,7 @@ class ModalNewRound extends React.Component {
                     <Row>
                         <Col>
                             <FormGroup row>
-                                <Label for="typeRound" sm={4}>Type race</Label>
+                                <Label for="typeRace" sm={4}>Type race</Label>
                                 <Col sm={8}>
                                     <Input type="select"
                                            name="typeRace"

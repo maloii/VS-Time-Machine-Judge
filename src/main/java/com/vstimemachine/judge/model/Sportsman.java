@@ -43,7 +43,7 @@ public class Sportsman {
             mappedBy = "sportsman")
     private Set<Transponder> transponders;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     @JoinColumn(name="competition_id")
     private Competition competition;
 
@@ -55,7 +55,7 @@ public class Sportsman {
     private Set<GroupSportsman> groupSportsmen;
 
     public void addGroupSportsman(GroupSportsman groupSportsman){
-        if(groupSportsman == null) groupSportsmen = new HashSet<GroupSportsman>();
+        if(groupSportsmen == null) groupSportsmen = new HashSet<GroupSportsman>();
         groupSportsmen.add(groupSportsman);
     }
 

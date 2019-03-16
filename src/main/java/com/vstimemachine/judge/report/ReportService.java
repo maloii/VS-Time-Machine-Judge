@@ -95,38 +95,42 @@ public class ReportService {
                             sportsman -> MAX_VALUE_LAP)
                     );
 
-            report.getCompetition().getRounds().forEach(round -> {
-                Map<Sportsman, Long> someLaps = report.getCompetition()
-                        .getSportsmen()
-                        .stream()
-                        .collect(Collectors.toMap(
-                                sportsman -> sportsman,
-                                sportsman -> MAX_VALUE_LAP)
-                        );
-                round.getGroups().forEach(group -> {
-                    group.getGroupSportsmen().forEach(groupSportsman -> {
-                        Lap[] laps = groupSportsman.getLaps().stream().filter(lap -> lap.getTypeLap().equals(OK))
-                                .filter(lap -> lap.getTimeLap() != null)
-                                .filter(lap -> {
-                                    return (lap.getRound().getTypeRound()
-                                            .equals(TypeRound.valueOf(report.getParametrs().get(PARAMETR_TYPE_ROUND)))
-                                            || report.getParametrs().get(PARAMETR_TYPE_ROUND).equals("ALL"));
-                                }).sorted(Comparator.comparing(Lap::getId)).toArray(Lap[]::new);
+            if(report.getCompetition().getRounds() != null) {
+                report.getCompetition().getRounds().forEach(round -> {
+                    Map<Sportsman, Long> someLaps = report.getCompetition()
+                            .getSportsmen()
+                            .stream()
+                            .collect(Collectors.toMap(
+                                    sportsman -> sportsman,
+                                    sportsman -> MAX_VALUE_LAP)
+                            );
+                    if (round.getGroups() != null) {
+                        round.getGroups().forEach(group -> {
+                            group.getGroupSportsmen().forEach(groupSportsman -> {
+                                Lap[] laps = groupSportsman.getLaps().stream().filter(lap -> lap.getTypeLap().equals(OK))
+                                        .filter(lap -> lap.getTimeLap() != null)
+                                        .filter(lap -> {
+                                            return (lap.getRound().getTypeRound()
+                                                    .equals(TypeRound.valueOf(report.getParametrs().get(PARAMETR_TYPE_ROUND)))
+                                                    || report.getParametrs().get(PARAMETR_TYPE_ROUND).equals("ALL"));
+                                        }).sorted(Comparator.comparing(Lap::getId)).toArray(Lap[]::new);
 
-                        if(laps.length >=countLap) {
-                            for (int i = countLap - 1; i < laps.length; i++) {
-                                Long oldTime = someLaps.get(groupSportsman.getSportsman());
-                                Long sumTime = 0L;
-                                for(int t = 0; t < countLap; t++){
-                                    sumTime += laps[i-t].getTimeLap();
+                                if (laps.length >= countLap) {
+                                    for (int i = countLap - 1; i < laps.length; i++) {
+                                        Long oldTime = someLaps.get(groupSportsman.getSportsman());
+                                        Long sumTime = 0L;
+                                        for (int t = 0; t < countLap; t++) {
+                                            sumTime += laps[i - t].getTimeLap();
+                                        }
+                                        if (sumTime < oldTime) someLaps.put(groupSportsman.getSportsman(), sumTime);
+                                    }
                                 }
-                                if(sumTime < oldTime)someLaps.put(groupSportsman.getSportsman(), sumTime);
-                            }
-                        }
-                    });
+                            });
+                        });
+                    }
+                    someLapsRound.put(round, someLaps);
                 });
-                someLapsRound.put(round, someLaps);
-            });
+            }
 
 
             for(Sportsman sportsman : resultLaps.keySet()){

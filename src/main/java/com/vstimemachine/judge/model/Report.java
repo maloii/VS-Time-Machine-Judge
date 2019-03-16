@@ -32,7 +32,7 @@ public class Report {
     private Map<String, String> parametrs;
 
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     private Competition competition;
 
     public Report(Report report) {

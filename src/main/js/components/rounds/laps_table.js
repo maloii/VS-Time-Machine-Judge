@@ -430,7 +430,7 @@ class LapsTable  extends React.Component {
                             </tfoot>);
         }
         return(
-            <>
+            <div>
                 <ModalListAllLaps ref={this.dialogListAllLaps}/>
                 <ModalSportsman ref={this.dialogSportsman}/>
                 <ContextMenuTrigger id="some_unique_identifier" ref={c => contextTrigger = c} collect={props => props}>
@@ -454,7 +454,7 @@ class LapsTable  extends React.Component {
                     </tbody>
                     {footerTable}
                 </Table>
-            </>
+            </div>
         );
     }
 }

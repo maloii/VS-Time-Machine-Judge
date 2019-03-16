@@ -36,10 +36,10 @@ public class GroupSportsman {
     @Column(name = "SEARCH_TRANSPONDER")
     private Boolean searchTransponder = false;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     private Sportsman sportsman;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     private Group group;
 
     @OneToMany(mappedBy = "groupSportsman", cascade = CascadeType.ALL)

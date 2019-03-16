@@ -33,7 +33,7 @@ public class League {
             mappedBy = "league")
     private Set<Group> groups;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     @JoinColumn
     private Competition competition;
 }

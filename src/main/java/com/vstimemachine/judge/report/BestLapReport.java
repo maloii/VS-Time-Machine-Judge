@@ -4,7 +4,7 @@ import com.vstimemachine.judge.model.Sportsman;
 import lombok.Data;
 
 @Data
-public class BestLapReport {
+public class BestLapReport implements ReportDataInterface {
     public BestLapReport() {
     }
 

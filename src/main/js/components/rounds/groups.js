@@ -1,7 +1,7 @@
 'use strict';
 import React from 'react';
 import {Alert, Button, Col, Container, ListGroup, ListGroupItem, Row} from "reactstrap";
-import {PlusIcon, ContentCopyIcon} from "mdi-react";
+import {PlusIcon, ContentCopyIcon, FilePdfIcon} from "mdi-react";
 import client from "../../client";
 import stompClient from "../../websocket_listener";
 import LapsTable from "./laps_table";
@@ -10,6 +10,9 @@ import ModalNewGroup from  "./modal_new_group"
 import ModalNewSportsmenToGroup from "./modal_add_sportsmen_to_group"
 import {ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
 import Global from "../../global";
+import ReactDOM from "react-dom";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 let contextTrigger = null;
 
@@ -48,14 +51,47 @@ class Groups  extends React.Component {
         this.handleStartRace = this.handleStartRace.bind(this);
         this.handleStopRace = this.handleStopRace.bind(this);
         this.deleteGroup = this.deleteGroup.bind(this);
+        this.generatePdf = this.generatePdf.bind(this);
         this.editGroup = this.editGroup.bind(this);
+
         this.dialogGroup = React.createRef();
         this.dialogAddSportsmenToGroup = React.createRef();
-
-        this.contextSelectedGroupData = null;
     }
 
+    generatePdf(){
+        var quotes = ReactDOM.findDOMNode(this.refs['table_laps']);
+        console.log(quotes);
+        var HTML_Width = quotes.getBoundingClientRect().width;
+        var HTML_Height = quotes.getBoundingClientRect().height;
+        var top_left_margin = 50;
+        var PDF_Width = HTML_Width+(top_left_margin*2);
+        var PDF_Height = (PDF_Width*1.5)+(top_left_margin*2);
+        var canvas_image_width = HTML_Width;
+        var canvas_image_height = HTML_Height;
 
+        var totalPDFPages = Math.ceil(HTML_Height/PDF_Height)-1;
+
+
+        let nameGroup = this.state.group.name;
+        html2canvas(quotes,{allowTaint:true}).then(function(canvas) {
+            canvas.getContext('2d');
+
+            console.log(canvas.height+"  "+canvas.width);
+
+
+            var imgData = canvas.toDataURL("image/jpeg", 1.0);
+            var pdf = new jsPDF('p', 'pt',  [PDF_Width, PDF_Height]);
+            pdf.addImage(imgData, 'JPG', top_left_margin, top_left_margin,canvas_image_width,canvas_image_height);
+
+
+            for (var i = 1; i <= totalPDFPages; i++) {
+                pdf.addPage(PDF_Width, PDF_Height);
+                pdf.addImage(imgData, 'JPG', top_left_margin, -(PDF_Height*i)+top_left_margin,canvas_image_width,canvas_image_height);
+            }
+
+            pdf.save('resalts_'+nameGroup+'.pdf');
+        });
+    }
     sendRaceCommand(command){
         if(this.state.group != null) {
             client({
@@ -300,6 +336,10 @@ class Groups  extends React.Component {
                 <Row style={{position: 'sticky', top: 0, backgroundColor: 'white', zIndex:999}}>
                     <Col md={5} className="text-left py-md-2">
                         {searchButton}
+                        {'  '}
+                        <Button color="info" onClick={this.generatePdf}>
+                            <FilePdfIcon /> Pdf
+                        </Button>
                     </Col>
                     <Col md={2} className="text-center  py-md-2">
                         <span className="timer text-monospace">{this.state.timeRace.toHHMMSS()}</span>
@@ -311,7 +351,7 @@ class Groups  extends React.Component {
                 </Row>
                 <Row>
                     <Col>
-                        <LapsTable groupSportsmen={this.state.groupSportsmen} group={this.state.group} round={this.props.round}/>
+                        <LapsTable ref="table_laps" groupSportsmen={this.state.groupSportsmen} group={this.state.group} round={this.props.round}/>
                     </Col>
                 </Row>
             </Container>];

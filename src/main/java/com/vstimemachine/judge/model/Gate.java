@@ -32,7 +32,7 @@ public class Gate {
     private Long delay;
     private Boolean speed;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     @JoinColumn(name="competition_id")
     private Competition competition;
 }

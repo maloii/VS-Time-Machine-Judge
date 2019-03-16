@@ -38,6 +38,12 @@ public class Round {
     private TypeRace typeRace;
 
     @Enumerated(EnumType.STRING)
+    private TypeRaceElimination typeRaceElimination;
+
+    @Enumerated(EnumType.STRING)
+    private TypeParentEntity typeParentEntity;
+
+    @Enumerated(EnumType.STRING)
     private TypeGenerateRound typeGenerateRound;
     private Integer countSportsmen = 0;
     private Boolean selected = false;
@@ -47,9 +53,11 @@ public class Round {
     private Integer sort = 0;
     private Boolean close = false;
     private Long fromRoundCopy;
+    private Long parentEntityId;
+    private Integer topLimit;
 
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     private Competition competition;
 
     @OneToMany(cascade = CascadeType.ALL,
@@ -60,8 +68,10 @@ public class Round {
 
     @PreRemove
     private void removeRound() {
-        groups.forEach(group-> {
-            group.setRound(null);
-        });
+        if(groups != null) {
+            groups.forEach(group -> {
+                group.setRound(null);
+            });
+        }
     }
 }
