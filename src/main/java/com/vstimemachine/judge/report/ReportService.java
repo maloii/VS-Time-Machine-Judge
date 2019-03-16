@@ -95,7 +95,12 @@ public class ReportService {
                     );
 
             if(report.getCompetition().getRounds() != null) {
-                report.getCompetition().getRounds().forEach(round -> {
+                report.getCompetition().getRounds().stream()
+                        .filter(round -> {
+                            return (round.getTypeRound()
+                                    .equals(TypeRound.valueOf(report.getParametrs().get(PARAMETR_TYPE_ROUND)))
+                                    || report.getParametrs().get(PARAMETR_TYPE_ROUND).equals("ALL"));
+                        }).forEach(round -> {
                     Map<Sportsman, Long> someLaps = report.getCompetition()
                             .getSportsmen()
                             .stream()
