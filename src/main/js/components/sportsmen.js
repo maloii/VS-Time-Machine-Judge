@@ -200,6 +200,7 @@ class SportsmenDataGrid extends React.Component {
 
     render() {
         const columns = [
+            {key: "position", name: "№", sortable: true, width: 50 },
             {key: "firstName", name: "First Name", editable: true, resizable: true, sortable: true },
             {key: "lastName", name: "Last Name", editable: true, resizable: true, sortable: true, sortDescendingFirst: true},
             {key: "nick", name: "Nick(OSD)", width: 170, editable: true, resizable: true, sortable: true},
@@ -364,7 +365,8 @@ class Sportsmen extends React.Component {
                             lastName: s.entity.lastName,
                             nick: s.entity.nick,
                             transponders: arrTrans,
-                            url: s.url
+                            url: s.url,
+                            position:(index+1)
                         }]
                     });
                     this.setState({

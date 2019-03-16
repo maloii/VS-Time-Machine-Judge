@@ -278,7 +278,7 @@ class ModalNewReport extends React.Component {
                                            defaultValue={this.state.report.typeReport}>
                                         <option value="BEST_LAP">BEST LAP</option>
                                         <option value="COUNT_LAPS">COUNT LAPS</option>
-                                        <option value="COUNT_SCORE">COUNT SCORE</option>
+                                        {/*<option value="COUNT_SCORE">COUNT SCORE</option>*/}
                                     </Input>
                                 </Col>
                             </FormGroup>
