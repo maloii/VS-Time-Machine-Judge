@@ -46,6 +46,7 @@ class ModalNewRound extends React.Component {
         this.toggleTypeRaceElimination = this.toggleTypeRaceElimination.bind(this);
         this.toggleTypeParentEntity = this.toggleTypeParentEntity.bind(this);
         this.toggleCountSportsmen = this.toggleCountSportsmen.bind(this);
+        this.toggleFromRoundCopy = this.toggleFromRoundCopy.bind(this);
     }
     toggle() {
         this.setState({
@@ -85,7 +86,6 @@ class ModalNewRound extends React.Component {
             });
         });
     }
-
     toggleEditShow(url) {
         client({
             method: 'GET',
@@ -138,9 +138,32 @@ class ModalNewRound extends React.Component {
     toggleAutoGenerate(){
         let round = Object.assign({}, this.state.round);
         round.typeGenerateRound = ReactDOM.findDOMNode(this.refs['autoGenerate']).value.trim();
+        if(this.state.rounds && this.state.rounds.length > 0) {
+            let copyRound = this.state.rounds[0];
+            round.maxTimeRace = copyRound.maxTimeRace;
+            round.countLap = copyRound.countLap;
+            round.typeRound = copyRound.typeRound;
+            round.typeRace = copyRound.typeRace;
+        }
         this.setState({
-            round:round
+            round: round
         });
+    }
+
+    toggleFromRoundCopy(){
+        let round = Object.assign({}, this.state.round);
+        round.fromRoundCopy = ReactDOM.findDOMNode(this.refs['fromRoundCopy']).value.trim();
+        let copyRound = this.state.rounds.filter(r=>r.id===parseInt(round.fromRoundCopy, 10));
+        if(copyRound.length > 0) {
+            console.log(copyRound);
+            round.maxTimeRace = copyRound[0].maxTimeRace;
+            round.countLap = copyRound[0].countLap;
+            round.typeRound = copyRound[0].typeRound;
+            round.typeRace = copyRound[0].typeRace;
+            this.setState({
+                round: round
+            });
+        }
     }
     handleSave() {
         let name = ReactDOM.findDOMNode(this.refs['name']);
@@ -246,7 +269,8 @@ class ModalNewRound extends React.Component {
                                                 name="countLap"
                                                 id="countLap"
                                                 ref="countLap"
-                                                defaultValue={this.state.round.countLap}/>
+                                                onChange={()=>void(0)}
+                                                value={this.state.round.countLap}/>
                                         </Col>
                                     </FormGroup>
                                 </Col>
@@ -261,7 +285,8 @@ class ModalNewRound extends React.Component {
                                                 name="maxTimeRace"
                                                 id="maxTimeRace"
                                                 ref="maxTimeRace"
-                                                defaultValue={this.state.round.maxTimeRace}/>
+                                                onChange={()=>void(0)}
+                                                value={this.state.round.maxTimeRace}/>
                                         </Col>
                                     </FormGroup>
                                 </Col>
@@ -350,7 +375,8 @@ class ModalNewRound extends React.Component {
                                             type="select"
                                             name="fromRoundCopy"
                                             id="fromRoundCopy"
-                                            ref="fromRoundCopy">
+                                            ref="fromRoundCopy"
+                                            onChange={this.toggleFromRoundCopy}>
                                             {listRounds}
                                         </Input>
                                     </Col>
@@ -493,7 +519,7 @@ class ModalNewRound extends React.Component {
                                            id="typeRound"
                                            ref="typeRound"
                                            onChange={this.toggleTypeRound}
-                                           defaultValue={this.state.round.typeRound}>
+                                           value={this.state.round.typeRound}>
                                         <option value="PRACTICE">PRACTICE</option>
                                         <option value="QUALIFICATION">QUALIFICATION</option>
                                         <option value="RACE">RACE</option>
@@ -513,7 +539,7 @@ class ModalNewRound extends React.Component {
                                            id="typeRace"
                                            ref="typeRace"
                                            onChange={this.toggleTypeRace}
-                                           defaultValue={this.state.round.typeRace}>
+                                           value={this.state.round.typeRace}>
                                         <option value="FIXED_COUNT_LAPS">FIXED COUNT LAPS</option>
                                         <option value="FIXED_TIME">FIXED TIME</option>
                                         <option value="FIXED_TIME_AND_ONE_LAP_AFTER">FIXED TIME AND ONE LAP AFTER</option>
