@@ -1,20 +1,13 @@
 package com.vstimemachine.judge;
 
 import com.vstimemachine.judge.controller.storage.StorageProperties;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import javax.swing.*;
-import javax.swing.text.AbstractDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,7 +21,7 @@ import java.util.Enumeration;
 public class JudgeApplication {
 
 	public static final String APPLICATION_NAME = "VS Time Machine Judge";
-	public static final String ICON_STR = "/logo_300.png";
+	public static final String ICON_STR = "/static/images/logo_300.png";
 	public static TrayIcon trayIcon;
 	public static void main(String[] args) {
 

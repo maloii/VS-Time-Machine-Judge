@@ -29,10 +29,11 @@ public class SecurityConfiguration  extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/built/**", "/main.css").permitAll()
+                .antMatchers("/built/**", "/main.css", "/bootstrap.min.css", "/signin.css", "/images/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
+                .loginPage("/login")
                 .defaultSuccessUrl("/", true)
                 .permitAll()
                 .and()
