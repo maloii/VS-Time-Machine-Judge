@@ -55,7 +55,7 @@ public class RaceService {
 
     public void start(Group group) throws RaceException {
         if(raceStatus == STOP){
-            lapRepository.deleteAllByGroup(selectedGroup);
+            lapRepository.deleteAllByGroupId(group.getId());
 //            Hibernate.initialize(group.getSportsmen());
 
             selectedGroup = group;
@@ -159,7 +159,7 @@ public class RaceService {
                                             }
                                             List<Lap> laps = lapRepository.findByGroupSportsmanId(groupSportsmen.getId());
                                             System.out.println(laps.size());
-                                            if(typeLap != TypeLap.HIDDEN && round.getCountLap() != null &&
+                                            if(round.getTypeRace() == TypeRace.FIXED_COUNT_LAPS && typeLap != TypeLap.HIDDEN && round.getCountLap() != null &&
                                                     round.getCountLap() > 0){
                                                 if(laps
                                                         .stream()
@@ -188,12 +188,13 @@ public class RaceService {
                                                 selectedGroup.getName(),
                                                 milliseconds,
                                                 typeLap);
+
                                         try {
                                             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new ClassPathResource("/media/short_beep.wav").getFile().getAbsoluteFile());
                                             Clip clip = AudioSystem.getClip();
                                             clip.open(audioInputStream);
                                             clip.start();
-                                        }catch (Exception e){}
+                                        }catch (Exception e){e.printStackTrace();}
                                     });
                                     numberPackages.add(numberPackage);
                                 });

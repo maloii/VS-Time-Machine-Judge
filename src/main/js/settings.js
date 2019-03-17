@@ -5,7 +5,7 @@ class Settings {
         this.root = '/api/data';
         this.raceApiRoot = '/api/race';
         this.raceApiReport = '/api/report';
-
+        this.defaultReportLogo = '/images/vs_top_logo.jpg';
         this.channelNumber = {
             R1: 5658,
             R2: 5695,

@@ -25,5 +25,5 @@ public interface LapRepository  extends CrudRepository<Lap, Long> {
     @Override
     void delete(@Param("lap") Lap lap);
 
-    void deleteAllByGroup(@Param("group") Group croup);
+    void deleteAllByGroupId(@Param("group") Long croupId);
 }

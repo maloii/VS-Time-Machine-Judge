@@ -17,7 +17,7 @@ import {
     NavLink,
     Row,
     TabContent,
-    TabPane,InputGroupButtonDropdown,
+    TabPane, InputGroupButtonDropdown, CardImg, CardBody, Card,
 } from "reactstrap";
 
 const channels = [  'R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8',
@@ -35,6 +35,7 @@ class DialogNewCompetition extends React.Component {
             modalNewCompetition:false,
             activeTab: '1',
             id: 0,
+            srcLogo: null,
             invalidName: false,
             channel1:'R1',
             channel2:'R2',
@@ -82,6 +83,7 @@ class DialogNewCompetition extends React.Component {
         this.handleUDelete = this.handleUDelete.bind(this);
         this.onSelectChannel = this.onSelectChannel.bind(this);
         this.onSelectColor = this.onSelectColor.bind(this);
+        this.handleClearLogo = this.handleClearLogo.bind(this);
 
         this.toggleDropDownChannel = this.toggleDropDownChannel.bind(this);
 
@@ -122,6 +124,7 @@ class DialogNewCompetition extends React.Component {
             selected: true,
             distance: 0,
             delay: 10,
+            srcLogo: null,
             competition:undefined,
 
             channel1:'R1',
@@ -194,6 +197,7 @@ class DialogNewCompetition extends React.Component {
             color6: this.state.color6,
             color7: this.state.color7,
             color8: this.state.color8,
+            logo: this.state.srcLogo
         };
         const newGate = {
             number: 0,
@@ -250,6 +254,7 @@ class DialogNewCompetition extends React.Component {
             color6: this.state.color6,
             color7: this.state.color7,
             color8: this.state.color8,
+            logo: this.state.srcLogo
         };
         follow(client, Settings.root, ['competitions']).then(response => {
             return client({
@@ -306,7 +311,8 @@ class DialogNewCompetition extends React.Component {
             color8: competition.entity.color8,
 
             distance: competition.gates[0].distance,
-            delay: competition.gates[0].delay
+            delay: competition.gates[0].delay,
+            srcLogo: competition.entity.logo
 
         });
         this.toggle();
@@ -327,8 +333,12 @@ class DialogNewCompetition extends React.Component {
             });
         }
     }
-
-    handleUpload(e){
+    handleClearLogo(){
+        this.setState({
+            srcLogo: Settings.defaultReportLogo
+        });
+    }
+    handleUpload(e) {
         let files = e.target.files || e.dataTransfer.files;
         document.getElementById(e.target.name).style.display = 'none';
         this.setState({
@@ -337,20 +347,20 @@ class DialogNewCompetition extends React.Component {
 
         const data = new FormData()
         data.append('file', files[0], files[0].name);
-        axios
-            .post('/api/upload/img', data, {
-                headers: {'Content-Type': 'multipart/form-data'},
 
-                onUploadProgress: ProgressEvent => {
-                    // this.setState({
-                    //     loaded: (ProgressEvent.loaded / ProgressEvent.total*100),
-                    // })
-                    console.log((ProgressEvent.loaded / ProgressEvent.total*100));
-                },
-            })
-            .then(res => {
-                console.log(res)
-            })
+        client({
+            method: 'POST',
+            path: '/api/upload/img',
+            entity: data,
+            headers: {'Content-Type': 'multipart/form-data'}
+
+        }).then(res => {
+            this.setState({
+                srcLogo: '/upload/' + res.entity.message
+            });
+        }, error => {
+            alert(error.entity.message);
+        })
     }
 
     onSelectChannel(pos, channel) {
@@ -512,7 +522,8 @@ class DialogNewCompetition extends React.Component {
                 </Col>
             </FormGroup>)
         }
-
+        let imgLogoUrl = Settings.defaultReportLogo;
+        if (this.state.srcLogo !== null) imgLogoUrl = this.state.srcLogo;
         return (<Modal isOpen={this.state.modalNewCompetition} toggle={this.toggle} className={this.props.className}>
             <ModalHeader toggle={this.toggle}>{header}</ModalHeader>
             <ModalBody>
@@ -568,12 +579,22 @@ class DialogNewCompetition extends React.Component {
                                                 defaultValue={this.state.name} />
                                         </Col>
                                     </FormGroup>
-                                    {/*<FormGroup row>*/}
-                                        {/*<Label for="logo" sm={2}>Logo</Label>*/}
-                                        {/*<Col sm={10}>*/}
-                                            {/*<CustomInput type="file" id="logo" name="logo" onChange={this.handleUpload} />*/}
-                                        {/*</Col>*/}
-                                    {/*</FormGroup>*/}
+                                    <FormGroup row>
+                                        <Col sm={12}>
+                                            <Card>
+                                                <CardImg top
+                                                         height="100%"
+                                                         src={imgLogoUrl}
+                                                         alt="Card image cap"/>
+                                                <CardBody className="text-center">
+                                                    <Input type="file" name="logo" id="logo" onChange={this.handleUpload} hidden/>
+                                                    <Button color="info" onClick={event => document.getElementById('logo').click()}>Select
+                                                        logo(Height 50px JPG)</Button>{'  '}
+                                                    <Button color="secondary" onClick={this.handleClearLogo}>Clear</Button>
+                                                </CardBody>
+                                            </Card>
+                                        </Col>
+                                    </FormGroup>
                                     {/*<FormGroup row>*/}
                                         {/*<Label for="logo" sm={2}>Map</Label>*/}
                                         {/*<Col sm={10}>*/}

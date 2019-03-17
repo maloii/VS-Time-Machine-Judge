@@ -211,7 +211,11 @@ public class ReportService {
                                                 || report.getParametrs().get(PARAMETR_TYPE_ROUND).equals("ALL"));
                                     })
                                     .count();
-                            if(someCountLaps.get(groupSportsman.getSportsman()) < count.intValue())
+//                            System.out.println(someCountLaps);
+//                            System.out.println(groupSportsman);
+//                            System.out.println(count);
+                            if(someCountLaps.get(groupSportsman.getSportsman()) != null &&
+                                    someCountLaps.get(groupSportsman.getSportsman()) < count.intValue())
                                 someCountLaps.put(groupSportsman.getSportsman(), count.intValue());
                         });
                     });
