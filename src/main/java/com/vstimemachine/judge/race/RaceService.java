@@ -188,6 +188,12 @@ public class RaceService {
                                                 selectedGroup.getName(),
                                                 milliseconds,
                                                 typeLap);
+                                        try {
+                                            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new ClassPathResource("/media/short_beep.wav").getFile().getAbsoluteFile());
+                                            Clip clip = AudioSystem.getClip();
+                                            clip.open(audioInputStream);
+                                            clip.start();
+                                        }catch (Exception e){}
                                     });
                                     numberPackages.add(numberPackage);
                                 });
