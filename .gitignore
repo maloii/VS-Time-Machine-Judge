@@ -37,3 +37,7 @@ gradle-app.setting
 
 # dependencies
 /node_modules
+
+
+judge.mv.db
+judge.trace.db
