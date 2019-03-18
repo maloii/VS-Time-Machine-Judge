@@ -51,7 +51,18 @@ class ModalNewRound extends React.Component {
     toggle() {
         this.setState({
             modalRound: !this.state.modalRound,
-            invalidName: false
+            invalidName: false,
+            round: {
+                typeRound: 'PRACTICE',
+                typeRace: 'FIXED_COUNT_LAPS',
+                typeGenerateRound: 'NONE',
+                typeRaceElimination: 'NONE',
+                typeParentEntity: 'NONE',
+                countLap: 5,
+                maxTimeRace: 180,
+                countSportsmen: 4,
+                fromRoundCopy:0
+            }
         });
     }
 
@@ -138,7 +149,7 @@ class ModalNewRound extends React.Component {
     toggleAutoGenerate(){
         let round = Object.assign({}, this.state.round);
         round.typeGenerateRound = ReactDOM.findDOMNode(this.refs['autoGenerate']).value.trim();
-        if(this.state.rounds && this.state.rounds.length > 0) {
+        if(round.typeGenerateRound === 'COPY_BEFORE_ROUND' && this.state.rounds && this.state.rounds.length > 0) {
             let copyRound = this.state.rounds[0];
             round.maxTimeRace = copyRound.maxTimeRace;
             round.countLap = copyRound.countLap;

@@ -1,10 +1,12 @@
 package com.vstimemachine.judge.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.vstimemachine.judge.component.event.RoundExtraActionEvent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.AbstractAggregateRoot;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -15,7 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = { "id" })
-public class Round {
+public class Round extends AbstractAggregateRoot {
 
     @Id
     @GeneratedValue
@@ -72,5 +74,10 @@ public class Round {
                 group.setRound(null);
             });
         }
+    }
+
+    public Round initExtraAction(String path) {
+        registerEvent(new RoundExtraActionEvent(this, path));
+        return this;
     }
 }

@@ -5,7 +5,6 @@ public final class OsUtils {
 
     public static String getOsName() {
         if(OS == null) { OS = System.getProperty("os.name"); }
-        System.out.println(OS);
         return OS;
     }
     public static boolean isWindows() {
