@@ -1,17 +1,20 @@
 package com.vstimemachine.judge;
 
 import com.vstimemachine.judge.controller.storage.StorageProperties;
+import com.vstimemachine.judge.utils.OsUtils;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 import java.util.Enumeration;
 
@@ -19,6 +22,16 @@ import java.util.Enumeration;
 @EnableScheduling
 @EnableConfigurationProperties(StorageProperties.class)
 public class JudgeApplication {
+
+	static {
+		try {
+			if(OsUtils.isWindows()) {
+				loadLibrary();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public static final String APPLICATION_NAME = "VS Time Machine Judge";
 	public static final String ICON_STR = "/static/images/logo_300.png";
@@ -112,6 +125,34 @@ public class JudgeApplication {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+
+	public static boolean loadLibrary()
+	{
+		try
+		{
+			String libFile = System.getProperty("os.arch").equals("amd64") ? "jacob-1.19-x64.dll" : "/dll/jacob-1.19-x86.dll";
+			InputStream inputStream = new ClassPathResource(libFile).getInputStream();
+			File temporaryDll = File.createTempFile("jacob", ".dll");
+			FileOutputStream outputStream = new FileOutputStream(temporaryDll);
+			byte[] array = new byte[8192];
+			for (int i = inputStream.read(array);
+				 i != -1;
+				 i = inputStream.read(array)) {
+				outputStream.write(array, 0, i);
+			}
+			outputStream.close();
+			temporaryDll.deleteOnExit();
+			System.load(temporaryDll.getPath());
+			System.setProperty(com.jacob.com.LibraryLoader.JACOB_DLL_PATH, temporaryDll.getPath());
+			return true;
+		}
+		catch(Throwable e)
+		{
+			e.printStackTrace();
+			return false;
+		}
 	}
 }
 

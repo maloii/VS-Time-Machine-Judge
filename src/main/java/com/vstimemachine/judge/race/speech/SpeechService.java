@@ -1,7 +1,10 @@
 package com.vstimemachine.judge.race.speech;
 
+import com.jacob.activeX.ActiveXComponent;
+import com.jacob.com.Variant;
 import com.vstimemachine.judge.dao.SettingsRepository;
 import com.vstimemachine.judge.model.Settings;
+import com.vstimemachine.judge.utils.OsUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -39,12 +42,29 @@ public class SpeechService {
         if(settingsLang != null){
             lang = settingsLang.getValue();
         }
-        String sayText  = accessor.getMessage(text, new Locale(lang));
+        Locale locale = new Locale(lang);
+        if(lang.equals("en")) locale = Locale.ENGLISH;
+        String sayText  = accessor.getMessage(text, locale);
+        if(OsUtils.isMacOS()){
+            sayMac(sayText, locale);
+        }else if(OsUtils.isWindows()){
+            sayWindows(sayText, locale);
+        }
+    }
+
+    private void sayWindows(String text, Locale locale){
+
+        ActiveXComponent speak = new ActiveXComponent("SAPI.SpVoice");
+        speak.invoke("Speak", new Variant[]{new Variant("   "+text),new Variant(1)});
+    }
+
+    private void sayMac(String text, Locale locale){
         try {
-            Runtime.getRuntime().exec(String.format("say %s", sayText));
-            log.info("Speech:{}", sayText);
+            Runtime.getRuntime().exec(String.format("say %s", text));
+            log.info("Speech:{}", text);
         } catch (IOException e) {
-            log.error("Error speech:{} {}", sayText, e.getMessage());
+            log.error("Error speech:{} {}", text, e.getMessage());
+            e.printStackTrace();
         }
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.sound.sampled.*;
 import javax.transaction.Transactional;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -190,7 +191,7 @@ public class RaceService {
                                                 typeLap);
 
                                         try {
-                                            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new ClassPathResource("/media/short_beep.wav").getFile().getAbsoluteFile());
+                                            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new BufferedInputStream(new ClassPathResource("/media/short_beep.wav").getInputStream()));
                                             Clip clip = AudioSystem.getClip();
                                             clip.open(audioInputStream);
                                             clip.start();
@@ -241,7 +242,7 @@ public class RaceService {
                     scheduler3.shutdown();
                 }
             }
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new ClassPathResource("/media/beep.wav").getFile().getAbsoluteFile());
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new BufferedInputStream(new ClassPathResource("/media/beep.wav").getInputStream()));
             Clip clip = AudioSystem.getClip();
             clip.open(audioInputStream);
             clip.start();
@@ -260,7 +261,7 @@ public class RaceService {
     }
     private void beep2() {
         try {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new ClassPathResource("/media/beep.wav").getFile().getAbsoluteFile());
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new BufferedInputStream(new ClassPathResource("/media/beep.wav").getInputStream()));
             Clip clip = AudioSystem.getClip();
             clip.open(audioInputStream);
             clip.start();
