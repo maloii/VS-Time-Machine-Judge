@@ -16,7 +16,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.sound.sampled.*;
-import javax.transaction.Transactional;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.*;

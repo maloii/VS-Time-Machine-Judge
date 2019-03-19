@@ -1,28 +1,24 @@
 package com.vstimemachine.judge.component.event;
 
 
-import com.vstimemachine.judge.dao.*;
-import com.vstimemachine.judge.model.*;
-import com.vstimemachine.judge.race.RaceException;
-import com.vstimemachine.judge.report.ReportData;
-import com.vstimemachine.judge.report.ReportDataInterface;
-import com.vstimemachine.judge.report.ReportService;
+import com.vstimemachine.judge.dao.GroupRepository;
+import com.vstimemachine.judge.dao.RoundRepository;
+import com.vstimemachine.judge.model.Group;
+import com.vstimemachine.judge.model.GroupSportsman;
+import com.vstimemachine.judge.model.Round;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.SessionFactory;
 import org.springframework.data.rest.core.annotation.*;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import javax.persistence.EntityManagerFactory;
+
+import java.util.Iterator;
 
 import static com.vstimemachine.judge.configuration.WebSocketConfiguration.MESSAGE_PREFIX;
-import static com.vstimemachine.judge.model.TypeParentEntity.REPORT;
-import static com.vstimemachine.judge.model.TypeReport.BEST_LAP;
-import static com.vstimemachine.judge.model.TypeRound.*;
-import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @Slf4j
 @Component
@@ -57,7 +53,18 @@ public class RoundEventHandler {
     public void deleteRoundBefore(Round round) {
         round.getGroups().forEach(group->{
             group.setRound(null);
-            groupRepository.findById(group.getId()).ifPresent(groupRepository::delete);
+            if(round != null && round.getGroups() != null) round.getGroups().remove(this);
+            if(group.getCompetition() != null && group.getCompetition().getGroups() != null) group.getCompetition().getGroups().remove(this);
+            if(group.getLeague() != null && group.getLeague().getGroups() != null) group.getLeague().getGroups().remove(this);
+            Iterator<GroupSportsman> iterator = group.getGroupSportsmen().iterator();
+            while (iterator.hasNext()) {
+                GroupSportsman groupSportsman = iterator.next();
+                groupSportsman.getLaps().forEach(lap -> lap.setRound(null));
+                groupSportsman.getSportsman().getGroupSportsmen().remove(groupSportsman);
+            }
+//            round.getGroups().remove(round);
+//            group.setRound(null);
+//            groupRepository.findById(group.getId()).ifPresent(groupRepository::delete);
         });
     }
 

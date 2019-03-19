@@ -13,6 +13,7 @@ import Global from "../../global";
 import ReactDOM from "react-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 let contextTrigger = null;
 
@@ -374,7 +375,11 @@ class Groups  extends React.Component {
                             </Col>
                         </Row>
                         <ListGroup>
-                            {this.state.groups.map(group=>{
+                            {/*<ReactCSSTransitionGroup*/}
+                                {/*transitionName="anim"*/}
+                                {/*transitionEnterTimeout={300}*/}
+                                {/*transitionLeaveTimeout={300}>*/}
+                                {this.state.groups.map(group=>{
                                 return <ListGroupItem
                                     key={group._links.self.href}
                                     tag="button"
@@ -385,6 +390,7 @@ class Groups  extends React.Component {
                                     >{group.name}</ListGroupItem>
 
                             })}
+                            {/*</ReactCSSTransitionGroup>*/}
                         </ListGroup>
                         <ContextMenuTrigger id={'context_menu_group'}  ref={c => contextTrigger = c} >
                             <div></div>

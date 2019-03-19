@@ -3,7 +3,9 @@ package com.vstimemachine.judge.component.event;
 import com.vstimemachine.judge.dao.GroupRepository;
 import com.vstimemachine.judge.dao.GroupSportsmanRepository;
 import com.vstimemachine.judge.dao.LapRepository;
+import com.vstimemachine.judge.dao.RoundRepository;
 import com.vstimemachine.judge.model.Group;
+import com.vstimemachine.judge.model.Round;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.rest.core.annotation.*;
@@ -22,8 +24,7 @@ public class GroupEventHandler {
     private final SimpMessagingTemplate websocket;
     private final EntityLinks entityLinks;
     private final GroupRepository groupRepository;
-    private final GroupSportsmanRepository groupSportsmanRepository;
-    private final LapRepository lapRepository;
+    private final RoundRepository roundRepository;
 
     @HandleBeforeCreate
     @HandleBeforeSave
@@ -38,15 +39,10 @@ public class GroupEventHandler {
                 MESSAGE_PREFIX + "/newGroup", getPath(group));
     }
 
-//    @HandleBeforeDelete
-//    public void deleteGroupBefore(Group group) {
-//        System.out.println("------");
-//        group.getGroupSportsmen().forEach(groupSportsman->{
-//            groupSportsman.setSportsman(null);
-//            groupSportsman.getLaps().forEach(lap -> lapRepository.delete(lap));
-//            groupSportsmanRepository.delete(groupSportsman);
-//        });
-//    }
+    @HandleBeforeDelete
+    public void deleteGroupBefore(Group group) {
+
+    }
 
     @HandleAfterDelete
     public void deleteGroup(Group group) {

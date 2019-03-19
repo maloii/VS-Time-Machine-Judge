@@ -67,14 +67,14 @@ public class Round extends AbstractAggregateRoot {
     @OrderBy("sort ASC")
     private Set<Group> groups;
 
-    @PreRemove
-    private void removeRound() {
-        if(groups != null) {
-            groups.forEach(group -> {
-                group.setRound(null);
-            });
-        }
-    }
+//    @PreRemove
+//    private void removeRound() {
+//        if(groups != null) {
+//            groups.forEach(group -> {
+//                group.setRound(null);
+//            });
+//        }
+//    }
 
     public Round initExtraAction(String path) {
         registerEvent(new RoundExtraActionEvent(this, path));

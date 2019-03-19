@@ -246,3 +246,34 @@ div.ReactTags__suggestions ul li.ReactTags__activeSuggestion {
     margin-bottom: 20px;
 
 }
+
+.anim-enter {
+    transform: translateX(-100%);
+}
+.anim-enter-active {
+    animation: slide-in 300ms ease-out forwards;
+}
+
+.anim-leave {
+    transform: translateX(0%);
+}
+
+.anim-leave-active {
+    animation: slide-out 300ms ease-out forwards;
+}
+@keyframes slide-in {
+    from{
+        transform: translateX(-100%);
+    }
+    to{
+        transform: translateX(0%);
+    }
+}
+@keyframes slide-out {
+    from{
+        transform: translateX(0%);
+    }
+    to{
+        transform: translateX(-100%);
+    }
+}

@@ -65,15 +65,15 @@ public class Group {
         groupSportsmen.add(groupSportsman);
     }
 
-    @PreRemove
-    private void removeGroup() {
-        if(round != null && round.getGroups() != null) round.getGroups().remove(this);
-        if(competition != null && competition.getGroups() != null) competition.getGroups().remove(this);
-        if(league != null && league.getGroups() != null) league.getGroups().remove(this);
-        Iterator<GroupSportsman> iterator = groupSportsmen.iterator();
-        while (iterator.hasNext()) {
-            GroupSportsman groupSportsman = iterator.next();
-            groupSportsman.getSportsman().getGroupSportsmen().remove(groupSportsman);
-        }
-    }
+//    @PreRemove
+//    private void removeGroup() {
+//        if(round != null && round.getGroups() != null) round.getGroups().remove(this);
+//        if(competition != null && competition.getGroups() != null) competition.getGroups().remove(this);
+//        if(league != null && league.getGroups() != null) league.getGroups().remove(this);
+//        Iterator<GroupSportsman> iterator = groupSportsmen.iterator();
+//        while (iterator.hasNext()) {
+//            GroupSportsman groupSportsman = iterator.next();
+//            groupSportsman.getSportsman().getGroupSportsmen().remove(groupSportsman);
+//        }
+//    }
 }
