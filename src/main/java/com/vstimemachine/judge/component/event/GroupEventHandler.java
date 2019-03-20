@@ -5,6 +5,7 @@ import com.vstimemachine.judge.dao.GroupSportsmanRepository;
 import com.vstimemachine.judge.dao.LapRepository;
 import com.vstimemachine.judge.dao.RoundRepository;
 import com.vstimemachine.judge.model.Group;
+import com.vstimemachine.judge.model.GroupSportsman;
 import com.vstimemachine.judge.model.Round;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,8 @@ import org.springframework.data.rest.core.annotation.*;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
+
+import java.util.Iterator;
 
 import static com.vstimemachine.judge.configuration.WebSocketConfiguration.MESSAGE_PREFIX;
 
@@ -24,7 +27,7 @@ public class GroupEventHandler {
     private final SimpMessagingTemplate websocket;
     private final EntityLinks entityLinks;
     private final GroupRepository groupRepository;
-    private final RoundRepository roundRepository;
+    private final GroupSportsmanRepository groupSportsmanRepository;
 
     @HandleBeforeCreate
     @HandleBeforeSave
@@ -41,7 +44,17 @@ public class GroupEventHandler {
 
     @HandleBeforeDelete
     public void deleteGroupBefore(Group group) {
-
+//        if(group.getRound() != null && group.getRound().getGroups() != null) group.getRound().getGroups().remove(this);
+//        if(group.getCompetition() != null && group.getCompetition().getGroups() != null) group.getCompetition().getGroups().remove(this);
+//        if(group.getLeague() != null && group.getLeague().getGroups() != null) group.getLeague().getGroups().remove(this);
+        Iterator<GroupSportsman> iterator = group.getGroupSportsmen().iterator();
+        while (iterator.hasNext()) {
+            GroupSportsman groupSportsman = iterator.next();
+            groupSportsman.getLaps().forEach(lap -> lap.setRound(null));
+            groupSportsman.setGroup(null);
+            groupSportsman.getSportsman().getGroupSportsmen().remove(groupSportsman);
+            groupSportsmanRepository.delete(groupSportsman);
+        }
     }
 
     @HandleAfterDelete

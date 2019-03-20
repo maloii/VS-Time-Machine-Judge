@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
 import javax.persistence.*;
@@ -56,15 +58,16 @@ public class Round extends AbstractAggregateRoot {
     private Long fromRoundCopy;
     private Long parentEntityId;
     private Integer topLimit;
+    private Integer countNextGo;
 
 
     @ManyToOne
     private Competition competition;
 
     @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY,
             mappedBy = "round")
     @OrderBy("sort ASC")
+    @Fetch(FetchMode.SUBSELECT)
     private Set<Group> groups;
 
 //    @PreRemove

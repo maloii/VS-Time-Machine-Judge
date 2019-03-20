@@ -14,12 +14,18 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.vstimemachine.judge.configuration.WebSocketConfiguration.MESSAGE_PREFIX;
 import static com.vstimemachine.judge.model.TypeParentEntity.REPORT;
+import static com.vstimemachine.judge.model.TypeRaceElimination.SINGLE_ELIMINATION;
 import static com.vstimemachine.judge.model.TypeRound.*;
 import static com.vstimemachine.judge.model.TypeRound.FINAL;
+import static java.util.stream.Collectors.toSet;
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
 @Slf4j
@@ -90,17 +96,6 @@ public class EventHandler {
                 log.info("Greate new group: {}", group.getName());
                 groupCopy.getGroupSportsmen().forEach(groupSportsmanCopy -> {
                     newGroupSportsman(group, groupSportsmanCopy.getSportsman(), groupSportsmanCopy.getSort());
-//                    GroupSportsman groupSportsman = new GroupSportsman();
-//                    groupSportsmanCopy.getSportsman().addGroupSportsman(groupSportsman);
-//                    groupSportsman.setSportsman(groupSportsmanCopy.getSportsman());
-//                    groupSportsman.setGroup(group);
-//                    groupSportsman.setSort(groupSportsmanCopy.getSort());
-//                    group.addGroupSportsmen(groupSportsman);
-//                    groupSportsmanRepository.save(groupSportsman);
-//                    log.info("Add sportsman: {} {} to group: {}",
-//                            groupSportsmanCopy.getSportsman().getFirstName(),
-//                            groupSportsmanCopy.getSportsman().getLastName(),
-//                            group.getName());
                 });
             });
 
@@ -149,6 +144,50 @@ public class EventHandler {
         }
     }
 
+    private void generateRaceFromBeforeRound(Round round) {
+        if(round.getTypeRaceElimination() == SINGLE_ELIMINATION){
+            roundRepository.findById(round.getParentEntityId()).ifPresent(parentRound -> {
+                int countGroups = parentRound.getGroups().size();
+                if (countGroups != 2 && countGroups != 4 && countGroups != 8 && countGroups != 16) {
+                    String errorMessage = "The number of groups must be 2, 4, 8 or 16";
+                    log.error(errorMessage);
+                    throw new RaceException(errorMessage);
+                }
+                List<Group> groups =  new ArrayList(parentRound.getGroups());
+                int r = 0;
+                for (int i = 0; i < countGroups; i = i + 2) {
+                    Group group = new Group("Group " + (r++), r, round, round.getCompetition());
+                    if (r == 0) group.setSelected(true);
+                    groupRepository.save(group);
+                    Group group1 = groups.get(i);
+                    Group group2 = groups.get(i+1);
+                    if(group1.getGroupSportsmen().size() < round.getCountNextGo()
+                            || group1.getGroupSportsmen().size() < round.getCountNextGo()){
+                        String errorMessage = "There are fewer sportsmen in the group than the number who passes on.";
+                        log.error(errorMessage);
+                        throw new RaceException(errorMessage);
+                    }
+                    int[] idx = { 0 };
+                    group1.getGroupSportsmen().stream()
+                            .sorted(Comparator.comparing(GroupSportsman::getPosition))
+                            .limit(round.getCountNextGo())
+                            .collect(Collectors.toCollection(() ->
+                                        group2.getGroupSportsmen().stream()
+                                                .sorted(Comparator.comparing(GroupSportsman::getPosition))
+                                                .limit(round.getCountNextGo())
+                                                .collect(toSet())))
+                            .forEach(groupSportsman -> {
+                                newGroupSportsman(group, groupSportsman.getSportsman(), idx[0]++);
+                            });
+
+
+
+                }
+            });
+        }
+
+    }
+
     private void newGroupSportsman(Group group, Sportsman sportsman, int sort){
         GroupSportsman groupSportsman = new GroupSportsman();
         sportsman.addGroupSportsman(groupSportsman);
@@ -158,9 +197,6 @@ public class EventHandler {
         group.addGroupSportsmen(groupSportsman);
         groupSportsmanRepository.save(groupSportsman);
         log.info("Add sportsman: {} {} to group: {}", sportsman.getFirstName(), sportsman.getLastName(), group.getName());
-
-    }
-    private void generateRaceFromBeforeRound(Round round) {
 
     }
 }

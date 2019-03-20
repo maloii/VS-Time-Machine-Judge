@@ -2,6 +2,7 @@ package com.vstimemachine.judge.component.event;
 
 
 import com.vstimemachine.judge.dao.GroupRepository;
+import com.vstimemachine.judge.dao.GroupSportsmanRepository;
 import com.vstimemachine.judge.dao.RoundRepository;
 import com.vstimemachine.judge.model.Group;
 import com.vstimemachine.judge.model.GroupSportsman;
@@ -32,9 +33,17 @@ public class RoundEventHandler {
 
     private final RoundRepository roundRepository;
     private final GroupRepository groupRepository;
+    private final GroupSportsmanRepository groupSportsmanRepository;
+
+    @HandleBeforeSave
+    public void saveRoundBefore(Round round) {
+        if(round.getSelected()){
+            roundRepository.clearAllSelected(round.getCompetition().getId());
+            log.info("Selected round:{}", round.getName());
+        }
+    }
 
     @HandleBeforeCreate
-    @HandleBeforeSave
     public void newRoundBefore(Round round) {
         if(round.getSelected()){
             roundRepository.clearAllSelected(round.getCompetition().getId());
@@ -51,21 +60,41 @@ public class RoundEventHandler {
 
     @HandleBeforeDelete
     public void deleteRoundBefore(Round round) {
-        round.getGroups().forEach(group->{
-            group.setRound(null);
-            if(round != null && round.getGroups() != null) round.getGroups().remove(this);
-            if(group.getCompetition() != null && group.getCompetition().getGroups() != null) group.getCompetition().getGroups().remove(this);
-            if(group.getLeague() != null && group.getLeague().getGroups() != null) group.getLeague().getGroups().remove(this);
+        Iterator<Group> iteratorGroup = round.getGroups().iterator();
+        while (iteratorGroup.hasNext()){
+            Group group = iteratorGroup.next();
             Iterator<GroupSportsman> iterator = group.getGroupSportsmen().iterator();
             while (iterator.hasNext()) {
                 GroupSportsman groupSportsman = iterator.next();
                 groupSportsman.getLaps().forEach(lap -> lap.setRound(null));
+                groupSportsman.setGroup(null);
                 groupSportsman.getSportsman().getGroupSportsmen().remove(groupSportsman);
+                groupSportsmanRepository.delete(groupSportsman);
             }
-//            round.getGroups().remove(round);
+            group.setRound(null);
+            group.setCompetition(null);
+            group.setLeague(null);
+            group.getLaps().forEach(lap -> lap.setRound(null));
+            groupRepository.delete(group);
+            //iteratorGroup.remove();
+        }
+//        round.getGroups().forEach(group->{
+//
+//            //if(group.getCompetition() != null && group.getCompetition().getGroups() != null) group.getCompetition().getGroups().remove(group);
+//            //if(group.getLeague() != null && group.getLeague().getGroups() != null) group.getLeague().getGroups().remove(group);
+//            Iterator<GroupSportsman> iterator = group.getGroupSportsmen().iterator();
+//            while (iterator.hasNext()) {
+//                GroupSportsman groupSportsman = iterator.next();
+//                groupSportsman.getLaps().forEach(lap -> lap.setRound(null));
+//                groupSportsman.getSportsman().getGroupSportsmen().remove(groupSportsman);
+//            }
+////            round.getGroups().remove(round);
+////            group.setRound(null);
+////            groupRepository.findById(group.getId()).ifPresent(groupRepository::delete);
+//
 //            group.setRound(null);
-//            groupRepository.findById(group.getId()).ifPresent(groupRepository::delete);
-        });
+//            if(round != null && round.getGroups() != null) round.getGroups().remove(group);
+//        });
     }
 
     @HandleAfterDelete

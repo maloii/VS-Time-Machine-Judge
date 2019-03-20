@@ -16,6 +16,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = { "id" })
+@Table(name = "LAP", indexes = {
+        @Index(columnList = "ID", name = "LAP_ID_IDX"),
+        @Index(columnList = "TYPE_LAP", name = "LAP_TYPE_LAP_IDX"),
+        @Index(columnList = "MILLISECOND", name = "LAP_MILLISECONDS_IDX")
+})
 public class Lap {
 
     @Id
@@ -33,6 +38,7 @@ public class Lap {
     private Long timeLap;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "TYPE_LAP")
     private TypeLap typeLap;
     private LocalDateTime dateCreate = LocalDateTime.now();
 
@@ -43,6 +49,7 @@ public class Lap {
     private Round round;
 
     @ManyToOne
+    @JoinColumn(name="group_id")
     private Group group;
 
     @ManyToOne

@@ -10,6 +10,7 @@ public interface GroupSportsmanProjection {
 
     Long getId();
     Integer getSort();
+    Integer getPosition();
     Boolean getSearchTransponder();
     Sportsman getSportsman();
     Group getGroup();

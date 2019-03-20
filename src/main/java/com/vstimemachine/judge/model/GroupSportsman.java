@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -22,7 +24,6 @@ import java.util.Set;
 )
 public class GroupSportsman {
 
-
     @Id
     @GeneratedValue
     private Long id;
@@ -32,6 +33,8 @@ public class GroupSportsman {
     private Long version;
 
     private Integer sort;
+
+    private Integer position = 0;
 
     @Column(name = "SEARCH_TRANSPONDER")
     private Boolean searchTransponder = false;

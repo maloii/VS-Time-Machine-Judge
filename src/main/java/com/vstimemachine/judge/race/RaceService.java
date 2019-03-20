@@ -56,6 +56,10 @@ public class RaceService {
     public void start(Group group) throws RaceException {
         if(raceStatus == STOP){
             lapRepository.deleteAllByGroupId(group.getId());
+            group.getGroupSportsmen().forEach(groupSportsman -> {
+                groupSportsman.setPosition(0);
+                groupSportsmanRepository.save(groupSportsman);
+            });
 //            Hibernate.initialize(group.getSportsmen());
 
             selectedGroup = group;
@@ -292,5 +296,14 @@ public class RaceService {
                         this.websocket.convertAndSend(MESSAGE_PREFIX + "/updateGroupSportsman", "");
                     });
         }
+    }
+
+    public void updatePositions(List<GroupSportsman> groupSportsmen) {
+        groupSportsmen.forEach(groupSportsman -> {
+            groupSportsmanRepository.findById(groupSportsman.getId()).ifPresent(gs->{
+                gs.setPosition(groupSportsman.getPosition());
+                groupSportsmanRepository.save(gs);
+            });
+        });
     }
 }

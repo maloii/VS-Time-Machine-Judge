@@ -55,6 +55,7 @@ class Groups  extends React.Component {
         this.generatePdf = this.generatePdf.bind(this);
         this.editGroup = this.editGroup.bind(this);
 
+        this.tableLaps = React.createRef();
         this.dialogGroup = React.createRef();
         this.dialogAddSportsmenToGroup = React.createRef();
     }
@@ -103,6 +104,7 @@ class Groups  extends React.Component {
                 this.setState({
                     statusRace: response.entity.message
                 });
+                if(this.tableLaps.current)this.tableLaps.current.setStatusRace(response.entity.message);
                 if (response.entity.message === 'STOP') {
                     client({
                         method: 'POST',
@@ -110,6 +112,7 @@ class Groups  extends React.Component {
                         entity: this.state.group,
                         headers: {'Content-Type': 'application/json'}
                     }).then(response => {
+                        if(this.tableLaps.current)this.tableLaps.current.setStatusRace(response.entity.message);
                         this.setState({
                             statusRace: response.entity.message
                         });
@@ -150,10 +153,26 @@ class Groups  extends React.Component {
     }
 
     handleStopRace(){
+        let groupsportsmen = [];
+        if(this.tableLaps.current.getResalts()){
+            let sportsmen = this.tableLaps.current.getResalts();
+            this.tableLaps.current.getResalts().map(sportsman=>{
+                if(sportsman.groupSportsmanId) {
+                    groupsportsmen.push({
+                        id: sportsman.groupSportsmanId,
+                        position: sportsman.pos
+                    })
+                }
+
+            })
+        }
         client({
-            method: 'GET',
+            method: 'POST',
             path: Settings.raceApiRoot+'/stop',
+            entity:groupsportsmen,
+            headers: {'Content-Type': 'application/json'}
         }).then(response=>{
+            if(this.tableLaps.current)this.tableLaps.current.setStatusRace(response.entity.message);
             this.setState({
                 statusRace:response.entity.message
             });
@@ -240,11 +259,21 @@ class Groups  extends React.Component {
     }
     deleteGroup(){
         if(confirm('Do you really want to delete the record?')){
-            client({method: 'DELETE', path: this.contextSelectedGroupData._links.self.href});
+            client({method: 'DELETE', path: this.contextSelectedGroupData._links.self.href}).then(response=>{
+                if(this.contextSelectedGroupData.selected){
+                    this.setState({
+                        groupSportsmen:[],
+                        group: null
+                    })
+
+                }
+
+            });
         }
     }
 
     loadSelectGroup(group, groups){
+
         client({
             method: 'GET',
             path: group._links.groupSportsmen.href
@@ -262,6 +291,7 @@ class Groups  extends React.Component {
             method: 'GET',
             path: Settings.raceApiRoot+'/status',
         }).then(response=> {
+            if(this.tableLaps.current)this.tableLaps.current.setStatusRace(response.entity.message);
             this.setState({
                 statusRace: response.entity.message
             });
@@ -352,7 +382,7 @@ class Groups  extends React.Component {
                 </Row>
                 <Row>
                     <Col>
-                        <LapsTable ref="table_laps" groupSportsmen={this.state.groupSportsmen} group={this.state.group} round={this.props.round}/>
+                        <LapsTable ref={this.tableLaps} groupSportsmen={this.state.groupSportsmen} group={this.state.group} round={this.props.round}/>
                     </Col>
                 </Row>
             </Container>];

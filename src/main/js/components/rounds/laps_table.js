@@ -1,6 +1,6 @@
 'use strict';
 import React from 'react';
-import {Button, Table, Tooltip} from "reactstrap";
+import {Button, Input, Table, Tooltip} from "reactstrap";
 import {WindowCloseIcon, MenuIcon, ClipboardCheckOutlineIcon} from "mdi-react";
 import stompClient from "../../websocket_listener";
 import client from "../../client";
@@ -59,7 +59,8 @@ class LapsTable  extends React.Component {
             groupSportsmen: this.props.groupSportsmen,
             laps:[],
             group:{},
-            tooltipOpen: false
+            tooltipOpen: false,
+            statusRace:'STOP'
         }
         this.showEditSportsman = this.showEditSportsman.bind(this);
         this.refreshTableLaps = this.refreshTableLaps.bind(this);
@@ -67,17 +68,30 @@ class LapsTable  extends React.Component {
         this.contextMenuHide  = this.contextMenuHide.bind(this);
         this.contextMenuShow  = this.contextMenuShow.bind(this);
         this.showListAllLaps = this.showListAllLaps.bind(this);
+        this.changePosition = this.changePosition.bind(this);
         this.toggleTooltip = this.toggleTooltip.bind(this);
         this.rowEvents = this.rowEvents.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
+
+        this.getResalts = this.getResalts.bind(this);
         this.group = null;
         this.contextSelectedItem = null;
         this.contextSelectedItemData = null;
 
         this.dialogSportsman = React.createRef();
         this.dialogListAllLaps = React.createRef();
+
+        this.resalts = [];
     }
 
+    getResalts(){
+        return this.resalts;
+    }
+    setStatusRace(status){
+        this.setState({
+            statusRace: status
+        });
+    }
     toggleTooltip() {
         this.setState({
             tooltipOpen: !this.state.tooltipOpen
@@ -89,7 +103,38 @@ class LapsTable  extends React.Component {
             client({method: 'DELETE', path: e.data._links.self.href});
         }
     }
+    changePosition(groupSportsman){
+        let itemPos = ReactDOM.findDOMNode(this.refs['position_'+groupSportsman.id]);
+        if(itemPos) {
+            let pos = itemPos.value.trim();
 
+            let gs = {
+                id:groupSportsman.id,
+                position:pos,
+                sort: groupSportsman.sort,
+                searchTransponder: groupSportsman.searchTransponder
+            };
+            client({
+                method: 'GET',
+                path: groupSportsman._links.sportsman.href
+            }).then(sportsman => {
+                gs.sportsman = sportsman.entity._links.self.href;
+                client({
+                    method: 'GET',
+                    path: groupSportsman._links.group.href
+                }).then(group => {
+                    gs.group = group.entity._links.self.href;
+
+                    client({
+                            method: 'PUT',
+                            path: groupSportsman._links.self.href,
+                            entity: gs,
+                            headers: {'Content-Type': 'application/json'}
+                        });
+                });
+            });
+        }
+    }
 
     editToOutOfScore(e){
         let typeInMessage = 'OUT OF SCORE';
@@ -263,7 +308,7 @@ class LapsTable  extends React.Component {
         let cels_colors = [<td key={'cell_color'}></td>];
         this.state.groupSportsmen.map((groupSportsman, indx)=>{
             let color = {};
-            let channel = {};
+            let channel = '';
             let textColor = 'BLACK';
             let border = '0px';
             switch (indx) {
@@ -381,7 +426,7 @@ class LapsTable  extends React.Component {
         if(countRows > 0) {
             const colFooterTable = [<td
                 key="footer_table_total">{this.props.round.typeRace === 'FIXED_COUNT_LAPS' ? 'POS' : 'Total'}</td>];
-            const resalts = [];
+            this.resalts = [];
             this.state.groupSportsmen.map(groupSportsman => {
                 let time = 0;
                 let count = 0;
@@ -390,38 +435,59 @@ class LapsTable  extends React.Component {
                     count = laps.length;
                     if (count > 0) time = laps[laps.length - 1].millisecond - this.state.group.startMillisecond;
                 }
-                resalts[groupSportsman.sportsman.id] = {
+                this.resalts[groupSportsman.sportsman.id] = {
                     count: count,
                     time: time
                 }
             });
             if (this.props.round.typeRace === 'FIXED_COUNT_LAPS') {
                 this.state.groupSportsmen.map(groupSportsman => {
-                    let pos = this.state.groupSportsmen
-                        .filter(gs => gs.sportsman.id !== groupSportsman.sportsman.id)
-                        .filter(gs => {
-                            return resalts[gs.sportsman.id].count > resalts[groupSportsman.sportsman.id].count ||
-                                (resalts[gs.sportsman.id].count == resalts[groupSportsman.sportsman.id].count
-                                    && resalts[gs.sportsman.id].time < resalts[groupSportsman.sportsman.id].time)
-                        })
-                        .length + 1;
-                    let resalt = Object.assign({}, resalts[groupSportsman.sportsman.id]);
-                    resalt.pos = pos;
-                    resalts[groupSportsman.sportsman.id] = resalt;
+                    let resalt = Object.assign({}, this.resalts[groupSportsman.sportsman.id]);
+                    if(groupSportsman.position == null || groupSportsman.position === 0) {
+                        let pos = this.state.groupSportsmen
+                            .filter(gs => gs.sportsman.id !== groupSportsman.sportsman.id)
+                            .filter(gs => {
+                                return this.resalts[gs.sportsman.id].count > this.resalts[groupSportsman.sportsman.id].count ||
+                                    (this.resalts[gs.sportsman.id].count == this.resalts[groupSportsman.sportsman.id].count
+                                        && this.resalts[gs.sportsman.id].time < this.resalts[groupSportsman.sportsman.id].time)
+                            })
+                            .length + 1;
+                        resalt.pos = pos;
+                    }else{
+                        resalt.pos = groupSportsman.position
+                    }
+                    resalt.groupSportsmanId =groupSportsman.id;
+                    resalt.groupSportsman = groupSportsman;
+                    this.resalts[groupSportsman.sportsman.id] = resalt;
                 });
             }
             this.state.groupSportsmen.map(groupSportsman => {
                 let total = [];
-                let resalt = resalts[groupSportsman.sportsman.id];
+                let resalt = this.resalts[groupSportsman.sportsman.id];
                 if (this.props.round.typeRace === 'FIXED_COUNT_LAPS') {
-                    total.push(<b key="pos">{resalt.pos} </b>)
+                    if(this.state.statusRace === 'STOP'){
+                        let itemsPosition = [];
+                        this.state.groupSportsmen.map((gs, indx)=>{
+                            itemsPosition.push(<option key={indx} value={indx+1}>{indx+1}</option>);
+                        })
+                        total.push(<Input key="pos" type="select"
+                                          name={'position_'+groupSportsman.id}
+                                          id={'position_'+groupSportsman.id}
+                                          ref={'position_'+groupSportsman.id}
+                                          onChange={()=>this.changePosition(groupSportsman)}
+                                          value={resalt.pos}>
+                                            {itemsPosition}
+                                    </Input>)
+                    }else {
+                        total.push(<b key="pos">{resalt.pos} </b>)
+                    }
                     if (resalt.count == this.props.round.countLap) {
-                        total.push(<span key="time">{'(' + resalt.time.toHHMMSSMSSS() + ')'}</span>);
+                        total.push(<span className="small" key="time">{'(' + resalt.time.toHHMMSSMSSS() + ')'}</span>);
                     }
                 } else if (this.props.round.typeRace === 'FIXED_TIME' || this.props.round.typeRace === 'FIXED_TIME_AND_ONE_LAP_AFTER') {
                     total.push(<span key="count"><b>{resalt.count}</b> {'laps'}</span>);
                 }
-                colFooterTable.push(<td key={groupSportsman._links.self.href}>{total}</td>)
+                colFooterTable.push(<td className="text-nowrap" key={groupSportsman._links.self.href}>{total}</td>)
             });
             footerTable.push(<tfoot key="footer_table">
                                 <tr>

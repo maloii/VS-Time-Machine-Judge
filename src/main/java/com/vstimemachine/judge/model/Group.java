@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -36,6 +38,8 @@ public class Group {
     private Long timeSatart;
     private Long startMillisecond;
 
+    private TypeGroup typeGroup = TypeGroup.NONE;
+
     @ManyToOne
     private Competition competition;
 
@@ -45,7 +49,7 @@ public class Group {
     @ManyToOne
     private Round round;
 
-    @ManyToMany(mappedBy = "group", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "group", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OrderBy("sort ASC")
     private Set<GroupSportsman> groupSportsmen;
 
@@ -73,6 +77,7 @@ public class Group {
 //        Iterator<GroupSportsman> iterator = groupSportsmen.iterator();
 //        while (iterator.hasNext()) {
 //            GroupSportsman groupSportsman = iterator.next();
+//            groupSportsman.getLaps().forEach(lap -> lap.setRound(null));
 //            groupSportsman.getSportsman().getGroupSportsmen().remove(groupSportsman);
 //        }
 //    }

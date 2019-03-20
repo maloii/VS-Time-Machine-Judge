@@ -88,7 +88,8 @@ class ModalNewRound extends React.Component {
                         countLap: 5,
                         maxTimeRace: 180,
                         countSportsmen: 4,
-                        fromRoundCopy:0
+                        fromRoundCopy:0,
+                        countNextGo:2
                     },
                     rounds:rounds.entity._embedded.rounds.sort((a, b)=>b.sort - a.sort),
                     invalidName: false,
@@ -166,7 +167,6 @@ class ModalNewRound extends React.Component {
         round.fromRoundCopy = ReactDOM.findDOMNode(this.refs['fromRoundCopy']).value.trim();
         let copyRound = this.state.rounds.filter(r=>r.id===parseInt(round.fromRoundCopy, 10));
         if(copyRound.length > 0) {
-            console.log(copyRound);
             round.maxTimeRace = copyRound[0].maxTimeRace;
             round.countLap = copyRound[0].countLap;
             round.typeRound = copyRound[0].typeRound;
@@ -214,6 +214,9 @@ class ModalNewRound extends React.Component {
             copyRound.typeParentEntity = ReactDOM.findDOMNode(this.refs['typeParentEntity']).value.trim();
         if(this.refs['typeRaceElimination'])
             copyRound.typeRaceElimination = ReactDOM.findDOMNode(this.refs['typeRaceElimination']).value.trim();
+        if(this.refs['countNextGo'])
+            copyRound.countNextGo = ReactDOM.findDOMNode(this.refs['countNextGo']).value.trim();
+
 
         follow(client, Settings.root, ['rounds']).then(response => {
             return client({
@@ -467,6 +470,27 @@ class ModalNewRound extends React.Component {
                                 </FormGroup>
                             </Col>
                         </Row>);
+
+                    if(this.state.round.typeParentEntity === 'ROUND'){
+                        autoGenerate.push(
+                            <Row key="countNextGo">
+                                <Col>
+                                    <FormGroup row>
+                                        <Label for="name" sm={4}>Number of pilots who pass on</Label>
+                                        <Col sm={8}>
+                                            <Input
+                                                type="number"
+                                                name="countNextGo"
+                                                id="countNextGo"
+                                                ref="countNextGo"
+                                                onChange={()=>void(0)}
+                                                value={this.state.round.countNextGo}/>
+                                        </Col>
+                                    </FormGroup>
+                                </Col>
+                            </Row>);
+                    }
+
                     if(this.state.round.typeParentEntity === 'REPORT'){
                         autoGenerate.push(countSportsmenInGroup);
                         let optionsTopLimit = [];

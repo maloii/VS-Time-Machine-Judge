@@ -4,6 +4,7 @@ import com.vstimemachine.judge.dao.GroupRepository;
 import com.vstimemachine.judge.dao.GroupSportsmanRepository;
 import com.vstimemachine.judge.dao.RoundRepository;
 import com.vstimemachine.judge.model.Group;
+import com.vstimemachine.judge.model.GroupSportsman;
 import com.vstimemachine.judge.race.RaceException;
 import com.vstimemachine.judge.race.RaceService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController()
@@ -43,9 +46,10 @@ public class RaceController {
         }
     }
 
-    @RequestMapping("/stop")
-    public ResponseEntity<ResponseMessage> stop() {
+    @RequestMapping(value = "/stop", method = RequestMethod.POST)
+    public ResponseEntity<ResponseMessage> stop(@RequestBody List<GroupSportsman> groupSportsmen) {
         try {
+            raceService.updatePositions(groupSportsmen);
             raceService.stop();
             return new ResponseEntity<>(new ResponseMessage("status", raceService.status().toString()), HttpStatus.OK);
         } catch (RaceException e) {
