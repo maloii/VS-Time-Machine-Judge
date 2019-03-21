@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import static com.vstimemachine.judge.configuration.WebSocketConfiguration.MESSAGE_PREFIX;
 import static com.vstimemachine.judge.model.TypeParentEntity.REPORT;
+import static com.vstimemachine.judge.model.TypeRaceElimination.DOUBLE_ELIMINATION;
 import static com.vstimemachine.judge.model.TypeRaceElimination.SINGLE_ELIMINATION;
 import static com.vstimemachine.judge.model.TypeRound.*;
 import static com.vstimemachine.judge.model.TypeRound.FINAL;
@@ -145,7 +146,7 @@ public class EventHandler {
     }
 
     private void generateRaceFromBeforeRound(Round round) {
-        if(round.getTypeRaceElimination() == SINGLE_ELIMINATION){
+        if(round.getTypeRaceElimination() == SINGLE_ELIMINATION || round.getTypeRaceElimination() == DOUBLE_ELIMINATION){
             roundRepository.findById(round.getParentEntityId()).ifPresent(parentRound -> {
                 int countGroups = parentRound.getGroups().size();
                 if (countGroups != 2 && countGroups != 4 && countGroups != 8 && countGroups != 16) {
@@ -156,8 +157,10 @@ public class EventHandler {
                 List<Group> groups =  new ArrayList(parentRound.getGroups());
                 int r = 0;
                 for (int i = 0; i < countGroups; i = i + 2) {
-                    Group group = new Group("Group " + (r++), r, round, round.getCompetition());
-                    if (r == 0) group.setSelected(true);
+                    String nameGroup = "Group ";
+                    if(round.getTypeRaceElimination() == DOUBLE_ELIMINATION) nameGroup = "Winners ";
+                    Group group = new Group(nameGroup + (++r), r, round, round.getCompetition());
+                    if (r == 1) group.setSelected(true);
                     groupRepository.save(group);
                     Group group1 = groups.get(i);
                     Group group2 = groups.get(i+1);
@@ -179,6 +182,22 @@ public class EventHandler {
                             .forEach(groupSportsman -> {
                                 newGroupSportsman(group, groupSportsman.getSportsman(), idx[0]++);
                             });
+                    if(round.getTypeRaceElimination() == DOUBLE_ELIMINATION){
+                        Group groupLosers = new Group("Losers  " + (++r), r, round, round.getCompetition());
+                        groupRepository.save(groupLosers);
+                        idx[0] = 0;
+                        group1.getGroupSportsmen().stream()
+                                .sorted(Comparator.comparing(GroupSportsman::getPosition))
+                                .skip(round.getCountNextGo())
+                                .collect(Collectors.toCollection(() ->
+                                        group2.getGroupSportsmen().stream()
+                                                .sorted(Comparator.comparing(GroupSportsman::getPosition))
+                                                .skip(round.getCountNextGo())
+                                                .collect(toSet())))
+                                .forEach(groupSportsman -> {
+                                    newGroupSportsman(groupLosers, groupSportsman.getSportsman(), idx[0]++);
+                                });
+                    }
 
 
 
