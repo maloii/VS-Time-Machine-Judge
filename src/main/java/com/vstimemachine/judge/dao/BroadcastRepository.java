@@ -1,20 +1,20 @@
 package com.vstimemachine.judge.dao;
 
-import com.vstimemachine.judge.model.Gate;
+import com.vstimemachine.judge.model.Broadcast;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
+import java.util.Optional;
 
 @Transactional
-public interface GateRepository extends CrudRepository<Gate, Long> {
-
+public interface BroadcastRepository extends CrudRepository<Broadcast, Long> {
     @Override
-    Gate save(@Param("gate") Gate gate);
+    Broadcast save(@Param("broadcast") Broadcast broadcast);
 
     @Override
     void deleteById(@Param("id") Long id);
 
     @Override
-    void delete(@Param("gate") Gate gate);
+    void delete(@Param("broadcast") Broadcast broadcast);
 }

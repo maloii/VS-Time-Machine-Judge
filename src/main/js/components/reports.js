@@ -4,7 +4,7 @@
 import React from "react";
 import eventClient from "../event_client";
 import Global from "../global";
-import {Button, Col, Container, Row, Table} from "reactstrap";
+import {Alert, Button, Col, Container, Row, Table} from "reactstrap";
 import {AccountPlusIcon, PlaylistEditIcon, DeleteForeverIcon} from "mdi-react";
 import ModalNewReport from "./reports/modal_new_report";
 import ModalPrintReport from "./reports/modal_print_report"
@@ -16,7 +16,8 @@ class Reports extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            reports:[]
+            reports:[],
+            competition: Global.competition
         }
 
         this.refreshListReports = this.refreshListReports.bind(this);
@@ -85,53 +86,63 @@ class Reports extends React.Component {
     }
 
     render(){
-        let lapsTable = [];
-        this.state.reports.map(report=>{
-            lapsTable.push(<tr key={report.id}>
-                                <td>
-                                    <Button color="link" onClick={()=>this.modalPrintReport(report)} >{report.name}</Button>
-                                </td>
-                                <td style={{width:'50px'}}>
-                                    <PlaylistEditIcon
-                                        onClick={()=>this.changeReport(report._links.self.href)}
-                                        style={{cursor:'pointer'}} /></td>
-                                <td style={{width:'50px'}}>
-                                    <DeleteForeverIcon
-                                        onClick={()=>this.deleteReport(report._links.self.href)}
-                                        style={{cursor:'pointer'}} /></td>
-                            </tr>)
-        })
-        return(
-            <>
-                <ModalPrintReport ref={this.dialogPrintReport} />
-                <ModalNewReport ref={this.dialogReport}/>
-                <Container fluid>
-                    <Row>
-                        <Col className="d-flex">
-                            <Button color="primary" className="ml-auto" onClick={this.showNewReport}>
-                                Add new report
-                            </Button>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col className="d-flex pt-3">
-                            <Table bordered striped hover>
-                                <thead>
-                                <tr>
-                                    <th>NAME</th>
-                                    <th style={{width:'50px'}}> </th>
-                                    <th style={{width:'50px'}}> </th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {lapsTable}
-                                </tbody>
-                            </Table>
-                        </Col>
-                    </Row>
+        if (this.state.competition === null) {
+            return (
+                <Container>
+                    <Alert color="primary">
+                        Create and select a competition!
+                    </Alert>
                 </Container>
-            </>
-        );
+            )
+        } else {
+            let lapsTable = [];
+            this.state.reports.map(report => {
+                lapsTable.push(<tr key={report.id}>
+                    <td>
+                        <Button color="link" onClick={() => this.modalPrintReport(report)}>{report.name}</Button>
+                    </td>
+                    <td style={{width: '50px'}}>
+                        <PlaylistEditIcon
+                            onClick={() => this.changeReport(report._links.self.href)}
+                            style={{cursor: 'pointer'}}/></td>
+                    <td style={{width: '50px'}}>
+                        <DeleteForeverIcon
+                            onClick={() => this.deleteReport(report._links.self.href)}
+                            style={{cursor: 'pointer'}}/></td>
+                </tr>)
+            })
+            return (
+                <>
+                    <ModalPrintReport ref={this.dialogPrintReport}/>
+                    <ModalNewReport ref={this.dialogReport}/>
+                    <Container fluid>
+                        <Row>
+                            <Col className="d-flex">
+                                <Button color="primary" className="ml-auto" onClick={this.showNewReport}>
+                                    Add new report
+                                </Button>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col className="d-flex pt-3">
+                                <Table bordered striped hover>
+                                    <thead>
+                                    <tr>
+                                        <th>NAME</th>
+                                        <th style={{width: '50px'}}></th>
+                                        <th style={{width: '50px'}}></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {lapsTable}
+                                    </tbody>
+                                </Table>
+                            </Col>
+                        </Row>
+                    </Container>
+                </>
+            );
+        }
     }
 }
 

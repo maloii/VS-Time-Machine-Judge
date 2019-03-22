@@ -223,6 +223,12 @@ div.ReactTags__suggestions ul li.ReactTags__activeSuggestion {
 .printComponent{
     margin: 80px;
 }
+/* Broadcast */
+.list_broadcast{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
 
 /* Console */
 .console{

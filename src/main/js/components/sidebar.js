@@ -1,13 +1,13 @@
 'use strict';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {AccountGroupIcon, AnimationIcon, SettingsIcon} from "mdi-react";
+import {AccountGroupIcon, AnimationIcon, SettingsIcon, VideoVintageIcon} from "mdi-react";
 
 import './side_bar_menu.css';
-import {Container} from "reactstrap";
 import Sportsmen from "./sportsmen";
 import Rounds from "./rounds";
 import Reports from "./reports";
+import Broadcast from "./broadcast";
 
 
 class SideBar extends React.Component {
@@ -44,6 +44,10 @@ class SideBar extends React.Component {
             ReactDOM.render(
                 <Reports />,
                 mainContainer);
+        }else if(idMenu === 'broadcast'){
+            ReactDOM.render(
+                <Broadcast />,
+                mainContainer);
         }
     }
 
@@ -59,6 +63,9 @@ class SideBar extends React.Component {
                         </li>
                         <li onClick={this.handleSelect.bind(null, "reports")} id="reports">
                             <a href="#reports" ><div className="img_n"><SettingsIcon /></div><span>Reports</span></a>
+                        </li>
+                        <li onClick={this.handleSelect.bind(null, "broadcast")} id="broadcast">
+                            <a href="#broadcast" ><div className="img_n"><VideoVintageIcon /></div><span>Broadcast</span></a>
                         </li>
                     </ul>
                 </nav>

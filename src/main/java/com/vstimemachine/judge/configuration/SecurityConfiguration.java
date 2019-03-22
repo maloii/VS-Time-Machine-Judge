@@ -29,7 +29,16 @@ public class SecurityConfiguration  extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/built/**", "/main.css", "/bootstrap.min.css", "/signin.css", "/images/**").permitAll()
+                .antMatchers("/built/**",
+                        "/screen/**",
+                        "/api/data/**",///////////<<<< ЭТО НАДО ПОФИКСИТЬ, ДЫРЕНЬ!!!!
+                        "/api/report/**",////////////<<<< ЭТО НАДО ПОФИКСИТЬ, ДЫРЕНЬ!!!!
+                        "/payroll/**",////////////<<<< ЭТО НАДО ПОФИКСИТЬ, ДЫРЕНЬ!!!!
+                        "/main.css",
+                        "/bootstrap.min.css",
+                        "/signin.css",
+                        "/images/**")
+                        .permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()

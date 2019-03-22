@@ -9,6 +9,7 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.Map;
+import java.util.Set;
 
 @Data
 @Entity
@@ -31,6 +32,9 @@ public class Report {
     )
     private Map<String, String> parametrs;
 
+
+    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL)
+    private Set<Broadcast> broadcasts;
 
     @ManyToOne
     private Competition competition;

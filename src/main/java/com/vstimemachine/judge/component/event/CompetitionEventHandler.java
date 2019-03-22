@@ -2,6 +2,7 @@ package com.vstimemachine.judge.component.event;
 
 
 import com.vstimemachine.judge.dao.CompetitionRepository;
+import com.vstimemachine.judge.model.Broadcast;
 import com.vstimemachine.judge.model.Competition;
 import com.vstimemachine.judge.model.Group;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,16 @@ public class CompetitionEventHandler {
 
     @HandleAfterSave
     public void updateCompetition(Competition competition) {
+        this.websocket.convertAndSend(
+                MESSAGE_PREFIX + "/updateCompetition", getPath(competition));
+    }
+    @HandleAfterLinkSave
+    public void updateCompetitionLinkBroadcast(Competition competition, Broadcast broadcast) {
+        this.websocket.convertAndSend(
+                MESSAGE_PREFIX + "/updateCompetition", getPath(competition));
+    }
+    @HandleAfterLinkDelete
+    public void deleteCompetitionLinkBroadcast(Competition competition, Broadcast broadcast) {
         this.websocket.convertAndSend(
                 MESSAGE_PREFIX + "/updateCompetition", getPath(competition));
     }

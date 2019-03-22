@@ -93,6 +93,13 @@ public class Competition {
     @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
     private Set<Report> reports;
 
+    @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
+    private Set<Broadcast> broadcasts;
+
+    @OneToOne
+    @JoinColumn(name="main_screen_broadcast_id")
+    private Broadcast mainScreenBroadcast;
+
 
     public Color colorPosition(int pos){
         switch (pos){

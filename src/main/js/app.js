@@ -10,6 +10,7 @@ import SelectCompetition from './components/select_competition';
 import VSStatusField from './components/vs/vs_status_field';
 import Global from './global'
 import ModalSettings from './components/settings/modal_settings';
+import MainScreenBroadcast from './components/broadcast/main_screen_broadcast';
 
 class App extends React.Component {
 
@@ -68,15 +69,27 @@ class App extends React.Component {
         );
     }
 }
-ReactDOM.render(
-    <App loggedInJadge={document.getElementById('judge_name').value}/>,
-    document.getElementById('react')
-);
-ReactDOM.render(
-    <VSStatusField/>,
-    document.getElementById('status_footer_field')
-);
-ReactDOM.render(
-    <Select_connecor/>,
-    document.getElementById('button_footer_field')
-);
+if(document.getElementById('react')) {
+    ReactDOM.render(
+        <App loggedInJadge={document.getElementById('judge_name').value}/>,
+        document.getElementById('react')
+    );
+}
+if(document.getElementById('status_footer_field')) {
+    ReactDOM.render(
+        <VSStatusField/>,
+        document.getElementById('status_footer_field')
+    );
+}
+if(document.getElementById('button_footer_field')) {
+    ReactDOM.render(
+        <Select_connecor/>,
+        document.getElementById('button_footer_field')
+    );
+}
+if(document.getElementById('main_screen')) {
+    ReactDOM.render(
+        <MainScreenBroadcast/>,
+        document.getElementById('main_screen')
+    );
+}

@@ -36,6 +36,7 @@ class ModalNewReport extends React.Component {
         this.toggleShow = this.toggleShow.bind(this);
         this.handleSave = this.handleSave.bind(this);
         this.handleUpdate = this.handleUpdate.bind(this);
+        this.handleDelete = this.handleDelete.bind(this);
         this.handleTypeRound = this.handleTypeRound.bind(this);
 
     }
@@ -110,9 +111,7 @@ class ModalNewReport extends React.Component {
                 path: response.entity._links.self.href,
                 entity: newReport,
                 headers: {'Content-Type': 'application/json'}
-            }).then(round=>{
-                console.log(round);
-            })
+            });
         });
         this.toggle();
     }
@@ -145,6 +144,11 @@ class ModalNewReport extends React.Component {
             entity: copyReport,
             headers: {'Content-Type': 'application/json'}
         }).done(response=>this.toggle())
+    }
+    handleDelete(){
+        if(confirm('Do you really want to delete the record?')){
+            client({method: 'DELETE', path: this.state.report._links.self.href}).done(response=>this.toggle())
+        }
     }
     render(){
         let submit = <Button color="primary" onClick={this.handleSave}>

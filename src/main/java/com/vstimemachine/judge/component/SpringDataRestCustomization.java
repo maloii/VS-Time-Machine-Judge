@@ -19,6 +19,7 @@ public class SpringDataRestCustomization implements RepositoryRestConfigurer {
                 Transponder.class,
                 Lap.class,
                 Report.class,
-                Settings.class);
+                Settings.class,
+                Broadcast.class);
     }
 }

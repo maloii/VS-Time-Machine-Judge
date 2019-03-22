@@ -1,0 +1,13 @@
+package com.vstimemachine.judge.model;
+
+public enum TypeBroadcast {
+
+    REPORT_BROADCAST_FULL,
+    REPORT_BROADCAST_SHORT,
+    CURRENT_GROUP_PRESENT,
+    CURRENT_GROUP_TELEMETRY,
+    CURRENT_SPORTSMAN_PRESENT,
+    CURRENT_SPORTSMAN_TELEMETRY,
+
+
+}
