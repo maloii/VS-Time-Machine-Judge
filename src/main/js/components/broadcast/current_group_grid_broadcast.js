@@ -5,6 +5,7 @@ import stompClient from "../../websocket_listener";
 import client from "../../client";
 import Settings from "../../settings";
 import Global from "../../global";
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 Number.prototype.toHHMMSSMSSS = function () {
     var minus = false;
     var sec_num = parseInt(this, 10);
@@ -174,17 +175,32 @@ class CurrentGroupGridBroadcast extends React.Component {
                         channel = this.state.competition.channel8;
                         break;
                 }
-                gred.push(<div key={groupSportsman.id}>
-                    <div>
-                        <div className="laps">
-                            <ul>{lapsHtml}</ul>
+                gred.push(
+
+                    <ReactCSSTransitionGroup
+                        key="anim1"
+                        transitionName="anim"
+                        transitionEnterTimeout={300}
+                        transitionLeaveTimeout={300}>
+                        <div key={groupSportsman.id}>
+                            <div>
+                                <div className="laps">
+                                    <ul>
+                                        <ReactCSSTransitionGroup
+                                            transitionName="anim"
+                                            transitionEnterTimeout={300}
+                                            transitionLeaveTimeout={300}>
+                                        {lapsHtml}
+                                        </ReactCSSTransitionGroup>
+                                    </ul>
+                                </div>
+                                <div className="data">
+                                    <img src={groupSportsman.sportsman.photo} alt={groupSportsman.sportsman.nick} width="100px" height="100px" />
+                                    <span style={{borderLeft: '10px solid '+color}}>{groupSportsman.sportsman.firstName} {groupSportsman.sportsman.lastName} {groupSportsman.sportsman.nick != ""?'('+groupSportsman.sportsman.nick+')':''}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div className="data">
-                            <img src={groupSportsman.sportsman.photo} alt={groupSportsman.sportsman.nick} width="100px" height="100px" />
-                            <span style={{borderLeft: '10px solid '+color}}>{groupSportsman.sportsman.firstName} {groupSportsman.sportsman.lastName} {groupSportsman.sportsman.nick != ""?'('+groupSportsman.sportsman.nick+')':''}</span>
-                        </div>
-                    </div>
-                </div>)
+                    </ReactCSSTransitionGroup>)
             })
         }
         return(

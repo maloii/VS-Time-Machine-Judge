@@ -4,6 +4,37 @@
     <meta charset="UTF-8"/>
     <title>VS TimeMachine Judge</title>
     <style>
+
+        .anim-enter {
+            transform: translateX(-100%);
+        }
+        .anim-enter-active {
+            animation: slide-in 300ms ease-out forwards;
+        }
+
+        .anim-leave {
+            transform: translateX(0%);
+        }
+
+        .anim-leave-active {
+            animation: slide-out 300ms ease-out forwards;
+        }
+        @keyframes slide-in {
+            from{
+                transform: translateX(-100%);
+            }
+            to{
+                transform: translateX(0%);
+            }
+        }
+        @keyframes slide-out {
+            from{
+                transform: translateX(0%);
+            }
+            to{
+                transform: translateX(-100%);
+            }
+        }
         .current_group_grid_broapcast{
             height: 720px;
             width: 1280px;
@@ -42,6 +73,13 @@
         .current_group_grid_broapcast div .laps ul li{
             padding: 3px 7px 3px 7px;
             font-size: 16px;
+        }
+        .current_group_grid_broapcast div .laps ul li:nth-child(odd) {
+            background-color: rgba(60, 60, 60, 0.96);
+        }
+
+        .current_group_grid_broapcast div .laps ul li:nth-child(even) {
+            background-color: rgba(40, 40, 40, 0.96);
         }
         .current_group_grid_broapcast div .laps ul li span{
             font-weight: bold;
