@@ -186,12 +186,15 @@ public class RaceService {
 
                                                 lap.setGroupSportsman(groupSportsmen);
                                                 lapRepository.save(lap);
-                                        log.info("New lap created for sportsmen: [{}] in round: [{}] in group: [{}] with time: [{}] type: [{}]",
-                                                sportsman.getLastName(),
-                                                selectedGroup.getRound().getName(),
-                                                selectedGroup.getName(),
-                                                milliseconds,
-                                                typeLap);
+                                                log.info("New lap created for sportsmen: [{}] in round: [{}] in group: [{}] with time: [{}] type: [{}]",
+                                                        sportsman.getLastName(),
+                                                        selectedGroup.getRound().getName(),
+                                                        selectedGroup.getName(),
+                                                        milliseconds,
+                                                        typeLap);
+
+                                        this.websocket.convertAndSend(
+                                                MESSAGE_PREFIX + "/newLap", "");
 
                                         try {
                                             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new BufferedInputStream(new ClassPathResource("/media/short_beep.wav").getInputStream()));

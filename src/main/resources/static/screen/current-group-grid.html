@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8"/>
+    <title>VS TimeMachine Judge</title>
+    <style>
+        .current_group_grid_broapcast{
+            height: 720px;
+            width: 1280px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .current_group_grid_broapcast div{
+            width: 640px;
+            height: 360px;
+            position: relative;
+        }
+        .current_group_grid_broapcast div .data{
+            display: table;
+            width: auto;
+            height: auto;
+            position: absolute;
+            bottom: 0px;
+            left: 0px;
+        }
+        .current_group_grid_broapcast div .laps{
+            display: table;
+            width: auto;
+            height: auto;
+            position: absolute;
+            top: 0px;
+            right: 0px;
+        }
+        .current_group_grid_broapcast div .laps ul{
+            list-style: none;
+            padding: 0px;
+            margin: 5px;
+            background-color: rgba(40, 40, 40, 0.96);
+            border: 1px solid rgba(171, 171, 171, 0.96);
+            color: white;
+        }
+        .current_group_grid_broapcast div .laps ul li{
+            padding: 3px 7px 3px 7px;
+            font-size: 16px;
+        }
+        .current_group_grid_broapcast div .laps ul li span{
+            font-weight: bold;
+        }
+        .current_group_grid_broapcast div .data img {
+            display: block;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+         }
+        .current_group_grid_broapcast div .data span {
+            font-size: 20px;
+            color: white;
+            background-color: rgba(40, 40, 40, 0.96);
+            border: 1px solid rgba(171, 171, 171, 0.96);
+            white-space: nowrap !important;
+            padding: 5px 10px 5px 10px;
+
+        }
+    </style>
+</head>
+<body style="height: 720px; width: 1280px;">
+<div id="current_group_grid_screen" class="fill"></div>
+<script src="../built/bundle.js"></script>
+</body>
+</html>

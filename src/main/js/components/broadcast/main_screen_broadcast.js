@@ -2,12 +2,10 @@
 
 import React from "react";
 import stompClient from "../../websocket_listener";
-import eventClient from "../../event_client";
-import Global from "../../global";
 import client from "../../client";
 import Settings from "../../settings";
-import BestLapReport from "../reports/best_lap_report";
-import CountLapReport from "../reports/count_lap_report";
+import BestLapReportBroadcast from "../broadcast/best_lap_report_broadcast";
+import CountLapReportBroadcast from "../broadcast/count_lap_report_broadcast";
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 class MainScreenBroadcast extends React.Component {
@@ -99,9 +97,9 @@ class MainScreenBroadcast extends React.Component {
         if(this.state.broadcast.typeBroadcast === 'REPORT_BROADCAST_FULL'
             || this.state.broadcast.typeBroadcast === 'REPORT_BROADCAST_SHORT'){
             if(this.state.report && this.state.report.report.typeReport === "BEST_LAP"){
-                results.push(<BestLapReport  report={this.state.report} key="best_lap" ref={el => (this.componentRef = el)} />);
+                results.push(<BestLapReportBroadcast  report={this.state.report} key="best_lap" ref={el => (this.componentRef = el)} />);
             }else if(this.state.report.report && this.state.report.report.typeReport === "COUNT_LAPS"){
-                results.push(<CountLapReport  report={this.state.report} key="count_lap" ref={el => (this.componentRef = el)} />);
+                results.push(<CountLapReportBroadcast  report={this.state.report} key="count_lap" ref={el => (this.componentRef = el)} />);
             }
         }else{
             results.push(<div key="empty"></div>);

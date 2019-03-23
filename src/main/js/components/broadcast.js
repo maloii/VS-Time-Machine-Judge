@@ -180,6 +180,21 @@ class Broadcast extends React.Component {
                                 </ListGroup>
                             </Col>
                         </Row>
+                        <Row>
+                            <Col>
+                                <br />
+                                <br />
+                                <br />
+                                <ul>
+                                    <li>
+                                        <a href="/screen/main.html">Main broadcast screen</a>
+                                    </li>
+                                    <li>
+                                        <a href="/screen/current-group-grid.html">Grid current group screen</a>
+                                    </li>
+                                </ul>
+                            </Col>
+                        </Row>
                     </Container>
                 </>
             )

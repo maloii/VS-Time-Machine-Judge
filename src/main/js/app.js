@@ -11,6 +11,7 @@ import VSStatusField from './components/vs/vs_status_field';
 import Global from './global'
 import ModalSettings from './components/settings/modal_settings';
 import MainScreenBroadcast from './components/broadcast/main_screen_broadcast';
+import CurrentGroupGridBroadcast from './components/broadcast/current_group_grid_broadcast';
 
 class App extends React.Component {
 
@@ -91,5 +92,11 @@ if(document.getElementById('main_screen')) {
     ReactDOM.render(
         <MainScreenBroadcast/>,
         document.getElementById('main_screen')
+    );
+}
+if(document.getElementById('current_group_grid_screen')) {
+    ReactDOM.render(
+        <CurrentGroupGridBroadcast/>,
+        document.getElementById('current_group_grid_screen')
     );
 }

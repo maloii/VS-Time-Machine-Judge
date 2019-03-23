@@ -1,7 +1,6 @@
 package com.vstimemachine.judge.component.event;
 
 import com.vstimemachine.judge.model.Lap;
-import com.vstimemachine.judge.model.Lap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
 import org.springframework.data.rest.core.annotation.HandleAfterDelete;

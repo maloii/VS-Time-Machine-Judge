@@ -1,12 +1,11 @@
 package com.vstimemachine.judge.component.event;
 
 
+import com.vstimemachine.judge.dao.CompetitionRepository;
 import com.vstimemachine.judge.model.Broadcast;
+import com.vstimemachine.judge.model.Competition;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.rest.core.annotation.HandleAfterCreate;
-import org.springframework.data.rest.core.annotation.HandleAfterDelete;
-import org.springframework.data.rest.core.annotation.HandleAfterSave;
-import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
+import org.springframework.data.rest.core.annotation.*;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -20,6 +19,7 @@ public class BroadcastEventHandler {
     private final SimpMessagingTemplate websocket;
 
     private final EntityLinks entityLinks;
+    private final CompetitionRepository competitionRepository;
 
     @HandleAfterCreate
     public void newBroadcast(Broadcast broadcast) {
@@ -31,6 +31,13 @@ public class BroadcastEventHandler {
     public void deleteBroadcast(Broadcast broadcast) {
         this.websocket.convertAndSend(
                 MESSAGE_PREFIX + "/deleteBroadcast", getPath(broadcast));
+    }
+
+    @HandleBeforeDelete
+    public void deleteBeforeBroadcast(Broadcast broadcast) {
+        Competition competition  = broadcast.getCompetition();
+        competition.setMainScreenBroadcast(null);
+        competitionRepository.save(competition);
     }
 
     @HandleAfterSave

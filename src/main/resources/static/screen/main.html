@@ -3,12 +3,11 @@
 <head lang="en">
     <meta charset="UTF-8"/>
     <title>VS TimeMachine Judge</title>
-    <link rel="stylesheet" href="http://localhost:8080/broadcast.css" />
-    <link rel="stylesheet" href="http://localhost:8080/bootstrap.min.css">
     <style>
         body, html {
-            height: 1080px;
-            width: 1920px;
+            width: 1280px;
+            height: 720px;
+            /*background-color: green;*/
         }
 
 
@@ -42,14 +41,63 @@
                 transform: translateX(-100%);
             }
         }
+        .fill{
+            width: 1280px;
+            height: 720px;
+            padding-top: 50px;
+            /*background-color: green;*/
+        }
+
+        .title{
+            display: grid;
+            margin: 0 auto;
+            width: 75%;
+            text-align: center;
+            font-size: 28px;
+            color: white;
+            background-color: rgba(40, 40, 40, 0.96);
+            border: 2px solid rgba(171, 171, 171, 0.96);
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .broadcast_table{
+            background-color: rgba(40, 40, 40, 0.96);
+            margin: 0 auto;
+            width: 70%;
+            font-size: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            border: 1px solid #272727;
+            color: white;
+            margin-bottom: 500px;
+
+        }
+        .broadcast_table td, .broadcast_table th {
+            padding: 5px;
+            padding-left: 10px;
+            vertical-align: top;
+            border-top: 1px solid #272727;
+        }
+
+        .broadcast_table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #272727
+        }
+
+        .broadcast_table tbody + tbody {
+            border-top: 2px solid #272727
+        }
+        .broadcast_table tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, .05)
+        }
+        .broadcast_table td, .table-bordered th {
+            border: 1px solid #272727
+        }
+        .broadcast_table th, .table-bordered td {
+            border: 1px solid #272727
+        }
     </style>
 </head>
-<body>
-<div class="theme-light fill">
-    <div class="wrapper fill">
-        <div id="main_screen" class="fill"></div>
-    </div>
-</div>
+<body style="height: 720px; width: 1280px;">
+<div id="main_screen" class="fill"></div>
 <script src="../built/bundle.js"></script>
 </body>
 </html>

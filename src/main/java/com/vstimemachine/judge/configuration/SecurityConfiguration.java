@@ -34,6 +34,7 @@ public class SecurityConfiguration  extends WebSecurityConfigurerAdapter {
                         "/api/data/**",///////////<<<< ЭТО НАДО ПОФИКСИТЬ, ДЫРЕНЬ!!!!
                         "/api/report/**",////////////<<<< ЭТО НАДО ПОФИКСИТЬ, ДЫРЕНЬ!!!!
                         "/payroll/**",////////////<<<< ЭТО НАДО ПОФИКСИТЬ, ДЫРЕНЬ!!!!
+                        "/upload/**",
                         "/main.css",
                         "/bootstrap.min.css",
                         "/signin.css",

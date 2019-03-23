@@ -34,6 +34,7 @@ public class Group {
     private String name;
     private Integer sort;
     private Boolean selected = false;
+    private Boolean selectedBroadcast = false;
     private Boolean close = false;
     private Long timeSatart;
     private Long startMillisecond;

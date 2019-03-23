@@ -39,14 +39,14 @@ Number.prototype.toClearHHMMSSMSSS = function () {
     return res;
 }
 
-class BestLapReport extends React.Component {
+class BestLapReportBroadcast extends React.Component {
     constructor(props) {
         super(props);
 
     }
     render(){
         let tableRows = [];
-        this.props.report.data.map(row=>{
+        this.props.report.data.slice(0, 10).map(row=>{
             tableRows.push(<tr key={row.sportsman.id}>
                 <td style={{width:'50px'}}>{row.position}</td>
                 <td>{row.sportsman.firstName + ' ' + row.sportsman.lastName +(row.sportsman.nick?'['+row.sportsman.nick+']':'')}</td>
@@ -57,8 +57,8 @@ class BestLapReport extends React.Component {
         })
         return(
             <div>
-                <h5 style={{textAlign:'center', marginBottom:'20px'}}>{this.props.report.report.name}</h5>
-                <Table bordered striped hover key="table" className="table-sm broadcast_table">
+                <div className="title">{this.props.report.report.name}</div>
+                <table className="broadcast_table">
                     <thead>
                     <tr>
                         <th style={{width:'50px'}}>Pos</th>
@@ -71,11 +71,11 @@ class BestLapReport extends React.Component {
                     <tbody>
                     {tableRows}
                     </tbody>
-                </Table>
+                </table>
             </div>
         );
     }
 
 }
 
-export default BestLapReport;
+export default BestLapReportBroadcast;

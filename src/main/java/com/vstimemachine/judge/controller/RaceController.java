@@ -61,6 +61,10 @@ public class RaceController {
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     public ResponseEntity<ResponseMessage> search(@RequestBody Group group) {
         try {
+            groupRepository.findById(group.getId()).ifPresent(g->{
+                groupRepository.clearAllSelectedBroadcast(g.getCompetition().getId());
+                groupRepository.setSelectedBroadcast(g.getId());
+            });
             groupRepository.findById(group.getId()).ifPresent(raceService::search);
             return new ResponseEntity<>(new ResponseMessage("status", raceService.status().toString()), HttpStatus.OK);
         } catch (RaceException e) {
