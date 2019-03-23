@@ -71,7 +71,9 @@ class LapsTable  extends React.Component {
         this.changePosition = this.changePosition.bind(this);
         this.toggleTooltip = this.toggleTooltip.bind(this);
         this.rowEvents = this.rowEvents.bind(this);
+        this.rowEventsClick = this.rowEventsClick.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
+
 
         this.getResalts = this.getResalts.bind(this);
         this.group = null;
@@ -154,6 +156,13 @@ class LapsTable  extends React.Component {
         }
     }
 
+    rowEventsClick(e, lap, rowIndex){
+        var userAgent = window.navigator.userAgent;
+
+        if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i)) {
+            this.rowEvents(e, lap, rowIndex)
+        }
+    }
     rowEvents(e, lap, rowIndex){
         if(contextTrigger) {
             this.contextSelectedItem = e.currentTarget;
@@ -415,7 +424,10 @@ class LapsTable  extends React.Component {
                                   key={lap._links.self.href}
                                   className={outOfScope}
                                   style={{whiteSpace:'nowrap'}}
-                                  onContextMenu={(e) => this.rowEvents(e, lap, i)}>{timeString} {gap}</td>)
+                                  onContextMenu={(e) => this.rowEvents(e, lap, i)}
+                                  onClick={(e) => this.rowEventsClick(e, lap, i)}
+
+                    >{timeString} {gap}</td>)
                 }else{
                     cels.push(<td width={width + '%'} key={groupSportsman._links.self.href+'_empty_'+i}></td>)
                 }
