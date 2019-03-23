@@ -6,7 +6,8 @@ import client from "../../client";
 import Settings from "../../settings";
 import BestLapReportBroadcast from "../broadcast/best_lap_report_broadcast";
 import CountLapReportBroadcast from "../broadcast/count_lap_report_broadcast";
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
+import ReactCSSTransitionGroup from "react-addons-css-transition-group";
+import CurrentGroupGridBroadcast from "../broadcast/current_group_grid_broadcast"
 
 class MainScreenBroadcast extends React.Component {
     constructor(props) {
@@ -14,7 +15,8 @@ class MainScreenBroadcast extends React.Component {
         this.state = {
             competition: {},
             report:{},
-            broadcast: {}
+            broadcast: {},
+            url:null
         }
         this.refreshBroadcast = this.refreshBroadcast.bind(this);
         this.selectCompetition = this.selectCompetition.bind(this);
@@ -22,9 +24,15 @@ class MainScreenBroadcast extends React.Component {
         this.componentRef
     }
     refreshBroadcast(){
+        let url = '';
+        if(this.state.url){
+            url = this.state.url;
+        }else if(this.state.competition._links){
+            url = this.state.competition._links.mainScreenBroadcast.href;
+        }
         client({
             method: 'GET',
-            path: this.state.competition._links.mainScreenBroadcast.href
+            path: url
         }).then(broadcast=>{
             if(broadcast.entity.typeBroadcast === 'REPORT_BROADCAST_FULL' || broadcast.entity.typeBroadcast === 'REPORT_BROADCAST_SHORT'){
                 client({
@@ -56,24 +64,44 @@ class MainScreenBroadcast extends React.Component {
         })
     }
     selectCompetition() {
-        client({method: 'GET', path: Settings.root+'/competitions'}).done(response => {
+        client({method: 'GET', path: Settings.root + '/competitions'}).done(response => {
 
-            const selectedCompetition = response.entity._embedded.competitions.filter(function(competition) {
+            const selectedCompetition = response.entity._embedded.competitions.filter(function (competition) {
                 return competition.selected;
             });
             let competition = {};
-            if(selectedCompetition.length > 0){
+            if (selectedCompetition.length > 0) {
                 competition = selectedCompetition[0];
             }
             this.setState({
-                competition:competition,
-                competitions: response.entity._embedded.competitions,
+                competition: competition,
+                competitions: response.entity._embedded.competitions
 
             });
             this.refreshBroadcast();
         });
     }
     componentDidMount() {
+        var params = window
+            .location
+            .search
+            .replace('?','')
+            .split('&')
+            .reduce(
+                function(p,e){
+                    var a = e.split('=');
+                    p[ decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
+                    return p;
+                },
+                {}
+            );
+        if(params['url']) {
+            console.log(params['url']);
+            this.setState({
+                url:params['url']
+            });
+            this.refreshBroadcast();
+        }
         this.selectCompetition();
         this.stomp = stompClient.register([
             {route: '/topic/newBroadcast', callback: this.refreshBroadcast},
@@ -94,15 +122,24 @@ class MainScreenBroadcast extends React.Component {
     }
     render(){
         let results = [];
-        if(this.state.broadcast.typeBroadcast === 'REPORT_BROADCAST_FULL'
-            || this.state.broadcast.typeBroadcast === 'REPORT_BROADCAST_SHORT'){
-            if(this.state.report && this.state.report.report.typeReport === "BEST_LAP"){
+        if(this.state.broadcast.typeBroadcast === 'REPORT_BROADCAST_FULL'){
+            if(this.state.report && this.state.report.report.typeReport === 'BEST_LAP'){
                 results.push(<BestLapReportBroadcast  report={this.state.report} key="best_lap" ref={el => (this.componentRef = el)} />);
-            }else if(this.state.report.report && this.state.report.report.typeReport === "COUNT_LAPS"){
+            }else if(this.state.report.report && this.state.report.report.typeReport === 'COUNT_LAPS'){
                 results.push(<CountLapReportBroadcast  report={this.state.report} key="count_lap" ref={el => (this.componentRef = el)} />);
             }
+        }else if(this.state.broadcast.typeBroadcast === 'REPORT_BROADCAST_SHORT'){
+            if(this.state.report && this.state.report.report.typeReport === 'BEST_LAP'){
+                results.push(<BestLapReportBroadcast short={true} report={this.state.report} key="best_lap_short" ref={el => (this.componentRef = el)} />);
+            }else if(this.state.report.report && this.state.report.report.typeReport === 'COUNT_LAPS'){
+                results.push(<CountLapReportBroadcast short={true} report={this.state.report} key="count_lap_short" ref={el => (this.componentRef = el)} />);
+            }
+        }else if(this.state.broadcast.typeBroadcast === 'CURRENT_GROUP_PRESENT'){
+            results.push(<CurrentGroupGridBroadcast present={true} key="current_group_present" ref={el => (this.componentRef = el)} />);
+        }else if(this.state.broadcast.typeBroadcast === 'CURRENT_GROUP_TELEMETRY'){
+            results.push(<CurrentGroupGridBroadcast key="current_group_telemetry" ref={el => (this.componentRef = el)} />);
         }else{
-            results.push(<div key="empty"></div>);
+            results.push(<div key="1" key="empty"></div>);
         }
         return(
             <div>

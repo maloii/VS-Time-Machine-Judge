@@ -126,6 +126,15 @@ public class RaceService {
         }
     }
 
+    public void selectGroupForBroadcast(Group group){
+        groupRepository.findById(group.getId()).ifPresent(g->{
+            groupRepository.clearAllSelectedBroadcast(g.getCompetition().getId());
+            groupRepository.setSelectedBroadcast(g.getId());
+            this.websocket.convertAndSend(
+                    MESSAGE_PREFIX + "/updateGroup", "");
+        });
+    }
+
     public void newLap(long milliseconds, int transponder, final int numberPackage){
         if(raceStatus == RUN && !numberPackages.contains(numberPackage)){
             sportsmanRepository

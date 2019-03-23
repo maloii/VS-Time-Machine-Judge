@@ -59,9 +59,7 @@ class CurrentGroupGridBroadcast extends React.Component {
 
     }
     refreshGroup(){
-        console.log('refreshGroup');
         client({method: 'GET', path: Settings.root+'/groups/search/selectedBroadcast'}).done(response => {
-            console.log(response);
             this.setState({
                 group:response.entity
             });
@@ -112,27 +110,29 @@ class CurrentGroupGridBroadcast extends React.Component {
         }
     }
     render(){
-        let gred = [];
-        if(this.state.group._embedded){
-            this.state.group._embedded.groupSportsmen.map((groupSportsman, i)=>{
+        let grid = [];
+        let html = <></>;
+
+        if (this.state.group._embedded) {
+            this.state.group._embedded.groupSportsmen.map((groupSportsman, i) => {
                 let lapsHtml = [];
-                let laps = groupSportsman.laps.filter(lap=>(lap.typeLap==='OK' || lap.typeLap==='START'));
+                let laps = groupSportsman.laps.filter(lap => (lap.typeLap === 'OK' || lap.typeLap === 'START'));
                 let lapNumber = 0;
-                laps.map((lap, indx)=>{
+                laps.map((lap, indx) => {
                     let timeBefore = 0;
-                    if(indx == 0){
+                    if (indx == 0) {
                         timeBefore = this.state.group.startMillisecond;
-                    }else{
-                        timeBefore = laps[indx-1].millisecond
+                    } else {
+                        timeBefore = laps[indx - 1].millisecond
                     }
                     let time = lap.millisecond - timeBefore;
                     let timeStr = time.toHHMMSSMSSS();
                     let lapStr = '';
-                    if(lap.typeLap==='START'){
+                    if (lap.typeLap === 'START') {
                         timeStr = 'START';
-                    }else{
+                    } else {
                         lapNumber++;
-                        lapStr = lapNumber+' - ';
+                        lapStr = lapNumber + ' - ';
                     }
                     lapsHtml.push(
                         <li key={lap.id}><span>{lapStr}</span>{timeStr}</li>
@@ -175,37 +175,63 @@ class CurrentGroupGridBroadcast extends React.Component {
                         channel = this.state.competition.channel8;
                         break;
                 }
-                gred.push(
-
-                    <ReactCSSTransitionGroup
-                        key="anim1"
-                        transitionName="anim"
-                        transitionEnterTimeout={300}
-                        transitionLeaveTimeout={300}>
-                        <div key={groupSportsman.id}>
-                            <div>
-                                <div className="laps">
-                                    <ul>
-                                        <ReactCSSTransitionGroup
-                                            transitionName="anim"
-                                            transitionEnterTimeout={300}
-                                            transitionLeaveTimeout={300}>
-                                        {lapsHtml}
-                                        </ReactCSSTransitionGroup>
-                                    </ul>
-                                </div>
-                                <div className="data">
-                                    <img src={groupSportsman.sportsman.photo} alt={groupSportsman.sportsman.nick} width="100px" height="100px" />
-                                    <span style={{borderLeft: '10px solid '+color}}>{groupSportsman.sportsman.firstName} {groupSportsman.sportsman.lastName} {groupSportsman.sportsman.nick != ""?'('+groupSportsman.sportsman.nick+')':''}</span>
+                if(this.props.present){
+                    grid.push(
+                        <ReactCSSTransitionGroup
+                            key={i}
+                            transitionName="anim"
+                            transitionEnterTimeout={300}
+                            transitionLeaveTimeout={300}>
+                            <div key={groupSportsman.id}>
+                                <div>
+                                    <div className="data">
+                                        <div>
+                                        <img src={groupSportsman.sportsman.photo} alt={groupSportsman.sportsman.nick}
+                                             width="100px" height="100px"/>
+                                        </div>
+                                        <span
+                                            style={{borderLeft: '10px solid ' + color}}>{groupSportsman.sportsman.firstName} {groupSportsman.sportsman.lastName} {groupSportsman.sportsman.nick != "" ? '(' + groupSportsman.sportsman.nick + ')' : ''}</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </ReactCSSTransitionGroup>)
+                        </ReactCSSTransitionGroup>)
+                }else {
+                    grid.push(
+                        <ReactCSSTransitionGroup
+                            key={i}
+                            transitionName="anim"
+                            transitionEnterTimeout={300}
+                            transitionLeaveTimeout={300}>
+                            <div key={groupSportsman.id}>
+                                <div>
+                                    <div className="laps">
+                                        <ul>
+                                            <ReactCSSTransitionGroup
+                                                transitionName="anim"
+                                                transitionEnterTimeout={300}
+                                                transitionLeaveTimeout={300}>
+                                                {lapsHtml}
+                                            </ReactCSSTransitionGroup>
+                                        </ul>
+                                    </div>
+                                    <div className="data">
+                                        <img src={groupSportsman.sportsman.photo} alt={groupSportsman.sportsman.nick}
+                                             width="100px" height="100px"/>
+                                        <span
+                                            style={{borderLeft: '10px solid ' + color}}>{groupSportsman.sportsman.firstName} {groupSportsman.sportsman.lastName} {groupSportsman.sportsman.nick != "" ? '(' + groupSportsman.sportsman.nick + ')' : ''}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </ReactCSSTransitionGroup>)
+                }
             })
         }
-        return(
-            <div className="current_group_grid_broapcast">{gred}</div>
-        );
+        if(this.props.present){
+            html = <div className="current_group_grid_broapcast_present">{grid}</div>;
+        }else {
+            html = <div className="current_group_grid_broapcast">{grid}</div>;
+        }
+        return(html);
     }
 
 }

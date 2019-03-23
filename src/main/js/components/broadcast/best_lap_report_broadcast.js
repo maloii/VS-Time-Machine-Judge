@@ -46,22 +46,39 @@ class BestLapReportBroadcast extends React.Component {
     }
     render(){
         let tableRows = [];
-        this.props.report.data.slice(0, 10).map(row=>{
-            tableRows.push(<tr key={row.sportsman.id}>
-                <td style={{width:'50px'}}>{row.position}</td>
-                <td>{row.sportsman.firstName + ' ' + row.sportsman.lastName +(row.sportsman.nick?'['+row.sportsman.nick+']':'')}</td>
-                <td>{(row.timeLap<999999999)?row.timeLap.toHHMMSSMSSS():'--:--.---'}</td>
-                <td>{(row.gap && row.timeLap<999999999)?row.gap.toClearHHMMSSMSSS():''}</td>
-                <td>{(row.rel && row.timeLap<999999999)?row.rel.toClearHHMMSSMSSS():''}</td>
-            </tr>);
-        })
-        return(
-            <div>
+        let html = <></>;
+        if(this.props.short){
+            this.props.report.data.slice(0, 10).map(row => {
+                tableRows.push(<tr key={row.sportsman.id}>
+                    <td className="position">{row.position}</td>
+                    <td className="fio">{(row.sportsman.nick ? row.sportsman.nick : row.sportsman.lastName)}</td>
+                    <td className="time">{(row.timeLap < 999999999) ? row.timeLap.toClearHHMMSSMSSS() : '--.---'}</td>
+                    <td className="gap">{(row.gap && row.timeLap < 999999999) ? '+'+row.gap.toClearHHMMSSMSSS() : ''}</td>
+                </tr>);
+            });
+            html =  <div key="broadcast_table_lap_short">
+                        <table className="broadcast_table_short">
+                            <tbody>
+                            {tableRows}
+                            </tbody>
+                        </table>
+                    </div>;
+        }else {
+            this.props.report.data.slice(0, 10).map(row => {
+                tableRows.push(<tr key={row.sportsman.id}>
+                    <td style={{width: '50px'}}>{row.position}</td>
+                    <td>{row.sportsman.firstName + ' ' + row.sportsman.lastName + (row.sportsman.nick ? '[' + row.sportsman.nick + ']' : '')}</td>
+                    <td>{(row.timeLap < 999999999) ? row.timeLap.toHHMMSSMSSS() : '--:--.---'}</td>
+                    <td>{(row.gap && row.timeLap < 999999999) ? row.gap.toClearHHMMSSMSSS() : ''}</td>
+                    <td>{(row.rel && row.timeLap < 999999999) ? row.rel.toClearHHMMSSMSSS() : ''}</td>
+                </tr>);
+            });
+            html = <div  key="broadcast_table_lap">
                 <div className="title">{this.props.report.report.name}</div>
                 <table className="broadcast_table">
                     <thead>
                     <tr>
-                        <th style={{width:'50px'}}>Pos</th>
+                        <th style={{width: '50px'}}>Pos</th>
                         <th>Sportsmen</th>
                         <th>Time</th>
                         <th>Gap</th>
@@ -72,8 +89,10 @@ class BestLapReportBroadcast extends React.Component {
                     {tableRows}
                     </tbody>
                 </table>
-            </div>
-        );
+            </div>;
+        }
+
+        return(html);
     }
 
 }

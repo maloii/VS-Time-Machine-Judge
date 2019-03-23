@@ -1,6 +1,7 @@
 body, html {
-    height: 1080px;
-    width: 1920px;
+    width: 1280px;
+    height: 720px;
+    /*background-color: green;*/
 }
 
 
@@ -33,4 +34,176 @@ body, html {
     to{
         transform: translateX(-100%);
     }
+}
+.fill{
+    width: 1280px;
+    height: 720px;
+    padding-top: 50px;
+    /*background-color: green;*/
+}
+
+.title{
+    display: grid;
+    margin: 0 auto;
+    width: 75%;
+    text-align: center;
+    font-size: 28px;
+    color: white;
+    background-color: rgba(40, 40, 40, 0.96);
+    border: 2px solid rgba(171, 171, 171, 0.96);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+.broadcast_table_short{
+    background-color: rgba(40, 40, 40, 0.96);
+    font-size: 16px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    border: 1px solid #272727;
+    color: white;
+    margin-bottom: 500px;
+}
+.broadcast_table_short td, .broadcast_table_short th {
+    border: 1px solid #272727;
+    padding: 3px 5px 3px 5px;
+}
+
+.broadcast_table_short tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, .05)
+}
+.broadcast_table_short .gap{
+    font-size: 12px;
+}
+
+
+.broadcast_table{
+    background-color: rgba(40, 40, 40, 0.96);
+    margin: 0 auto;
+    width: 70%;
+    font-size: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    border: 1px solid #272727;
+    color: white;
+    margin-bottom: 500px;
+
+}
+.broadcast_table td, .broadcast_table th {
+    padding: 5px;
+    padding-left: 10px;
+    vertical-align: top;
+    border-top: 1px solid #272727;
+}
+
+.broadcast_table thead th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #272727
+}
+
+.broadcast_table tbody + tbody {
+    border-top: 2px solid #272727
+}
+.broadcast_table tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, .05)
+}
+.broadcast_table td, .table-bordered th {
+    border: 1px solid #272727
+}
+.broadcast_table th, .table-bordered td {
+    border: 1px solid #272727
+}
+.current_group_grid_broapcast{
+    height: 720px;
+    width: 1280px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+.current_group_grid_broapcast div{
+    width: 640px;
+    height: 360px;
+    position: relative;
+}
+.current_group_grid_broapcast div .data{
+    display: table;
+    width: auto;
+    height: auto;
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+}
+.current_group_grid_broapcast div .laps{
+    display: table;
+    width: auto;
+    height: auto;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+}
+.current_group_grid_broapcast div .laps ul{
+    list-style: none;
+    padding: 0px;
+    margin: 5px;
+    color: white;
+}
+.current_group_grid_broapcast div .laps ul li{
+    padding: 3px 7px 3px 7px;
+    font-size: 16px;
+    min-width: 120px;
+    border: 1px solid rgba(171, 171, 171, 0.96);
+}
+.current_group_grid_broapcast div .laps ul li:nth-child(odd) {
+    background-color: rgba(60, 60, 60, 0.96);
+}
+
+.current_group_grid_broapcast div .laps ul li:nth-child(even) {
+    background-color: rgba(40, 40, 40, 0.96);
+}
+.current_group_grid_broapcast div .laps ul li span{
+    font-weight: bold;
+}
+.current_group_grid_broapcast div .data img {
+    display: block;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+}
+.current_group_grid_broapcast div .data span {
+    font-size: 20px;
+    color: white;
+    background-color: rgba(40, 40, 40, 0.96);
+    border: 1px solid rgba(171, 171, 171, 0.96);
+    white-space: nowrap !important;
+    padding: 5px 10px 5px 10px;
+
+ }
+/***********current_group_grid_broapcast_present******/
+
+.current_group_grid_broapcast_present{
+    height: 720px;
+    width: 1280px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin-top: 150px;
+}
+.current_group_grid_broapcast_present div .data{
+    text-align: center;
+}
+.current_group_grid_broapcast_present div .data div{
+    margin-bottom: 50px;
+}
+.current_group_grid_broapcast_present div .data div img {
+    display: block;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto;
+}
+.current_group_grid_broapcast_present div .data span {
+    font-size: 18px;
+    color: white;
+    background-color: rgba(40, 40, 40, 0.96);
+    border: 1px solid rgba(171, 171, 171, 0.96);
+    white-space: nowrap !important;
+    padding: 5px 10px 5px 10px;
+    margin-top: 50px;
 }

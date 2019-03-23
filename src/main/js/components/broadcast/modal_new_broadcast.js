@@ -189,8 +189,8 @@ class ModalNewBroadcast extends React.Component {
             header = 'Edit screen';
         }
         let params = [];
-        if(this.state.reportUrl && (this.state.broadcast.typeBroadcast === 'REPORT_BROADCAST_FULL' ||
-            this.state.broadcast.typeBroadcast === 'REPORT_BROADCAST_SHORT')){
+        if(this.state.broadcast.typeBroadcast === 'REPORT_BROADCAST_FULL' ||
+            this.state.broadcast.typeBroadcast === 'REPORT_BROADCAST_SHORT'){
             let reports = [];
             this.state.reports.map(report=>{
                 reports.push(<option key={report._links.self.href} value={report._links.self.href}>{report.name}</option>)
@@ -249,8 +249,8 @@ class ModalNewBroadcast extends React.Component {
                                         <option value="REPORT_BROADCAST_SHORT">REPORT BROADCAST SHORT</option>
                                         <option value="CURRENT_GROUP_PRESENT">CURRENT GROUP PRESENT</option>
                                         <option value="CURRENT_GROUP_TELEMETRY">CURRENT GROUP TELEMETRY</option>
-                                        <option value="CURRENT_SPORTSMAN_PRESENT">CURRENT SPORTSMAN PRESENT</option>
-                                        <option value="CURRENT_SPORTSMAN_TELEMETRY">CURRENT SPORTSMAN TELEMETRY</option>
+                                        {/*<option value="CURRENT_SPORTSMAN_PRESENT">CURRENT SPORTSMAN PRESENT</option>*/}
+                                        {/*<option value="CURRENT_SPORTSMAN_TELEMETRY">CURRENT SPORTSMAN TELEMETRY</option>*/}
                                     </Input>
                                 </Col>
                             </FormGroup>

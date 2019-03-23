@@ -39,6 +39,7 @@ public class RaceController {
     @RequestMapping(value = "/start", method = RequestMethod.POST)
     public ResponseEntity<ResponseMessage> start(@RequestBody Group group) {
         try {
+            raceService.selectGroupForBroadcast(group);
             groupRepository.findById(group.getId()).ifPresent(raceService::start);
             return new ResponseEntity<>(new ResponseMessage("status", raceService.status().toString()), HttpStatus.OK);
         } catch (RaceException e) {
@@ -61,10 +62,7 @@ public class RaceController {
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     public ResponseEntity<ResponseMessage> search(@RequestBody Group group) {
         try {
-            groupRepository.findById(group.getId()).ifPresent(g->{
-                groupRepository.clearAllSelectedBroadcast(g.getCompetition().getId());
-                groupRepository.setSelectedBroadcast(g.getId());
-            });
+            raceService.selectGroupForBroadcast(group);
             groupRepository.findById(group.getId()).ifPresent(raceService::search);
             return new ResponseEntity<>(new ResponseMessage("status", raceService.status().toString()), HttpStatus.OK);
         } catch (RaceException e) {

@@ -192,6 +192,11 @@ class Broadcast extends React.Component {
                                     <li>
                                         <a href="/screen/current-group-grid.html">Grid current group screen</a>
                                     </li>
+                                    {this.state.broadcasts.map(broadcast => {
+                                        return  <li key={broadcast.id}>
+                                                    <a href={'/screen/main.html?url='+broadcast._links.self.href}>{broadcast.name}</a>
+                                                </li>
+                                    })}
                                 </ul>
                             </Col>
                         </Row>
