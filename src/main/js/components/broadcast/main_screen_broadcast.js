@@ -107,6 +107,9 @@ class MainScreenBroadcast extends React.Component {
             {route: '/topic/newBroadcast', callback: this.refreshBroadcast},
             {route: '/topic/updateBroadcast', callback: this.refreshBroadcast},
             {route: '/topic/deleteBroadcast', callback: this.refreshBroadcast},
+            {route: '/topic/newLap', callback: this.refreshBroadcast},
+            {route: '/topic/updateLap', callback: this.refreshBroadcast},
+            {route: '/topic/deleteLap', callback: this.refreshBroadcast},
             {route: '/topic/newCompetition', callback: this.selectCompetition},
             {route: '/topic/updateCompetition', callback: this.selectCompetition},
             {route: '/topic/deleteCompetition', callback: this.selectCompetition}

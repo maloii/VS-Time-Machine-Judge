@@ -32,7 +32,8 @@ class ModalNewBroadcast extends React.Component {
             reportUrl:'',
             broadcast: {
                 typeBroadcast: 'REPORT_BROADCAST_FULL',
-            }
+            },
+            typeBroadcast: 'REPORT_BROADCAST_FULL'
         }
 
         this.toggle = this.toggle.bind(this);
@@ -66,7 +67,8 @@ class ModalNewBroadcast extends React.Component {
                                 path: broadcast.entity._links.report.href
                             }).then(reports => {
                                 this.setState({
-                                    reportUrl:reports.entity._links.self.href
+                                    reportUrl:reports.entity._links.self.href,
+                                    typeBroadcast: broadcast.entity.typeBroadcast
                                 });
                             });
                         }
@@ -86,7 +88,8 @@ class ModalNewBroadcast extends React.Component {
                         url:url,
                         broadcast: {
                             typeBroadcast: 'REPORT_BROADCAST_FULL'
-                        }
+                        },
+                        typeBroadcast: 'REPORT_BROADCAST_FULL'
                     });
 
                 }
@@ -96,10 +99,8 @@ class ModalNewBroadcast extends React.Component {
     }
 
     handleTypeBroadcast(){
-        let broadcast = Object.assign({}, this.state.broadcast);
-        broadcast.typeBroadcast = ReactDOM.findDOMNode(this.refs['typeBroadcast']).value.trim();
         this.setState({
-            broadcast: broadcast
+            typeBroadcast: ReactDOM.findDOMNode(this.refs['typeBroadcast']).value.trim()
         });
     }
 
@@ -145,6 +146,9 @@ class ModalNewBroadcast extends React.Component {
         if(this.refs['report']){
             copyBroadcast.report = ReactDOM.findDOMNode(this.refs['report']).value.trim()
         }
+        if(this.refs['typeBroadcast']){
+            copyBroadcast.typeBroadcast = ReactDOM.findDOMNode(this.refs['typeBroadcast']).value.trim()
+        }
         client({
             method: 'PUT',
             path: this.state.broadcast._links.self.href,
@@ -189,8 +193,8 @@ class ModalNewBroadcast extends React.Component {
             header = 'Edit screen';
         }
         let params = [];
-        if(this.state.broadcast.typeBroadcast === 'REPORT_BROADCAST_FULL' ||
-            this.state.broadcast.typeBroadcast === 'REPORT_BROADCAST_SHORT'){
+        if(this.state.typeBroadcast === 'REPORT_BROADCAST_FULL' ||
+            this.state.typeBroadcast === 'REPORT_BROADCAST_SHORT'){
             let reports = [];
             this.state.reports.map(report=>{
                 reports.push(<option key={report._links.self.href} value={report._links.self.href}>{report.name}</option>)
@@ -240,6 +244,7 @@ class ModalNewBroadcast extends React.Component {
                                 <Label for="typeRound" sm={4}>Type report</Label>
                                 <Col sm={8}>
                                     <Input type="select"
+                                           key={'typeBroadcast'+this.state.broadcast.typeBroadcast}
                                            name="typeBroadcast"
                                            id="typeBroadcast"
                                            ref="typeBroadcast"

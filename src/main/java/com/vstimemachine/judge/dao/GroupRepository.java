@@ -36,7 +36,7 @@ public interface GroupRepository extends CrudRepository<Group, Long> {
 
 
     @Modifying(clearAutomatically = true)
-    @Query(value = "UPDATE GROUPS  SET selected_broadcast=false WHERE competition_id=?1", nativeQuery = true)
+    @Query(value = "UPDATE GROUPS  SET selected_broadcast=false", nativeQuery = true)
     void clearAllSelectedBroadcast(Long competitionId);
 
     @Modifying(clearAutomatically = true)

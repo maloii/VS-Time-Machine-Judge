@@ -279,12 +279,12 @@ class ModalNewRound extends React.Component {
                                         <Label for="name" sm={4}>Count laps</Label>
                                         <Col sm={8}>
                                             <Input
+                                                key={'countLap'+this.state.round.countLap}
                                                 type="number"
                                                 name="countLap"
                                                 id="countLap"
                                                 ref="countLap"
-                                                onChange={()=>void(0)}
-                                                value={this.state.round.countLap}/>
+                                                defaultValue={this.state.round.countLap}/>
                                         </Col>
                                     </FormGroup>
                                 </Col>
@@ -295,12 +295,12 @@ class ModalNewRound extends React.Component {
                                         <Label for="name" sm={4}>{this.state.round.typeRace === 'FIXED_COUNT_LAPS'?'Max time race':'Time race'}(sec)</Label>
                                         <Col sm={8}>
                                             <Input
+                                                key={'maxTimeRace'+this.state.round.maxTimeRace}
                                                 type="number"
                                                 name="maxTimeRace"
                                                 id="maxTimeRace"
                                                 ref="maxTimeRace"
-                                                onChange={()=>void(0)}
-                                                value={this.state.round.maxTimeRace}/>
+                                                defaultValue={this.state.round.maxTimeRace}/>
                                         </Col>
                                     </FormGroup>
                                 </Col>

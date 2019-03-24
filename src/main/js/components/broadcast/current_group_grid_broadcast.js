@@ -118,12 +118,17 @@ class CurrentGroupGridBroadcast extends React.Component {
                 let lapsHtml = [];
                 let laps = groupSportsman.laps.filter(lap => (lap.typeLap === 'OK' || lap.typeLap === 'START'));
                 let lapNumber = 0;
-                laps.map((lap, indx) => {
+                let start = 0;
+                if(laps.length >= 10){
+                    start = laps.length - 11;
+                    lapNumber = start-1;
+                }
+                laps.slice(start, laps.length).map((lap, indx) => {
                     let timeBefore = 0;
-                    if (indx == 0) {
+                    if ((indx+start) == 0) {
                         timeBefore = this.state.group.startMillisecond;
                     } else {
-                        timeBefore = laps[indx - 1].millisecond
+                        timeBefore = laps[indx+start - 1].millisecond
                     }
                     let time = lap.millisecond - timeBefore;
                     let timeStr = time.toHHMMSSMSSS();

@@ -61,7 +61,8 @@ class ModalNewReport extends React.Component {
             }).then(report => {
                 this.setState({
                     report: report.entity,
-                    modalReport: !this.state.modalReport
+                    modalReport: !this.state.modalReport,
+                    url: url
                 });
             });
         }else{
@@ -140,7 +141,7 @@ class ModalNewReport extends React.Component {
         }
         client({
             method: 'PUT',
-            path: this.state.report._links.self.href,
+            path: this.state.url,
             entity: copyReport,
             headers: {'Content-Type': 'application/json'}
         }).done(response=>this.toggle())
