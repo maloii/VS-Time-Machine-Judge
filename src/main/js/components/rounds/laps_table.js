@@ -271,6 +271,7 @@ class LapsTable  extends React.Component {
             copyGroupSportsmen.sort = indx;
             delete copyGroupSportsmen.sportsman;
             delete copyGroupSportsmen.group;
+            delete copyGroupSportsmen.laps;
             client({
                 method: 'PUT',
                 path: groupSportsmen._links.self.href,
