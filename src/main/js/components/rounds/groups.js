@@ -13,21 +13,11 @@ import Global from "../../global";
 import ReactDOM from "react-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
+import TimePanel from "./time_panel";
 
 let contextTrigger = null;
 
-String.prototype.toHHMMSS = function () {
-    var sec_num = parseInt(this, 10); // don't forget the second param
-    var hours   = Math.floor(sec_num / 3600);
-    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
-    var seconds = sec_num - (hours * 3600) - (minutes * 60);
 
-    if (hours   < 10) {hours   = "0"+hours;}
-    if (minutes < 10) {minutes = "0"+minutes;}
-    if (seconds < 10) {seconds = "0"+seconds;}
-    return (hours !== "00"?hours+':':'')+minutes+':'+seconds;
-}
 
 class Groups  extends React.Component {
     constructor(props) {
@@ -43,7 +33,6 @@ class Groups  extends React.Component {
         this.refreshListGroups = this.refreshListGroups.bind(this);
         this.handleSelectGroup = this.handleSelectGroup.bind(this);
         this.loadSelectGroup = this.loadSelectGroup.bind(this);
-        this.refreshTimeRace = this.refreshTimeRace.bind(this);
 
         this.handleSearchTransponders = this.handleSearchTransponders.bind(this);
         this.toggleShowNewGroup = this.toggleShowNewGroup.bind(this);
@@ -54,6 +43,7 @@ class Groups  extends React.Component {
         this.deleteGroup = this.deleteGroup.bind(this);
         this.generatePdf = this.generatePdf.bind(this);
         this.editGroup = this.editGroup.bind(this);
+        this.startRace = this.startRace.bind(this);
 
         this.tableLaps = React.createRef();
         this.dialogGroup = React.createRef();
@@ -126,7 +116,20 @@ class Groups  extends React.Component {
 
     handleStartRace(){
 
-        if(this.state.group != null) {
+        if(Global.isConnectHardware){
+            this.startRace();
+        }else{
+            if(confirm("No connection to VS Time Machine! Is it all equal to running a race?")){
+                this.startRace();
+            }
+        }
+
+
+
+
+    }
+    startRace(){
+        if(this.state.group != null ) {
             client({
                 method: 'GET',
                 path: this.state.group._links.self.href
@@ -143,7 +146,6 @@ class Groups  extends React.Component {
 
         }
     }
-
     handleSearchTransponders(){
         if(Global.isConnectHardware) {
             this.sendRaceCommand('search');
@@ -311,11 +313,6 @@ class Groups  extends React.Component {
         });
 
     }
-    refreshTimeRace(time){
-        this.setState({
-            timeRace:time.body
-        });
-    }
     transponderHasBeenFound(transponder){
         console.log(transponder);
     }
@@ -330,6 +327,9 @@ class Groups  extends React.Component {
             {route: '/topic/deleteGroupSportsman', callback: this.refreshListGroups},
             {route: '/topic/updateGroupSportsman', callback: this.refreshListGroups},
 
+            {route: '/topic/newLap', callback: this.refreshListGroups},
+            {route: '/topic/updateLap', callback: this.refreshListGroups},
+            {route: '/topic/deleteLap', callback: this.refreshListGroups},
 
             {route: '/topic/newSportsman', callback: this.refreshListGroups},
             {route: '/topic/updateSportsman', callback: this.refreshListGroups},
@@ -337,13 +337,13 @@ class Groups  extends React.Component {
             {route: '/topic/newTransponder', callback: this.refreshListGroups},
             {route: '/topic/deleteTransponder', callback: this.refreshListGroups},
 
-            {route: '/topic/reportTimeRace', callback: this.refreshTimeRace},
 
             {route: '/topic/updateStatusRace', callback: this.refreshListGroups}
 
 
         ]);
     }
+
     componentWillUnmount(){
         for (const sub in this.stomp.subscriptions) {
             if (this.stomp.subscriptions.hasOwnProperty(sub)) {
@@ -373,7 +373,7 @@ class Groups  extends React.Component {
                         </Button>
                     </Col>
                     <Col md={2} className="text-center  py-md-2">
-                        <span className="timer text-monospace">{this.state.timeRace.toHHMMSS()}</span>
+                        <TimePanel />
                     </Col>
                     <Col className="text-right py-md-2" md={5}>
                         <Button color="danger" disabled={disabledStop} onClick={this.handleStopRace} >STOP</Button>{'  '}
@@ -405,10 +405,6 @@ class Groups  extends React.Component {
                             </Col>
                         </Row>
                         <ListGroup>
-                            {/*<ReactCSSTransitionGroup*/}
-                                {/*transitionName="anim"*/}
-                                {/*transitionEnterTimeout={300}*/}
-                                {/*transitionLeaveTimeout={300}>*/}
                                 {this.state.groups.map(group=>{
                                 return <ListGroupItem
                                     key={group._links.self.href}
@@ -420,7 +416,6 @@ class Groups  extends React.Component {
                                     >{group.name}</ListGroupItem>
 
                             })}
-                            {/*</ReactCSSTransitionGroup>*/}
                         </ListGroup>
                         <ContextMenuTrigger id={'context_menu_group'}  ref={c => contextTrigger = c} >
                             <div></div>

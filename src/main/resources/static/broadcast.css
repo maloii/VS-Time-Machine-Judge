@@ -207,3 +207,7 @@ body, html {
     padding: 5px 10px 5px 10px;
     margin-top: 50px;
 }
+
+.outOfScore {
+    color: red;
+}

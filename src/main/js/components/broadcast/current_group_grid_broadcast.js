@@ -116,7 +116,8 @@ class CurrentGroupGridBroadcast extends React.Component {
         if (this.state.group._embedded) {
             this.state.group._embedded.groupSportsmen.map((groupSportsman, i) => {
                 let lapsHtml = [];
-                let laps = groupSportsman.laps.filter(lap => (lap.typeLap === 'OK' || lap.typeLap === 'START'));
+                let laps = groupSportsman.laps.filter(lap => (lap.typeLap === 'OK' || lap.typeLap === 'START'
+                    || lap.typeLap === 'OUT_OF_SCORE'));
                 let lapNumber = 0;
                 let start = 0;
                 if(laps.length >= 10){
@@ -139,8 +140,13 @@ class CurrentGroupGridBroadcast extends React.Component {
                         lapNumber++;
                         lapStr = lapNumber + ' - ';
                     }
+                    let classOutOfScore = '';
+                    if (lap.typeLap === 'OUT_OF_SCORE') {
+                        classOutOfScore = 'outOfScore'
+                    }
+
                     lapsHtml.push(
-                        <li key={lap.id}><span>{lapStr}</span>{timeStr}</li>
+                        <li key={lap.id} className={classOutOfScore}><span>{lapStr}</span>{timeStr}</li>
                     );
                 });
 

@@ -39,6 +39,7 @@ class ModalListAllLaps extends React.Component {
         this.editToOutOfScore = this.editToOutOfScore.bind(this);
         this.editToHidden = this.editToHidden.bind(this);
         this.editToOk = this.editToOk.bind(this);
+        this.editToStart = this.editToStart.bind(this);
         this.contextMenuHide  = this.contextMenuHide.bind(this);
         this.contextMenuShow  = this.contextMenuShow.bind(this);
         this.refreshTableLaps = this.refreshTableLaps.bind(this);
@@ -98,6 +99,10 @@ class ModalListAllLaps extends React.Component {
     }
     editToHidden(e){
         e.data.typeLap = 'HIDDEN';
+        this.editStatus(e);
+    }
+    editToStart(e){
+        e.data.typeLap = 'START';
         this.editStatus(e);
     }
     editToOk(e){
@@ -171,6 +176,9 @@ class ModalListAllLaps extends React.Component {
                             </ContextMenuTrigger>
 
                             <ContextMenu id="list_all_laps_menu" onHide={this.contextMenuHide} onShow={this.contextMenuShow} collect={props => props}>
+                                <MenuItem onClick={this.editToStart}>
+                                    Status [START]
+                                </MenuItem>
                                 <MenuItem onClick={this.editToOk}>
                                     Status [OK]
                                 </MenuItem>

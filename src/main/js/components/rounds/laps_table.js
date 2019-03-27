@@ -1,7 +1,7 @@
 'use strict';
 import React from 'react';
 import {Button, Input, Table, Tooltip} from "reactstrap";
-import {WindowCloseIcon, MenuIcon, ClipboardCheckOutlineIcon} from "mdi-react";
+import {WindowCloseIcon, MenuIcon, ClipboardCheckOutlineIcon, ShapeCirclePlusIcon} from "mdi-react";
 import stompClient from "../../websocket_listener";
 import client from "../../client";
 import Global from "../../global"
@@ -10,6 +10,7 @@ import {Badge, ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmen
 import ModalListAllLaps from "./modal_list_all_laps";
 import ReactDOM from "react-dom";
 import ModalSportsman from "../sportsman/modal_new_sportsman";
+import ModalNewLap from "../rounds/modal_new_lap";
 
 
 Number.prototype.toHHMMSSMSSS = function () {
@@ -73,6 +74,8 @@ class LapsTable  extends React.Component {
         this.rowEvents = this.rowEvents.bind(this);
         this.rowEventsClick = this.rowEventsClick.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
+        this.addLapBefore = this.addLapBefore.bind(this);
+        this.addLapAfter = this.addLapAfter.bind(this);
 
 
         this.getResalts = this.getResalts.bind(this);
@@ -82,7 +85,7 @@ class LapsTable  extends React.Component {
 
         this.dialogSportsman = React.createRef();
         this.dialogListAllLaps = React.createRef();
-
+        this.dialogNewLap = React.createRef();
         this.resalts = [];
     }
 
@@ -137,7 +140,12 @@ class LapsTable  extends React.Component {
             });
         }
     }
-
+    addLapBefore(e){
+        this.dialogNewLap.current.toggleShow(e.data.timeBefore, e.data.millisecond, e.data._embedded.groupSportsman, Global.competition);
+    }
+    addLapAfter(e){
+        this.dialogNewLap.current.toggleShow(e.data.millisecond, e.data.timeAfter, e.data._embedded.groupSportsman, Global.competition);
+    }
     editToOutOfScore(e){
         let typeInMessage = 'OUT OF SCORE';
         if(e.data.typeLap === 'OUT_OF_SCORE') typeInMessage = 'IN SCORE';
@@ -363,7 +371,16 @@ class LapsTable  extends React.Component {
 
             if(groupSportsman.searchTransponder) hasBeenFound = [<ClipboardCheckOutlineIcon key="has_been_found" color="green" style={{float:'right', cursor:'pointer'}} />]
 
-
+            let addLap = '';
+            if(groupSportsman.laps.length === 0){
+                addLap = <ShapeCirclePlusIcon color="grey"
+                                              style={{float:'right', cursor:'pointer'}}
+                                              onClick={(e) => this.dialogNewLap.current.toggleShow(
+                                                  groupSportsman.group.startMillisecond,
+                                                  null,
+                                                  groupSportsman,
+                                                  Global.competition)}/>
+            }
             cels_colors.push(<td
                                  key={'cell_color_'+indx}>
             <MenuIcon
@@ -371,6 +388,7 @@ class LapsTable  extends React.Component {
                 color="grey"
                 style={{float:'right', cursor:'pointer'}}
                 onClick={(e) => this.showListAllLaps(e, groupSportsman)}/>
+                {addLap}
                 <span id={'span_color_'+indx}
                     style={{  backgroundColor: color,
                                 color: textColor,
@@ -396,10 +414,16 @@ class LapsTable  extends React.Component {
                     this.state.laps[groupSportsman.sportsman.id].length > i) {
                     let lap = this.state.laps[groupSportsman.sportsman.id][i];
                     let time = 0;
+                    let timeBefore = 0;
                     if(i === 0){
-                        time = lap.millisecond - this.state.group.startMillisecond;
+                        timeBefore = this.state.group.startMillisecond;
                     }else{
-                        time = lap.millisecond - this.state.laps[groupSportsman.sportsman.id][i-1].millisecond;
+                        timeBefore = this.state.laps[groupSportsman.sportsman.id][i-1].millisecond;
+                    }
+                    time = lap.millisecond - timeBefore;
+                    lap.timeBefore = timeBefore;
+                    if(this.state.laps[groupSportsman.sportsman.id].length > i+1){
+                        lap.timeAfter = this.state.laps[groupSportsman.sportsman.id][i+1].millisecond;
                     }
                     this.state.laps[groupSportsman.sportsman.id][i].time = time;
                     let outOfScope = '';
@@ -510,6 +534,7 @@ class LapsTable  extends React.Component {
         }
         return(
             <div>
+                <ModalNewLap ref={this.dialogNewLap}/>
                 <ModalListAllLaps ref={this.dialogListAllLaps}/>
                 <ModalSportsman ref={this.dialogSportsman}/>
                 <ContextMenuTrigger id="some_unique_identifier" ref={c => contextTrigger = c} collect={props => props}>
@@ -519,6 +544,12 @@ class LapsTable  extends React.Component {
                 <ContextMenu id="some_unique_identifier" onHide={this.contextMenuHide} onShow={this.contextMenuShow}  collect={props => props}>
                     <MenuItem onClick={this.editToOutOfScore} ref="outOfScore">
                         Out of score
+                    </MenuItem>
+                    <MenuItem onClick={this.addLapBefore}>
+                        Add lap before↑
+                    </MenuItem>
+                    <MenuItem onClick={this.addLapAfter}>
+                        Add lap after↓
                     </MenuItem>
                     <MenuItem onClick={this.deleteRow}>
                         Delete
