@@ -283,7 +283,12 @@ div.ReactTags__suggestions ul li.ReactTags__activeSuggestion {
         transform: translateX(-100%);
     }
 }
-
+#header_name{
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */

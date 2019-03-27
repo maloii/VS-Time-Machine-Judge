@@ -51,8 +51,32 @@ class Groups  extends React.Component {
     }
 
     generatePdf(){
-        var quotes = ReactDOM.findDOMNode(this.refs['table_laps']);
-        console.log(quotes);
+        function toDataUrl(src, callback, outputFormat) {
+            var img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.onload = function() {
+                var canvas = document.createElement('CANVAS');
+                var ctx = canvas.getContext('2d');
+                var dataURL;
+                canvas.height = this.naturalHeight;
+                canvas.width = this.naturalWidth;
+                ctx.drawImage(this, 0, 0);
+                dataURL = canvas.toDataURL(outputFormat);
+                callback(dataURL);
+                canvas = null;
+            };
+            img.src = src;
+            if (img.complete || img.complete === undefined) {
+                img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+                img.src = src;
+            }
+        }
+
+        var nameFile = (this.props.round.name+"-"+this.state.group.name).split(" ").join("_");
+        var quotes = ReactDOM.findDOMNode(this.tableLaps.current);
+        var headerName = document.getElementById("header_name");
+        headerName.innerText = this.props.round.name+" - "+this.state.group.name;
+
         var HTML_Width = quotes.getBoundingClientRect().width;
         var HTML_Height = quotes.getBoundingClientRect().height;
         var top_left_margin = 50;
@@ -73,16 +97,43 @@ class Groups  extends React.Component {
 
             var imgData = canvas.toDataURL("image/jpeg", 1.0);
             var pdf = new jsPDF('p', 'pt',  [PDF_Width, PDF_Height]);
-            pdf.addImage(imgData, 'JPG', top_left_margin, top_left_margin,canvas_image_width,canvas_image_height);
+            //pdf.addImage(imgData, 'JPG', top_left_margin, top_left_margin,canvas_image_width,canvas_image_height);
+            pdf.addImage(imgData, 'JPG', top_left_margin, (top_left_margin+50),canvas_image_width,(canvas_image_height-30));
 
+            toDataUrl('/images/horizontal.jpg', function(footerLogo) {
+                if(totalPDFPages == 0) {
+                    pdf.addImage(footerLogo, 'JPG', ((PDF_Width/2)-100), (PDF_Height - 50));
+                }
+                let srcLogo = Settings.defaultReportLogo;
+                if(Global.competition.logo) srcLogo = Global.competition.logo;
 
-            for (var i = 1; i <= totalPDFPages; i++) {
-                pdf.addPage(PDF_Width, PDF_Height);
-                pdf.addImage(imgData, 'JPG', top_left_margin, -(PDF_Height*i)+top_left_margin,canvas_image_width,canvas_image_height);
-            }
+                toDataUrl(srcLogo, function(topLogo) {
 
-            pdf.save('resalts_'+nameGroup+'.pdf');
+                    pdf.addImage(topLogo, 'JPG', top_left_margin, top_left_margin);
+                    for (var i = 1; i <= totalPDFPages; i++) {
+                        pdf.addPage(PDF_Width, PDF_Height);
+                        pdf.addImage(imgData, 'JPG', top_left_margin, -((PDF_Height-70)*i)+(top_left_margin+50),canvas_image_width,(canvas_image_height-30));
+                        if(totalPDFPages == i) {
+                            pdf.addImage(footerLogo, 'JPG', ((PDF_Width / 2) - 100), (PDF_Height - 50));
+                        }
+                    }
+                    pdf.save(nameFile+".pdf");
+                    headerName.innerText = "";
+                },'JPG');
+            },'JPG');
         });
+        // function copyImage(url){
+        //     var img=document.createElement('img');
+        //     img.src=url;
+        //     document.body.appendChild(img);
+        //     var r = document.createRange();
+        //     r.setStartBefore(img);
+        //     r.setEndAfter(img);
+        //     r.selectNode(img);
+        //     var sel = window.getSelection();
+        //     sel.addRange(r);
+        //     document.execCommand('Copy');
+        // }
     }
     sendRaceCommand(command){
         if(this.state.group != null) {

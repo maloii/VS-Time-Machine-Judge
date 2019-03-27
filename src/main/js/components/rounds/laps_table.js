@@ -534,6 +534,7 @@ class LapsTable  extends React.Component {
         }
         return(
             <div>
+                <div id="header_name"></div>
                 <ModalNewLap ref={this.dialogNewLap}/>
                 <ModalListAllLaps ref={this.dialogListAllLaps}/>
                 <ModalSportsman ref={this.dialogSportsman}/>
