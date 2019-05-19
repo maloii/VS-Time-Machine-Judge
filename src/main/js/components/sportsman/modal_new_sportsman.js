@@ -108,8 +108,13 @@ class ModalSportsman extends React.Component {
             country: ReactDOM.findDOMNode(this.refs['country']).value.trim(),
             photo: this.state.srcPhoto,
             selected: false,
+            position: null,
             competition: Global.competition._links.competition.href
         };
+
+        if(ReactDOM.findDOMNode(this.refs['position']).value.trim() !== ""){
+            newSportsman.position = ReactDOM.findDOMNode(this.refs['position']).value.trim();
+        }
         follow(client, Settings.root, ['sportsmen']).then(response => {
             return client({
                 method: 'POST',
@@ -152,9 +157,12 @@ class ModalSportsman extends React.Component {
                 email: ReactDOM.findDOMNode(this.refs['email']).value.trim(),
                 country: ReactDOM.findDOMNode(this.refs['country']).value.trim(),
                 photo: this.state.srcPhoto,
+                position: null
             }
         };
-
+        if(ReactDOM.findDOMNode(this.refs['position']).value.trim() !== ""){
+            updateSportsman.position = ReactDOM.findDOMNode(this.refs['position']).value.trim();
+        }
         client({
             method: 'PUT',
             path: this.state.url,
@@ -414,6 +422,17 @@ class ModalSportsman extends React.Component {
                                         id="team"
                                         ref="team"
                                         defaultValue={this.state.sportsman.team}/>
+                                </Col>
+                            </FormGroup>
+                            <FormGroup row>
+                                <Label for="name" sm={4}><b>Position</b></Label>
+                                <Col sm={8}>
+                                    <Input
+                                        type="number"
+                                        name="position"
+                                        id="position"
+                                        ref="position"
+                                        defaultValue={this.state.sportsman.position}/>
                                 </Col>
                             </FormGroup>
                         </Col>

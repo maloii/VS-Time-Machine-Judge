@@ -202,13 +202,16 @@ public class RaceService {
 
                                         this.websocket.convertAndSend(
                                                 MESSAGE_PREFIX + "/newLap", "");
-
-                                        try {
-                                            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new BufferedInputStream(new ClassPathResource("/media/short_beep.wav").getInputStream()));
-                                            Clip clip = AudioSystem.getClip();
-                                            clip.open(audioInputStream);
-                                            clip.start();
-                                        }catch (Exception e){e.printStackTrace();}
+                                        if(lap.getTypeLap().equals(TypeLap.OK) || lap.getTypeLap().equals(TypeLap.START)) {
+                                            try {
+                                                AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new BufferedInputStream(new ClassPathResource("/media/short_beep.wav").getInputStream()));
+                                                Clip clip = AudioSystem.getClip();
+                                                clip.open(audioInputStream);
+                                                clip.start();
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
                                     });
                                     numberPackages.add(numberPackage);
                                 });

@@ -8,6 +8,7 @@ import BestLapReportBroadcast from "../broadcast/best_lap_report_broadcast";
 import CountLapReportBroadcast from "../broadcast/count_lap_report_broadcast";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import CurrentGroupGridBroadcast from "../broadcast/current_group_grid_broadcast"
+import PositionSportsmenBroadcast from "../broadcast/position_sportsmen_broadcast";
 
 class MainScreenBroadcast extends React.Component {
     constructor(props) {
@@ -107,6 +108,9 @@ class MainScreenBroadcast extends React.Component {
             {route: '/topic/newBroadcast', callback: this.refreshBroadcast},
             {route: '/topic/updateBroadcast', callback: this.refreshBroadcast},
             {route: '/topic/deleteBroadcast', callback: this.refreshBroadcast},
+            {route: '/topic/newSportsman', callback: this.refreshBroadcast},
+            {route: '/topic/updateSportsman', callback: this.refreshBroadcast},
+            {route: '/topic/deleteSportsman', callback: this.refreshBroadcast},
             {route: '/topic/newLap', callback: this.refreshBroadcast},
             {route: '/topic/updateLap', callback: this.refreshBroadcast},
             {route: '/topic/deleteLap', callback: this.refreshBroadcast},
@@ -130,6 +134,8 @@ class MainScreenBroadcast extends React.Component {
                 results.push(<BestLapReportBroadcast  report={this.state.report} key="best_lap" ref={el => (this.componentRef = el)} />);
             }else if(this.state.report.report && this.state.report.report.typeReport === 'COUNT_LAPS'){
                 results.push(<CountLapReportBroadcast  report={this.state.report} key="count_lap" ref={el => (this.componentRef = el)} />);
+            }else if(this.state.report.report && this.state.report.report.typeReport === "POSITION_SPORTSMEN"){
+                results.push(<PositionSportsmenBroadcast  report={this.state.report} key="position_sportsmen" ref={el => (this.componentRef = el)} />);
             }
         }else if(this.state.broadcast.typeBroadcast === 'REPORT_BROADCAST_SHORT'){
             if(this.state.report && this.state.report.report.typeReport === 'BEST_LAP'){

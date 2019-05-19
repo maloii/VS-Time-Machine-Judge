@@ -1,10 +1,12 @@
 package com.vstimemachine.judge.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,6 +38,7 @@ public class Sportsman {
     private String phone;
     private String email;
     private String country;
+    private Integer position;
 
     private Boolean selected = false;
 
@@ -75,5 +78,6 @@ public class Sportsman {
         this.email = sportsman.getEmail();
         this.country = sportsman.getCountry();
         this.selected = sportsman.getSelected();
+        this.position = sportsman.getPosition();
     }
 }

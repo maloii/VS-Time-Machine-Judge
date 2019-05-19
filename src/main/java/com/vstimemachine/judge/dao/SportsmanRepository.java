@@ -1,7 +1,6 @@
 package com.vstimemachine.judge.dao;
 
 import com.vstimemachine.judge.model.Competition;
-import com.vstimemachine.judge.model.Round;
 import com.vstimemachine.judge.model.Sportsman;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -18,6 +17,7 @@ public interface SportsmanRepository extends CrudRepository<Sportsman, Long> {
     Sportsman save(@Param("sportsman") Sportsman gate);
 
     Optional<Sportsman> findByTranspondersNumberAndCompetition(Integer number, Competition competition);
+    List<Sportsman> findAllByCompetition(Competition competition);
 
     @Override
     void deleteById(@Param("id") Long id);

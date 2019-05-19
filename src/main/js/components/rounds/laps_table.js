@@ -1,12 +1,12 @@
 'use strict';
 import React from 'react';
-import {Button, Input, Table, Tooltip} from "reactstrap";
-import {WindowCloseIcon, MenuIcon, ClipboardCheckOutlineIcon, ShapeCirclePlusIcon} from "mdi-react";
+import {Input, Table, Tooltip} from "reactstrap";
+import {ClipboardCheckOutlineIcon, MenuIcon, ShapeCirclePlusIcon, WindowCloseIcon} from "mdi-react";
+import {Badge, ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
 import stompClient from "../../websocket_listener";
 import client from "../../client";
 import Global from "../../global"
 import Settings from "../../settings"
-import {Badge, ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
 import ModalListAllLaps from "./modal_list_all_laps";
 import ReactDOM from "react-dom";
 import ModalSportsman from "../sportsman/modal_new_sportsman";

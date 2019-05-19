@@ -44,7 +44,8 @@
     "jspdf": "^1.5.3",
     "html2canvas": "^1.0.0-alpha.12",
     "rc-slider": "^8.6.7",
-    "react-input-mask": "^2.0.4"
+    "react-input-mask": "^2.0.4",
+    "lodash": "^4.17.11"
   },
   "scripts": {
     "watch": "webpack --watch -d"

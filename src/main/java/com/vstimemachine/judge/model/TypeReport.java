@@ -4,5 +4,6 @@ public enum TypeReport {
 
     BEST_LAP,
     COUNT_LAPS,
-    COUNT_SCORE
+    COUNT_SCORE,
+    POSITION_SPORTSMEN
 }

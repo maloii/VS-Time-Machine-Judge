@@ -1,12 +1,13 @@
 'use strict';
 import React from 'react';
 import {Alert, Button, Col, Container, ListGroup, ListGroupItem, Row} from "reactstrap";
-import {PlusIcon, ContentCopyIcon, FilePdfIcon} from "mdi-react";
+import {ContentCopyIcon, FilePdfIcon, PlusIcon, TableColumnIcon} from "mdi-react";
 import client from "../../client";
 import stompClient from "../../websocket_listener";
 import LapsTable from "./laps_table";
 import Settings from "../../settings"
-import ModalNewGroup from  "./modal_new_group"
+import ModalTableGroups from "./modal_table_groups";
+import ModalNewGroup from "./modal_new_group"
 import ModalNewSportsmenToGroup from "./modal_add_sportsmen_to_group"
 import {ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
 import Global from "../../global";
@@ -44,10 +45,12 @@ class Groups  extends React.Component {
         this.generatePdf = this.generatePdf.bind(this);
         this.editGroup = this.editGroup.bind(this);
         this.startRace = this.startRace.bind(this);
+        this.toggleShowTableGroups = this.toggleShowTableGroups.bind(this);
 
         this.tableLaps = React.createRef();
         this.dialogGroup = React.createRef();
         this.dialogAddSportsmenToGroup = React.createRef();
+        this.dialogTableGroups = React.createRef();
     }
 
     generatePdf(){
@@ -174,10 +177,6 @@ class Groups  extends React.Component {
                 this.startRace();
             }
         }
-
-
-
-
     }
     startRace(){
         if(this.state.group != null ) {
@@ -235,6 +234,11 @@ class Groups  extends React.Component {
     toggleShowNewGroup(){
         this.dialogGroup.current.toggleShow();
     }
+
+    toggleShowTableGroups(){
+        this.dialogTableGroups.current.toggleShow();
+    }
+
     copyGpoupsToBuffer(){
         const buff = [];
         this.state.groups.map(group=>{
@@ -443,13 +447,19 @@ class Groups  extends React.Component {
                     <Col className="text-center" style={{maxWidth:'200px', minWidth:'200px'}}>
                         <ModalNewGroup ref={this.dialogGroup} groups={this.state.groups} round={this.props.round} />
                         <ModalNewSportsmenToGroup ref={this.dialogAddSportsmenToGroup} round={this.props.round} />
+                        <ModalTableGroups ref={this.dialogTableGroups} round={this.props.round} groups={this.state.groups} />
                         <Row>
-                            <Col md={6}>
+                            <Col md={4}>
                                 <Button color="primary" outline style={{marginBottom: '10px'}} onClick={this.copyGpoupsToBuffer}>
                                     <ContentCopyIcon />
                                 </Button>
                             </Col>
-                            <Col md={6}>
+                            <Col md={4}>
+                                <Button color="primary" outline style={{marginBottom: '10px'}} onClick={this.toggleShowTableGroups}>
+                                    <TableColumnIcon />
+                                </Button>
+                            </Col>
+                            <Col md={4}>
                                 <Button color="primary" style={{marginBottom: '10px'}} onClick={this.toggleShowNewGroup}>
                                     <PlusIcon />
                                 </Button>

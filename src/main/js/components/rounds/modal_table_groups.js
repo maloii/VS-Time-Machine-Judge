@@ -1,64 +1,33 @@
-'use strict';
-import React from "react";
-import ReactToPrint from "react-to-print";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
-import ReactDOM from "react-dom";
+import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import {Button, Col, Container, Modal, ModalBody, ModalFooter, ModalHeader, Row} from "reactstrap";
 import {FilePdfIcon, PrinterIcon} from "mdi-react";
-import Settings from "../../settings";
+import ReactToPrint from "react-to-print";
+import ReactDOM from "react-dom";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+
 import Global from "../../global";
-import client from "../../client";
-import BestLapReport from "./best_lap_report";
-import CountLapReport from "./count_lap_report";
-import PositionSportsmen from "./position_sportsmen";
+import Settings from "../../settings";
+import TableGroups from "./table_groups"
 
-class ModalPrintReport extends React.Component {
-    constructor(props) {
-        super(props);
+class ModalTableGroups extends Component {
 
-        this.state = {
-            report:{},
-            isPrint:false
-        }
-
-        this.toggle = this.toggle.bind(this);
-        this.toggleShow = this.toggleShow.bind(this);
-        this.generatePdf = this.generatePdf.bind(this);
+    state = {
+        modalTableGroups: false
     }
 
-    toggle() {
+    toggleShow = () => {
+        this.toggle();
+    }
+
+    toggle = () => {
         this.setState({
-            modalReport: !this.state.modalReport
+            modalTableGroups: !this.state.modalTableGroups
         });
     }
-    toggleShow(report) {
-        if (report != null) {
-            client({
-                method: 'GET',
-                path: Settings.raceApiReport + '/' + report.id,
-                headers: {
-                    'Content-Type': 'application/json',
-                    "Accept": "application/json"
-                }
-            }).then(r => {
-                this.setState({
-                    report: r.entity,
-                    modalReport: !this.state.modalReport
-                });
-            });
-        }else{
-            this.setState({
-                modalReport: !this.state.modalReport
-            });
-        }
 
-    }
-
-
-
-
-    generatePdf(){
+    generatePdf = () => {
 
         function toDataUrl(src, callback, outputFormat) {
             // Create an Image object
@@ -94,6 +63,7 @@ class ModalPrintReport extends React.Component {
                 img.src = src;
             }
         }
+        console.log(this.componentRef);
 
         var quotes = ReactDOM.findDOMNode(this.componentRef);
         var HTML_Width = quotes.getBoundingClientRect().width;
@@ -141,43 +111,42 @@ class ModalPrintReport extends React.Component {
             },'JPG');
         });
     }
-    render(){
-        let tableDate = [];
-        let name = (this.state.report.report? this.state.report.report.name:'');
-        if(this.state.report.report && this.state.report.report.typeReport === "BEST_LAP"){
-            tableDate.push(<BestLapReport  report={this.state.report} key="best_lap" ref={el => (this.componentRef = el)} />);
-        }else if(this.state.report.report && this.state.report.report.typeReport === "COUNT_LAPS"){
-            tableDate.push(<CountLapReport  report={this.state.report} key="count_lap" ref={el => (this.componentRef = el)} />);
-        }else if(this.state.report.report && this.state.report.report.typeReport === "POSITION_SPORTSMEN"){
-            tableDate.push(<PositionSportsmen  report={this.state.report} key="position_sportsmen" ref={el => (this.componentRef = el)} />);
-        }
 
-        return(<Modal isOpen={this.state.modalReport} toggle={this.toggle} className="modal-lg">
-            <ModalHeader toggle={this.toggle}></ModalHeader>
-            <ModalBody>
-                <Container fluid>
-                    <Row>
-                        <Col>
-                            {tableDate}
-                        </Col>
-                    </Row>
-                </Container>
-            </ModalBody>
-            <ModalFooter>
-                <Button color="primary" onClick={this.generatePdf}>
-                    <FilePdfIcon /> Pdf
-                </Button>
-                <ReactToPrint
-                    trigger={() => <Button color="info"><PrinterIcon /> Print</Button>}
-                    content={() => this.componentRef}
-                    bodyClass="printComponent"
-                />
-                <Button color="secondary" onClick={this.toggle}>
-                    Close
-                </Button>
-            </ModalFooter>
-        </Modal>);
+    render() {
+        const { round, groups } = this.props;
+        return (
+            <Modal isOpen={this.state.modalTableGroups} toggle={this.toggle} className="modal-lg" >
+                <ModalHeader toggle={this.toggle}>Table groups</ModalHeader>
+                <ModalBody>
+                    <Container fluid>
+                        <Row>
+                            <Col>
+                                <TableGroups round={round} groups={groups} ref={el => (this.componentRef = el)} />
+                            </Col>
+                        </Row>
+                    </Container>
+                </ModalBody>
+                <ModalFooter>
+                    <Button color="primary" onClick={this.generatePdf}>
+                        <FilePdfIcon /> Pdf
+                    </Button>
+                    <ReactToPrint
+                        trigger={() => <Button color="info"><PrinterIcon /> Print</Button>}
+                        content={() => this.componentRef}
+                        bodyClass="printComponent"
+                    />
+                    <Button color="secondary" onClick={this.toggle}>
+                        Close
+                    </Button>
+                </ModalFooter>
+            </Modal>
+        );
     }
 }
 
-export default ModalPrintReport;
+ModalTableGroups.propTypes = {
+    round: PropTypes.object.isRequired,
+    groups: PropTypes.array.isRequired
+}
+
+export default ModalTableGroups;

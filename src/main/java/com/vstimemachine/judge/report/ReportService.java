@@ -2,6 +2,7 @@ package com.vstimemachine.judge.report;
 
 import com.vstimemachine.judge.dao.LapRepository;
 import com.vstimemachine.judge.dao.ReportRepository;
+import com.vstimemachine.judge.dao.SportsmanRepository;
 import com.vstimemachine.judge.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,8 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.vstimemachine.judge.model.TypeLap.OK;
-import static com.vstimemachine.judge.model.TypeReport.BEST_LAP;
-import static com.vstimemachine.judge.model.TypeReport.COUNT_LAPS;
+import static com.vstimemachine.judge.model.TypeReport.*;
 
 @Slf4j
 @Service
@@ -28,6 +28,7 @@ public class ReportService {
 
     final private ReportRepository reportRepository;
     final private LapRepository lapRepository;
+    final private SportsmanRepository sportsmanRepository;
 
     public ReportData report(Long reportId){
         Optional<Report> optionalReport = reportRepository.findById(reportId);
@@ -43,38 +44,20 @@ public class ReportService {
             return makeBestSomeLap(report);
         }else if(report.getTypeReport() == COUNT_LAPS){
             return makeCountLap(report);
+        }else if(report.getTypeReport() == POSITION_SPORTSMEN){
+            return makePositionSportsmen(report);
         }
         return new ReportData();
     }
 
-
-//    private ReportData<BestLapReport> makeBestOneLap(Report report){
-//        List<BestLapReport> bestLapReportDatas = new ArrayList<BestLapReport>();
-//        report.getCompetition().getSportsmen()
-//                .stream().filter(sportsman -> sportsman.getSelected())
-//                .forEach(sportsman -> {
-//
-//            Optional<Lap> l = sportsman.getLaps()
-//                    .stream()
-//                    .filter(lap -> lap.getTypeLap().equals(OK))
-//                    .filter(lap -> lap.getTimeLap() != null)
-//                    .filter(lap -> {
-//                        return  lap.getRound().getTypeRound()
-//                                .equals(TypeRound.valueOf(report.getParametrs().get(PARAMETR_TYPE_ROUND)))
-//                                || report.getParametrs().get(PARAMETR_TYPE_ROUND).equals("ALL");
-//                    })
-//                    .min(Comparator.comparing(Lap::getTimeLap));
-//            if(l.isPresent()){
-//                bestLapReportDatas.add(new BestLapReport(new Sportsman(sportsman), l.get().getTimeLap()));
-//            }else{
-//                bestLapReportDatas.add(new BestLapReport(new Sportsman(sportsman), MAX_VALUE_TIME_LAP));
-//            }
-//        });
-//
-//
-//        return new ReportData<BestLapReport>(new Report(report), sortBestLap(bestLapReportDatas));
-//    }
-
+    private ReportData<Sportsman> makePositionSportsmen(Report report){
+        List<Sportsman> list = sportsmanRepository.findAllByCompetition(report.getCompetition())
+                .stream().map(sportsman -> new Sportsman(sportsman))
+                .filter(sportsman -> sportsman.getSelected())
+                .sorted(comparatorPosition())
+                .collect(Collectors.toList());
+        return new ReportData<Sportsman> (new Report(report), list);
+    }
     private ReportData<BestLapReport> makeBestSomeLap(Report report){
         List<BestLapReport> bestLapReportDatas = new ArrayList<BestLapReport>();
         try {
@@ -247,5 +230,19 @@ public class ReportService {
             }
         }
         return countLapReportDatas;
+    }
+
+
+    private Comparator<Sportsman> comparatorPosition(){
+        return new Comparator<Sportsman>() {
+            @Override
+            public int compare(Sportsman sportsman1, Sportsman sportsman2) {
+                if(sportsman1.getPosition() != null && sportsman2.getPosition() != null) {
+                    return sportsman1.getPosition().compareTo(sportsman2.getPosition());
+                }
+                else if(sportsman1.getPosition() == null) return 1;
+                else return -1;
+            }
+        };
     }
 }
