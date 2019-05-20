@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.vstimemachine</groupId>
 	<artifactId>judge</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2</version>
 	<packaging>jar</packaging>
 	<name>vs_judge</name>
 	<description>VS TimeMachine Judge</description>
