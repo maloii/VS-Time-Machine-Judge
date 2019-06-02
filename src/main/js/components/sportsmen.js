@@ -1,40 +1,41 @@
-'use strict';
-import React from "react";
-import {Alert, Button, Col, Container, Row} from "reactstrap";
-import {WithContext as ReactTags} from './react_tags/ReactTags';
-import {AccountEditIcon, AccountPlusIcon, DeleteForeverIcon} from 'mdi-react';
-import ReactDataGrid from 'react-data-grid';
-import {ImageFormatter, Menu} from 'react-data-grid-addons';
+import React from 'react'
+import { connect } from 'react-redux'
+import { Alert, Button, Col, Container, Row } from 'reactstrap'
+import { WithContext as ReactTags } from './react_tags/ReactTags'
+import { AccountEditIcon, AccountPlusIcon, DeleteForeverIcon } from 'mdi-react'
+import ReactDataGrid from 'react-data-grid'
+import { Menu } from 'react-data-grid-addons'
 import Settings from '../settings'
 import Global from '../global'
 import eventClient from '../event_client'
-import when from 'when';
-import client from "../client";
-import stompClient from "../websocket_listener";
-import ModalSportsman from "./sportsman/modal_new_sportsman"
+import when from 'when'
+import client from '../client'
+import stompClient from '../websocket_listener'
+import ModalSportsman from './sportsman/modal_new_sportsman'
+import PropTypes from 'prop-types'
+import { competitionSelector, loadedSelector } from '../redux/competition'
 
-const {ContextMenu, MenuItem, SubMenu, ContextMenuTrigger} = Menu;
+const { ContextMenu, MenuItem, ContextMenuTrigger } = Menu;
 
 const KeyCodes = {
     comma: 188,
-    enter: 13,
+    enter: 13
 };
 
 const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
 class SportsmenTranspondersDataGrid extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.handleDeleteTransponder = this.handleDeleteTransponder.bind(this);
         this.handleAdditionTransponder = this.handleAdditionTransponder.bind(this);
     }
 
-    handleDeleteTransponder(i) {
-        client({method: 'DELETE', path: this.props.row.transponders[i].url})
+    handleDeleteTransponder (i) {
+        client({ method: 'DELETE', path: this.props.row.transponders[i].url });
     }
 
-    handleAdditionTransponder(tag) {
+    handleAdditionTransponder (tag) {
         client({
             method: 'POST',
             path: Settings.root + '/transponders',
@@ -43,7 +44,7 @@ class SportsmenTranspondersDataGrid extends React.Component {
                 sportsman: this.props.row.url,
                 competition: Global.competition._links.competition.href
             },
-            headers: {'Content-Type': 'application/json'}
+            headers: { 'Content-Type': 'application/json' }
         }).then(() => {
 
         }, response => {
@@ -53,11 +54,11 @@ class SportsmenTranspondersDataGrid extends React.Component {
         });
     }
 
-    render() {
+    render () {
         let tags = [];
-        this.props.row.transponders.map(t=>{
-            tags =  [...tags, {id: t.url, text: t.number}]
-        })
+        this.props.row.transponders.map(t => {
+            tags = [...tags, { id: t.url, text: t.number }];
+        });
 
         return (<ReactTags
             tags={tags}
@@ -74,12 +75,11 @@ class SportsmenTranspondersDataGrid extends React.Component {
 }
 
 class SportsmenDataGrid extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             selectedIndexes: []
-        }
+        };
         this.onGridRowsUpdated = this.onGridRowsUpdated.bind(this);
         this.onRowsSelected = this.onRowsSelected.bind(this);
         this.onRowsDeselected = this.onRowsDeselected.bind(this);
@@ -87,29 +87,27 @@ class SportsmenDataGrid extends React.Component {
         this.editSportsmen = this.editSportsmen.bind(this);
         this.getCellActions = this.getCellActions.bind(this);
         this.sortRows = this.sortRows.bind(this);
-
     }
 
-    onGridRowsUpdated({fromRow, toRow, updated}) {
+    onGridRowsUpdated ({ fromRow, toRow, updated }) {
         for (let i = fromRow; i <= toRow; i++) {
-            var newRow = {...this.props.sportsmen[i].entity, ...updated};
+            var newRow = { ...this.props.sportsmen[i].entity, ...updated };
             const updatedPilot = {};
             this.props.attributes.forEach(attribute => {
                 updatedPilot[attribute] = newRow[attribute];
             });
             this.props.onUpdate(this.props.sportsmen[i], updatedPilot);
         }
-    };
+    }
 
-    onRowsSelected(rows) {
+    onRowsSelected (rows) {
         this.setState({
             selectedIndexes: this.state.selectedIndexes.concat(
                 rows.map(r => r.rowIdx)
             )
         });
         rows.map(r => {
-
-            var newRow = {...this.props.sportsmen[r.rowIdx].entity, ...{selected: true}};
+            var newRow = { ...this.props.sportsmen[r.rowIdx].entity, ...{ selected: true } };
             const updatedPilot = {};
             this.props.attributes.forEach(attribute => {
                 updatedPilot[attribute] = newRow[attribute];
@@ -121,11 +119,11 @@ class SportsmenDataGrid extends React.Component {
                 headers: {
                     'Content-Type': 'application/json'
                 }
-            })
+            });
         });
     }
 
-    onRowsDeselected(rows) {
+    onRowsDeselected (rows) {
         let rowIndexes = rows.map(r => r.rowIdx);
         this.setState({
             selectedIndexes: this.state.selectedIndexes.filter(
@@ -133,7 +131,7 @@ class SportsmenDataGrid extends React.Component {
             )
         });
         rows.map(r => {
-            var newRow = {...this.props.sportsmen[r.rowIdx].entity, ...{selected: false}};
+            var newRow = { ...this.props.sportsmen[r.rowIdx].entity, ...{ selected: false } };
             const updatedPilot = {};
             this.props.attributes.forEach(attribute => {
                 updatedPilot[attribute] = newRow[attribute];
@@ -145,22 +143,22 @@ class SportsmenDataGrid extends React.Component {
                 headers: {
                     'Content-Type': 'application/json'
                 }
-            })
+            });
         });
     }
 
-    deleteSportsmen(url) {
+    deleteSportsmen (url) {
         if (confirm('Do you really want to delete the record?')) {
-            client({method: 'DELETE', path: url}
+            client({ method: 'DELETE', path: url }
             ).done();
         }
     }
 
-    editSportsmen(url) {
+    editSportsmen (url) {
         this.props.editSportsmen(url);
     }
 
-    getCellActions(column, row) {
+    getCellActions (column, row) {
         const cellActions = {
             button: [
                 {
@@ -178,74 +176,67 @@ class SportsmenDataGrid extends React.Component {
             ]
         };
         return cellActions[column.key];
-
     }
 
-
-    sortRows(initialRows, sortColumn, sortDirection){
+    sortRows (initialRows, sortColumn, sortDirection) {
         function comparer (a, b) {
-            //console.log(a[sortColumn].localeCompare(b[sortColumn]));
-            if (sortDirection === "ASC") {
+            // console.log(a[sortColumn].localeCompare(b[sortColumn]));
+            if (sortDirection === 'ASC') {
                 return a[sortColumn] > b[sortColumn] ? 1 : -1;
-            } else if (sortDirection === "DESC") {
+            } else if (sortDirection === 'DESC') {
                 return a[sortColumn] < b[sortColumn] ? 1 : -1;
             }
-        };
+        }
         let sportsmen = this.props.sportsmenTabl.sort(comparer);
         this.setState({
-            sportsmenTabl:sportsmen
+            sportsmenTabl: sportsmen
         });
         return sportsmen;
-    };
+    }
 
-    render() {
+    render () {
         const columns = [
-            {key: "position", name: "№", sortable: true, width: 50 },
-            {key: "firstName", name: "First Name", editable: true, resizable: true, sortable: true },
-            {key: "lastName", name: "Last Name", editable: true, resizable: true, sortable: true, sortDescendingFirst: true},
-            {key: "nick", name: "Nick(OSD)", width: 170, editable: true, resizable: true, sortable: true},
-            {key: "transponders", name: "Transponders", formatter: <SportsmenTranspondersDataGrid /> },
-            {key: "button", name: "", width: 80},
-            {key: "last", name: "", width: 30}
+            { key: 'position', name: '№', sortable: true, width: 50 },
+            { key: 'firstName', name: 'First Name', editable: true, resizable: true, sortable: true },
+            { key: 'lastName', name: 'Last Name', editable: true, resizable: true, sortable: true, sortDescendingFirst: true },
+            { key: 'nick', name: 'Nick(OSD)', width: 170, editable: true, resizable: true, sortable: true },
+            { key: 'transponders', name: 'Transponders', formatter: <SportsmenTranspondersDataGrid /> },
+            { key: 'button', name: '', width: 80 },
+            { key: 'last', name: '', width: 30 }
         ];
 
-        function ExampleContextMenu({
-                                        idx,
-                                        id,
-                                        rowIdx,
-                                        onRowDelete,
-                                        onRowEdit
-                                    }) {
-
-
+        function ExampleContextMenu ({
+            idx,
+            id,
+            rowIdx,
+            onRowDelete,
+            onRowEdit
+        }) {
             return (
                 <ContextMenu id={id}>
-                    <MenuItem data={{rowIdx, idx}} onClick={onRowEdit}>
+                    <MenuItem data={{ rowIdx, idx }} onClick={onRowEdit}>
                         Edit
                     </MenuItem>
-                    <MenuItem data={{rowIdx, idx}} onClick={onRowDelete}>
+                    <MenuItem data={{ rowIdx, idx }} onClick={onRowDelete}>
                         Delete
                     </MenuItem>
                 </ContextMenu>
             );
         }
 
-        function deleteRow(parent, rows) {
+        function deleteRow (parent, rows) {
             parent.deleteSportsmen(rows);
-        };
+        }
 
-        function editRow(parent, rows) {
+        function editRow (parent, rows) {
             parent.editSportsmen(rows);
-        };
+        }
         let selectedIndexes = [];
-        this.props.sportsmen.map(function callback(sportsman, index, array) {
+        this.props.sportsmen.map(function callback (sportsman, index, array) {
             if (sportsman.entity.selected) {
-                selectedIndexes = selectedIndexes.concat(index)
+                selectedIndexes = selectedIndexes.concat(index);
             }
         });
-
-
-
 
         return (
 
@@ -254,12 +245,12 @@ class SportsmenDataGrid extends React.Component {
                 rowGetter={i => this.props.sportsmenTabl[i]}
                 rowsCount={this.props.sportsmenTabl.length}
                 onGridRowsUpdated={this.onGridRowsUpdated}
-                minHeight={window.innerHeight-200}
+                minHeight={window.innerHeight - 200}
                 getCellActions={this.getCellActions}
                 contextMenu={
                     <ExampleContextMenu
-                        onRowDelete={(e, {rowIdx}) => deleteRow(this, this.props.sportsmenTabl[rowIdx].url)}
-                        onRowEdit={(e, {rowIdx}) => editRow(this, this.props.sportsmenTabl[rowIdx].url)}
+                        onRowDelete={(e, { rowIdx }) => deleteRow(this, this.props.sportsmenTabl[rowIdx].url)}
+                        onRowEdit={(e, { rowIdx }) => editRow(this, this.props.sportsmenTabl[rowIdx].url)}
                     />
                 }
                 RowsContainer={ContextMenuTrigger}
@@ -284,19 +275,17 @@ class SportsmenDataGrid extends React.Component {
 
 /*
 
-
  */
 
 class Sportsmen extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             competition: Global.competition,
             sportsmen: [],
             sportsmenTabl: [],
             attributes: []
-        }
+        };
         this.selectCompetition = this.selectCompetition.bind(this);
         this.showNewSportsman = this.showNewSportsman.bind(this);
         this.showEditSportsman = this.showEditSportsman.bind(this);
@@ -306,21 +295,21 @@ class Sportsmen extends React.Component {
         this.dialogSportsman = React.createRef();
     }
 
-    showNewSportsman() {
+    showNewSportsman () {
         this.dialogSportsman.current.toggleShow();
     }
 
-    showEditSportsman(url) {
+    showEditSportsman (url) {
         this.dialogSportsman.current.toggleEditShow(url);
     }
 
-    refreshListSportsmen() {
+    refreshListSportsmen () {
         if (Global.competition !== null) {
-            client({method: 'GET', path: Global.competition._links.sportsmen.href}).then(response => {
+            client({ method: 'GET', path: Global.competition._links.sportsmen.href }).then(response => {
                 client({
                     method: 'GET',
                     path: Settings.root + '/profile/sportsmen',
-                    headers: {'Accept': 'application/schema+json'}
+                    headers: { 'Accept': 'application/schema+json' }
                 }).then(schema => {
                     Object.keys(schema.entity.properties).forEach(function (property) {
                         if (schema.entity.properties[property].hasOwnProperty('format') &&
@@ -341,7 +330,7 @@ class Sportsmen extends React.Component {
                     );
                 }).then(sportsmanPromises => {
                     return when.all(sportsmanPromises);
-                }).then(s=>{
+                }).then(s => {
                     this.sportsmen = s;
                     return s.map(sportsman =>
                         client({
@@ -354,10 +343,10 @@ class Sportsmen extends React.Component {
                 }).done(trans => {
                     let sportsmen = this.sportsmen;
                     let sportsmenTabl = [];
-                    sportsmen.map(function callback(s, index, array) {
+                    sportsmen.map(function callback (s, index, array) {
                         let arrTrans = [];
-                        trans[index].entity._embedded.transponders.map(tr=>{
-                            arrTrans.push({number:tr.number, url:tr._links.self.href});
+                        trans[index].entity._embedded.transponders.map(tr => {
+                            arrTrans.push({ number: tr.number, url: tr._links.self.href });
                         });
                         // transponders: arrTrans.join(', '),
                         sportsmenTabl = [...sportsmenTabl, {
@@ -366,8 +355,8 @@ class Sportsmen extends React.Component {
                             nick: s.entity.nick,
                             transponders: arrTrans,
                             url: s.url,
-                            position:(index+1)
-                        }]
+                            position: (index + 1)
+                        }];
                     });
                     this.setState({
                         sportsmenTabl: sportsmenTabl,
@@ -376,34 +365,33 @@ class Sportsmen extends React.Component {
 
                     });
                 });
-
             });
         }
     }
 
-    selectCompetition({competition}) {
+    selectCompetition ({ competition }) {
         this.setState({
             competition: Global.competition
         });
         this.refreshListSportsmen();
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.refreshListSportsmen();
         this.stomp = stompClient.register([
-            {route: '/topic/newSportsman', callback: this.refreshListSportsmen},
-            {route: '/topic/updateSportsman', callback: this.refreshListSportsmen},
-            {route: '/topic/deleteSportsman', callback: this.refreshListSportsmen},
-            {route: '/topic/newTransponder', callback: this.refreshListSportsmen},
-            {route: '/topic/deleteTransponder', callback: this.refreshListSportsmen}
+            { route: '/topic/newSportsman', callback: this.refreshListSportsmen },
+            { route: '/topic/updateSportsman', callback: this.refreshListSportsmen },
+            { route: '/topic/deleteSportsman', callback: this.refreshListSportsmen },
+            { route: '/topic/newTransponder', callback: this.refreshListSportsmen },
+            { route: '/topic/deleteTransponder', callback: this.refreshListSportsmen }
         ]);
     }
 
-    componentWillMount() {
+    componentWillMount () {
         eventClient.on('SELECT_COMPETITION', this.selectCompetition);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         eventClient.removeEventListener('SELECT_COMPETITION', this.selectCompetition);
         for (const sub in this.stomp.subscriptions) {
             if (this.stomp.subscriptions.hasOwnProperty(sub)) {
@@ -411,7 +399,7 @@ class Sportsmen extends React.Component {
             }
         }
     }
-    onUpdateAttribute(sportsman, updatedSportsman) {
+    onUpdateAttribute (sportsman, updatedSportsman) {
         client({
             method: 'PUT',
             path: sportsman.entity._links.self.href,
@@ -434,17 +422,16 @@ class Sportsmen extends React.Component {
         });
     }
 
-
-    render() {
-
-        if (this.state.competition === null) {
+    render () {
+        const { competition, loadedCompetition } = this.props;
+        if (!loadedCompetition) {
             return (
                 <Container>
                     <Alert color="primary">
                         Create and select a competition!
                     </Alert>
                 </Container>
-            )
+            );
         } else {
             return (
                 <>
@@ -472,8 +459,18 @@ class Sportsmen extends React.Component {
                 </>
             );
         }
-
     }
 }
 
-export default Sportsmen;
+Sportsmen.propTypes = {
+    competition: PropTypes.object,
+    loadedCompetition: PropTypes.bool
+
+};
+
+const mapStateToProps = state => ({
+    competition: competitionSelector(state),
+    loadedCompetition: loadedSelector(state)
+});
+
+export default connect(mapStateToProps)(Sportsmen);

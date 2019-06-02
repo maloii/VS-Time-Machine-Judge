@@ -1,50 +1,61 @@
-import React from "react";
-import client from "../../client";
-import ReactDOM from "react-dom";
-import follow from "../../follow";
-import Settings from "../../settings";
-import axios from "axios";
-import classnames from 'classnames';
+import React from 'react'
+import client from '../../client'
+import ReactDOM from 'react-dom'
+import follow from '../../follow'
+import Settings from '../../settings'
+import classnames from 'classnames'
 import {
     Button,
-    Col, CustomInput, DropdownItem, DropdownMenu, DropdownToggle, Form,
-    FormGroup, Input, InputGroup, Label,
+    Card,
+    CardBody,
+    CardImg,
+    Col,
+    DropdownItem,
+    DropdownMenu,
+    DropdownToggle,
+    Form,
+    FormGroup,
+    Input,
+    InputGroup,
+    InputGroupButtonDropdown,
+    Label,
     Modal,
-    ModalBody, ModalFooter,
+    ModalBody,
+    ModalFooter,
     ModalHeader,
     Nav,
     NavItem,
     NavLink,
     Row,
     TabContent,
-    TabPane, InputGroupButtonDropdown, CardImg, CardBody, Card,
-} from "reactstrap";
+    TabPane,
+} from 'reactstrap'
 
-const channels = [  'R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8',
+const channels = [ 'R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8',
     'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8',
     'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8',
     'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8',
     'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8'];
 
-const colors   = [  'BLUE', 'RED', 'GREEN', 'YELLOW', 'MAGENTA', 'CYAN', 'WHITE', 'BLACK'];
+const colors = [ 'BLUE', 'RED', 'GREEN', 'YELLOW', 'MAGENTA', 'CYAN', 'WHITE', 'BLACK'];
 
 class DialogNewCompetition extends React.Component {
-    constructor(props){
+    constructor (props) {
         super(props);
         this.state = {
-            modalNewCompetition:false,
+            modalNewCompetition: false,
             activeTab: '1',
             id: 0,
             srcLogo: null,
             invalidName: false,
-            channel1:'R1',
-            channel2:'R2',
-            channel3:'R3',
-            channel4:'R4',
-            channel5:'R5',
-            channel6:'R6',
-            channel7:'R7',
-            channel8:'R8',
+            channel1: 'R1',
+            channel2: 'R2',
+            channel3: 'R3',
+            channel4: 'R4',
+            channel5: 'R5',
+            channel6: 'R6',
+            channel7: 'R7',
+            channel8: 'R8',
 
             color1: 'BLUE',
             color2: 'RED',
@@ -71,8 +82,8 @@ class DialogNewCompetition extends React.Component {
             dropdownOpenColor5: false,
             dropdownOpenColor6: false,
             dropdownOpenColor7: false,
-            dropdownOpenColor8: false,
-        }
+            dropdownOpenColor8: false
+        };
         this.toggle = this.toggle.bind(this);
         this.toggleTabs = this.toggleTabs.bind(this);
         this.handleSave = this.handleSave.bind(this);
@@ -88,53 +99,50 @@ class DialogNewCompetition extends React.Component {
         this.toggleDropDownChannel = this.toggleDropDownChannel.bind(this);
 
         this.toggleDropDownColor = this.toggleDropDownColor.bind(this);
-
-
-
     }
-    toggleDropDownChannel(pos) {
+    toggleDropDownChannel (pos) {
         switch (pos) {
-            case 1:this.setState({dropdownOpenChannel1: !this.state.dropdownOpenChannel1});break;
-            case 2:this.setState({dropdownOpenChannel2: !this.state.dropdownOpenChannel2});break;
-            case 3:this.setState({dropdownOpenChannel3: !this.state.dropdownOpenChannel3});break;
-            case 4:this.setState({dropdownOpenChannel4: !this.state.dropdownOpenChannel4});break;
-            case 5:this.setState({dropdownOpenChannel5: !this.state.dropdownOpenChannel5});break;
-            case 6:this.setState({dropdownOpenChannel6: !this.state.dropdownOpenChannel6});break;
-            case 7:this.setState({dropdownOpenChannel7: !this.state.dropdownOpenChannel7});break;
-            case 8:this.setState({dropdownOpenChannel8: !this.state.dropdownOpenChannel8});break;
+            case 1:this.setState({ dropdownOpenChannel1: !this.state.dropdownOpenChannel1 }); break;
+            case 2:this.setState({ dropdownOpenChannel2: !this.state.dropdownOpenChannel2 }); break;
+            case 3:this.setState({ dropdownOpenChannel3: !this.state.dropdownOpenChannel3 }); break;
+            case 4:this.setState({ dropdownOpenChannel4: !this.state.dropdownOpenChannel4 }); break;
+            case 5:this.setState({ dropdownOpenChannel5: !this.state.dropdownOpenChannel5 }); break;
+            case 6:this.setState({ dropdownOpenChannel6: !this.state.dropdownOpenChannel6 }); break;
+            case 7:this.setState({ dropdownOpenChannel7: !this.state.dropdownOpenChannel7 }); break;
+            case 8:this.setState({ dropdownOpenChannel8: !this.state.dropdownOpenChannel8 }); break;
         }
     }
 
-    toggleDropDownColor(pos) {
+    toggleDropDownColor (pos) {
         switch (pos) {
-            case 1:this.setState({dropdownOpenColor1: !this.state.dropdownOpenColor1});break;
-            case 2:this.setState({dropdownOpenColor2: !this.state.dropdownOpenColor2});break;
-            case 3:this.setState({dropdownOpenColor3: !this.state.dropdownOpenColor3});break;
-            case 4:this.setState({dropdownOpenColor4: !this.state.dropdownOpenColor4});break;
-            case 5:this.setState({dropdownOpenColor5: !this.state.dropdownOpenColor5});break;
-            case 6:this.setState({dropdownOpenColor6: !this.state.dropdownOpenColor6});break;
-            case 7:this.setState({dropdownOpenColor7: !this.state.dropdownOpenColor7});break;
-            case 8:this.setState({dropdownOpenColor8: !this.state.dropdownOpenColor8});break;
+            case 1:this.setState({ dropdownOpenColor1: !this.state.dropdownOpenColor1 }); break;
+            case 2:this.setState({ dropdownOpenColor2: !this.state.dropdownOpenColor2 }); break;
+            case 3:this.setState({ dropdownOpenColor3: !this.state.dropdownOpenColor3 }); break;
+            case 4:this.setState({ dropdownOpenColor4: !this.state.dropdownOpenColor4 }); break;
+            case 5:this.setState({ dropdownOpenColor5: !this.state.dropdownOpenColor5 }); break;
+            case 6:this.setState({ dropdownOpenColor6: !this.state.dropdownOpenColor6 }); break;
+            case 7:this.setState({ dropdownOpenColor7: !this.state.dropdownOpenColor7 }); break;
+            case 8:this.setState({ dropdownOpenColor8: !this.state.dropdownOpenColor8 }); break;
         }
     }
 
-    clearForm(){
+    clearForm () {
         this.setState({
             name: '',
             selected: true,
             distance: 0,
             delay: 10,
             srcLogo: null,
-            competition:undefined,
+            competition: undefined,
 
-            channel1:'R1',
-            channel2:'R2',
-            channel3:'R3',
-            channel4:'R4',
-            channel5:'R5',
-            channel6:'R6',
-            channel7:'R7',
-            channel8:'R8',
+            channel1: 'R1',
+            channel2: 'R2',
+            channel3: 'R3',
+            channel4: 'R4',
+            channel5: 'R5',
+            channel6: 'R6',
+            channel7: 'R7',
+            channel8: 'R8',
 
             color1: 'BLUE',
             color2: 'RED',
@@ -143,36 +151,36 @@ class DialogNewCompetition extends React.Component {
             color5: 'MAGENTA',
             color6: 'CYAN',
             color7: 'WHITE',
-            color8: 'BLACK',
+            color8: 'BLACK'
         });
     }
 
-    handleUDelete(){
-        if(confirm('Do you really want to delete the record?')) {
-            client({method: 'DELETE', path: this.state.competition.entity._links.self.href}
+    handleUDelete () {
+        if (confirm('Do you really want to delete the record?')) {
+            client({ method: 'DELETE', path: this.state.competition.entity._links.self.href }
             ).done();
 
             this.toggle();
         }
     }
-    onKeyDown(event){
+    onKeyDown (event) {
         if (event.key === 'Enter') {
             event.preventDefault();
             event.stopPropagation();
-            if(this.state.competition !== undefined){
+            if (this.state.competition !== undefined) {
                 this.handleUpdate();
-            }else{
+            } else {
                 this.handleSave();
             }
         }
     }
 
-    handleUpdate(){
+    handleUpdate () {
         let name = ReactDOM.findDOMNode(this.refs['name']);
-        if(name.value.trim() === '') {
+        if (name.value.trim() === '') {
             this.setState({
                 invalidName: true
-            })
+            });
             return;
         }
         const newCompetition = {
@@ -201,7 +209,7 @@ class DialogNewCompetition extends React.Component {
         };
         const newGate = {
             number: 0,
-            finish:true,
+            finish: true,
             position: 0,
             distance: ReactDOM.findDOMNode(this.refs['distance']).value.trim(),
             delay: ReactDOM.findDOMNode(this.refs['delay']).value.trim()
@@ -211,24 +219,24 @@ class DialogNewCompetition extends React.Component {
                 method: 'PUT',
                 path: this.state.competition.entity._links.self.href,
                 entity: newCompetition,
-                headers: {'Content-Type': 'application/json'}
-            })
+                headers: { 'Content-Type': 'application/json' }
+            });
         }).then(responseCompetition => {
             client({
                 method: 'PUT',
                 path: this.state.competition.gates[0]._links.self.href,
                 entity: newGate,
-                headers: {'Content-Type': 'application/json'}
+                headers: { 'Content-Type': 'application/json' }
             });
-        })
+        });
         this.toggle();
     }
-    handleSave(){
+    handleSave () {
         let name = ReactDOM.findDOMNode(this.refs['name']);
-        if(name.value.trim() === '') {
+        if (name.value.trim() === '') {
             this.setState({
                 invalidName: true
-            })
+            });
             return;
         }
 
@@ -261,29 +269,29 @@ class DialogNewCompetition extends React.Component {
                 method: 'POST',
                 path: response.entity._links.self.href,
                 entity: newCompetition,
-                headers: {'Content-Type': 'application/json'}
-            })
+                headers: { 'Content-Type': 'application/json' }
+            });
         }).then(responseCompetition => {
-            this.competitionHref = responseCompetition.entity._links.self.href
+            this.competitionHref = responseCompetition.entity._links.self.href;
 
             const newGate = {
                 number: 0,
-                finish:true,
+                finish: true,
                 position: 0,
                 distance: ReactDOM.findDOMNode(this.refs['distance']).value.trim(),
                 delay: ReactDOM.findDOMNode(this.refs['delay']).value.trim(),
-                competition:this.competitionHref
+                competition: this.competitionHref
             };
             return client({
                 method: 'POST',
-                path: Settings.root+'/gates',
+                path: Settings.root + '/gates',
                 entity: newGate,
-                headers: {'Content-Type': 'application/json'}
+                headers: { 'Content-Type': 'application/json' }
             });
         });
         this.toggle();
     }
-    toggleEdit(competition) {
+    toggleEdit (competition) {
         this.toggleTabs('1');
         this.setState({
             competition: competition,
@@ -316,9 +324,8 @@ class DialogNewCompetition extends React.Component {
 
         });
         this.toggle();
-
     }
-    toggle() {
+    toggle () {
         this.toggleTabs('1');
         this.setState({
             modalNewCompetition: !this.state.modalNewCompetition,
@@ -326,33 +333,33 @@ class DialogNewCompetition extends React.Component {
         });
     }
 
-    toggleTabs(tab) {
+    toggleTabs (tab) {
         if (this.state.activeTab !== tab) {
             this.setState({
                 activeTab: tab
             });
         }
     }
-    handleClearLogo(){
+    handleClearLogo () {
         this.setState({
             srcLogo: Settings.defaultReportLogo
         });
     }
-    handleUpload(e) {
+    handleUpload (e) {
         let files = e.target.files || e.dataTransfer.files;
         document.getElementById(e.target.name).style.display = 'none';
         this.setState({
             loaded: 0
-        })
+        });
 
-        const data = new FormData()
+        const data = new FormData();
         data.append('file', files[0], files[0].name);
 
         client({
             method: 'POST',
             path: '/api/upload/img',
             entity: data,
-            headers: {'Content-Type': 'multipart/form-data'}
+            headers: { 'Content-Type': 'multipart/form-data' }
 
         }).then(res => {
             this.setState({
@@ -360,52 +367,51 @@ class DialogNewCompetition extends React.Component {
             });
         }, error => {
             alert(error.entity.message);
-        })
+        });
     }
 
-    onSelectChannel(pos, channel) {
+    onSelectChannel (pos, channel) {
         switch (pos) {
-            case 1: this.setState({channel1:channel});break;
-            case 2: this.setState({channel2:channel});break;
-            case 3: this.setState({channel3:channel});break;
-            case 4: this.setState({channel4:channel});break;
-            case 5: this.setState({channel5:channel});break;
-            case 6: this.setState({channel6:channel});break;
-            case 7: this.setState({channel7:channel});break;
-            case 8: this.setState({channel8:channel});break;
+            case 1: this.setState({ channel1: channel }); break;
+            case 2: this.setState({ channel2: channel }); break;
+            case 3: this.setState({ channel3: channel }); break;
+            case 4: this.setState({ channel4: channel }); break;
+            case 5: this.setState({ channel5: channel }); break;
+            case 6: this.setState({ channel6: channel }); break;
+            case 7: this.setState({ channel7: channel }); break;
+            case 8: this.setState({ channel8: channel }); break;
         }
     }
-    onSelectColor(pos, color){
+    onSelectColor (pos, color) {
         switch (pos) {
-            case 1: this.setState({color1:color});break;
-            case 2: this.setState({color2:color});break;
-            case 3: this.setState({color3:color});break;
-            case 4: this.setState({color4:color});break;
-            case 5: this.setState({color5:color});break;
-            case 6: this.setState({color6:color});break;
-            case 7: this.setState({color7:color});break;
-            case 8: this.setState({color8:color});break;
+            case 1: this.setState({ color1: color }); break;
+            case 2: this.setState({ color2: color }); break;
+            case 3: this.setState({ color3: color }); break;
+            case 4: this.setState({ color4: color }); break;
+            case 5: this.setState({ color5: color }); break;
+            case 6: this.setState({ color6: color }); break;
+            case 7: this.setState({ color7: color }); break;
+            case 8: this.setState({ color8: color }); break;
         }
     }
-    render(){
+    render () {
         let submit = <Button color="primary" onClick={this.handleSave}>
             Save
-        </Button>
+        </Button>;
         let deleteButton = '';
         let header = 'New competition';
-        if(this.state.competition !== undefined){
+        if (this.state.competition !== undefined) {
             submit = <Button color="primary" onClick={this.handleUpdate}>
                 Update
-            </Button>
+            </Button>;
             deleteButton = <Button color="danger" onClick={this.handleUDelete} className="mr-auto">
                 Delete
-            </Button>
+            </Button>;
             header = 'Edit competition';
-
         }
-        const  channelsTable = [];
-        const  colorTable = [];
-        for(var i = 1; i <=8; i++){
+        const channelsTable = [];
+        const colorTable = [];
+        for (var i = 1; i <= 8; i++) {
             let isOpenChannel = false;
             let isOpenColor = false;
             let channelValue = '';
@@ -460,28 +466,28 @@ class DialogNewCompetition extends React.Component {
                     colorValue = this.state.color8;
                     break;
             }
-            channelsTable.push(<FormGroup row key={'form_'+i}>
+            channelsTable.push(<FormGroup row key={'form_' + i}>
                 <Label for="distance" sm={3}>Position {i}</Label>
                 <Col sm={9}>
                     <InputGroup>
                         <Input type="text"
-                               name={'channel'+i}
-                               key={'channel'+i+channelValue}
-                               id={'channel'+i}
-                               placeholder="Channel"
-                               ref={'channel'+i}
-                               defaultValue={channelValue}/>
+                            name={'channel' + i}
+                            key={'channel' + i + channelValue}
+                            id={'channel' + i}
+                            placeholder="Channel"
+                            ref={'channel' + i}
+                            defaultValue={channelValue}/>
                         <InputGroupButtonDropdown addonType="append"
-                                                  isOpen={isOpenChannel}
-                                                  toggle={this.toggleDropDownChannel.bind(null, i)}>
+                            isOpen={isOpenChannel}
+                            toggle={this.toggleDropDownChannel.bind(null, i)}>
                             <DropdownToggle caret>
                                 Channels
                             </DropdownToggle>
                             <DropdownMenu>
                                 {channels.map(channel => {
                                     return <DropdownItem key={channel}
-                                                         onClick={this.onSelectChannel.bind(null, i, channel)}
-                                                         value={channel}>{channel}</DropdownItem>
+                                        onClick={this.onSelectChannel.bind(null, i, channel)}
+                                        value={channel}>{channel}</DropdownItem>;
                                 })}
                             </DropdownMenu>
                         </InputGroupButtonDropdown>
@@ -489,38 +495,37 @@ class DialogNewCompetition extends React.Component {
                 </Col>
             </FormGroup>);
 
-
-            colorTable.push(<FormGroup row key={'form_'+i}>
+            colorTable.push(<FormGroup row key={'form_' + i}>
                 <Label for="distance" sm={3}>Position 1</Label>
                 <Col sm={9}>
                     <InputGroup>
                         <Input type="text"
-                               name={'color'+i}
-                               key={'color'+i+colorValue}
-                               id={'color'+i}
-                               placeholder="Color"
-                               ref={'color'+i}
-                               defaultValue={colorValue}
-                               style={{backgroundColor: colorValue}}
+                            name={'color' + i}
+                            key={'color' + i + colorValue}
+                            id={'color' + i}
+                            placeholder="Color"
+                            ref={'color' + i}
+                            defaultValue={colorValue}
+                            style={{ backgroundColor: colorValue }}
                         />
                         <InputGroupButtonDropdown addonType="append"
-                                                  isOpen={isOpenColor}
-                                                  toggle={this.toggleDropDownColor.bind(null, i)}>
+                            isOpen={isOpenColor}
+                            toggle={this.toggleDropDownColor.bind(null, i)}>
                             <DropdownToggle caret>
                                 Colors
                             </DropdownToggle>
                             <DropdownMenu>
-                                {colors.map((color, indx)=>{
-                                    return <DropdownItem key={color} style={{backgroundColor:color}}
-                                                         onClick={this.onSelectColor.bind(null, i, color)}
-                                                         value={color}
-                                                         name={indx}>{color}</DropdownItem>
+                                {colors.map((color, indx) => {
+                                    return <DropdownItem key={color} style={{ backgroundColor: color }}
+                                        onClick={this.onSelectColor.bind(null, i, color)}
+                                        value={color}
+                                        name={indx}>{color}</DropdownItem>;
                                 })}
                             </DropdownMenu>
                         </InputGroupButtonDropdown>
                     </InputGroup>
                 </Col>
-            </FormGroup>)
+            </FormGroup>);
         }
         let imgLogoUrl = Settings.defaultReportLogo;
         if (this.state.srcLogo !== null) imgLogoUrl = this.state.srcLogo;
@@ -528,7 +533,7 @@ class DialogNewCompetition extends React.Component {
             <ModalHeader toggle={this.toggle}>{header}</ModalHeader>
             <ModalBody>
                 <div>
-                    <Nav tabs  style={{marginBottom: 16+'px'}}>
+                    <Nav tabs style={{ marginBottom: 16 + 'px' }}>
                         <NavItem>
                             <NavLink
                                 className={classnames({ active: this.state.activeTab === '1' })}
@@ -583,9 +588,9 @@ class DialogNewCompetition extends React.Component {
                                         <Col sm={12}>
                                             <Card>
                                                 <CardImg top
-                                                         height="100%"
-                                                         src={imgLogoUrl}
-                                                         alt="Card image cap"/>
+                                                    height="100%"
+                                                    src={imgLogoUrl}
+                                                    alt="Card image cap"/>
                                                 <CardBody className="text-center">
                                                     <Input type="file" name="logo" id="logo" onChange={this.handleUpload} hidden/>
                                                     <Button color="info" onClick={event => document.getElementById('logo').click()}>Select
@@ -595,12 +600,12 @@ class DialogNewCompetition extends React.Component {
                                             </Card>
                                         </Col>
                                     </FormGroup>
-                                    {/*<FormGroup row>*/}
-                                        {/*<Label for="logo" sm={2}>Map</Label>*/}
-                                        {/*<Col sm={10}>*/}
-                                            {/*<CustomInput type="file" id="map" name="map" onChange={this.handleUpload} />*/}
-                                        {/*</Col>*/}
-                                    {/*</FormGroup>*/}
+                                    {/* <FormGroup row> */}
+                                    {/* <Label for="logo" sm={2}>Map</Label> */}
+                                    {/* <Col sm={10}> */}
+                                    {/* <CustomInput type="file" id="map" name="map" onChange={this.handleUpload} /> */}
+                                    {/* </Col> */}
+                                    {/* </FormGroup> */}
                                     <FormGroup row>
                                         <Label for="selected" sm={6}>Select this competition</Label>
                                         <Col sm={6}>
@@ -688,9 +693,8 @@ class DialogNewCompetition extends React.Component {
                 </Button>
                 {submit}
             </ModalFooter>
-        </Modal>)
+        </Modal>);
     }
-
 }
 
 export default DialogNewCompetition;
